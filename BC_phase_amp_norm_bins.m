@@ -1,4 +1,4 @@
-function norm_phase_amp_bins= BC_phase_amp_norm_bins(sig_phi,sig_amp)
+function norm_phase_amp_bins= BC_phase_amp_norm_bins(sig_phi,sig_amp, phase_bins)
 %% MS_ModIdx_win: It bins the amp of the fast oscillation in the phases bin
 %                 and calculate the mean of it. Indended for theta - gamma modulation as per Tort et al. 2010/2009/2008
 %
@@ -17,11 +17,17 @@ function norm_phase_amp_bins= BC_phase_amp_norm_bins(sig_phi,sig_amp)
 % BC 2023-08-24   initial version 
 %
 
+%% init
+
+if nargin < 3
+    phase_bins = 9; 
+end
+
 %% Lets compute the mean amplitude of the fast oscillation in the bins of the slow oscilation phase
 phi= angle(hilbert(sig_phi.data(1,:)));
 amp= smooth(abs(hilbert(sig_amp.data)), floor(sig_amp.cfg.hdr{1}.SamplingFrequency*0.1))';
 %2.reate a composite of the phase_theta, amplitud_SG
-phi_bins = -pi:pi/9:pi; 
+phi_bins = -pi:pi/phase_bins:pi; 
 [~,bins_idx]= histc(phi, phi_bins); %This creates a vector with the corresponding bin of each phase
 %3. The phases are binned according to which phase they belong to and their
 %mean is calculated
