@@ -62,9 +62,9 @@ emg = MS_LoadCSC(cfg_csc);
 % Correction of time stamps
 strt=csc.tvec(1);
 csc.tvec= csc.tvec-strt; %correct time csc
-nn=size(evts.t,2);
-evts.t{1,nn-1}=evts.t{1,nn-1}-strt % Coreccting laser events start
-evts.t{1,nn}=evts.t{1,nn}-strt % Coreccting laser events end
+nn=size(evets.t,2);
+evts.t{1,4}=evts.t{1,4}-strt % Coreccting laser events start
+evts.t{1,5}=evts.t{1,5}-strt % Coreccting laser events end
 %% Get events of interest: inhb, running, noInhb
 % Start with off events
 pattern = 'TTL Input on AcqSystem1_0 board 0 port 3 value (0x0002).'; 
@@ -361,11 +361,11 @@ end
 %Inhb
 SGphiAmpNormInhb=BC_phase_amp_norm_bins(theta_inhb,SG_inhb);
 SGInhb_modidx=MS_ModIdx(SGphiAmpNormInhb);
-BC_plot_modidx(SGphiAmpNormInhb,Archt_green,SGInhb_modidx,'SG', 'silencing' )
+BC_plot_modidx(SGphiAmpNormInhb)
 %NoInhb
 SGphiAmpNormNoInhb = BC_phase_amp_norm_bins(theta_noinhb,SG_noinhb);
 SGNoInhb_modidx=MS_ModIdx(SGphiAmpNormNoInhb);
-BC_plot_modidx(SGphiAmpNormNoInhb,Powder_blue,SGNoInhb_modidx, 'SG', 'no silencing')
+BC_plot_modidx(SGphiAmpNormNoInhb)
 % %Norestricted
 % SGphiAmpNorm = BC_phase_amp_norm_bins(theta_csc,SG_csc);
 % SGAll_modidx=MS_ModIdx(SGphiAmpNorm);
