@@ -1,5 +1,5 @@
 function h=LTplotIvBarsScalogram(Iv,color,alpha)
-range_final= [1 128];
+range_final= [0.5 140];
 hold on
 for ii = 1:length(Iv.tstart)
     
@@ -9,4 +9,5 @@ end
 
 end
 % The function fill creates rentangles using the arguments in the following fashion:fill([xmin xmax xmax xmin], [ymin ymin ymax ymax],[color], 'FaceAlpha', 0.3, 'LineStyle',"none")
+
 
