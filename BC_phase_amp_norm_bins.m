@@ -14,7 +14,7 @@ function norm_phase_amp_bins= BC_phase_amp_norm_bins(sig_phi,sig_amp, phase_bins
 %
 %
 %
-% BC 2023-08-24   initial version 
+% BC 2023-08-24   initial version based on EC version of MS_ModIdx_win
 %
 
 %% init

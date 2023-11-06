@@ -1,23 +1,8 @@
 function [iv_inhb,iv_noInhb, iv_running] = BC_LT_trialfun(pos, iv_inhb, plot_flag)
 %%
-
-Archt_green = [0.530 0.820 0.645];
-Oxford_blue = [0.039 0.137 0.259];
-Powder_blue = [0.682 0.772 0.921];
-Burnt_orange= [0.758 0.348 0.249];
-Red_crayola= [0.937 0.176 0.337];
-Web_orange= [1.00 0.678 0.020];
-
-Archt_green_alpha = [0.530 0.820 0.645 0.3];
-Oxford_blue_alpha= [0.039, 0.137, 0.259, 0.300];
-Powder_blue_alpha= [0.682 0.772 0.921 0.3];
-Burnt_orange_alpha= [0.933 0.423 0.302 0.3];
-Web_orange_alpha= [1.00 0.678 0.020 0.3];
-
 if nargin < 3
-    plot_flag = 1
+    plot_flag = 0
 end
-
 %%
   x_data=pos.data(3,:);
     %assign your running area
@@ -84,9 +69,9 @@ end
         %h03=LTplotIvBars(iv_running,x_data,Oxford_blue,0.3)
         %corrected_time=csc.tvec-min(csc.tvec); % creates n array of time corrected for the time that neuralynx started recording
         ax2=subplot(2,1,2);
-        plot(pos.tvec,x_data, 'Color', Oxford_blue);
-        h01=LTplotIvBars(iv_inhb,x_data,Archt_green,0.8);
-        h02=LTplotIvBars(iv_noInhb,x_data,Burnt_orange,0.4);
+        plot(pos.tvec,x_data, 'Color', BC_color_genertor('Oxford_blue'));
+        h01=LTplotIvBars(iv_inhb,x_data,BC_color_genertor('Archt_green'),0.8);
+        h02=LTplotIvBars(iv_noInhb,x_data,BC_color_genertor('Burnt_orange'),0.4);
         xlim([pos.tvec(1) pos.tvec(end)]);
         ylim([0 100]);
         % xlabel('Time (s)','Fontsize',14);

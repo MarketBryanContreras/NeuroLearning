@@ -2,17 +2,19 @@
 
 %% initialize
 
-CEH2_dir = 'C:\Users\ecarm\Documents\GitHub\CEH2';
-mvdm_dir = 'C:\Users\ecarm\Documents\GitHub\vandermeerlab\code-matlab\shared';
-BC_dir = 'C:\Users\ecarm\Documents\GitHub\NeuroLearning';
+% CEH2_dir = 'C:\Users\ecarm\Documents\GitHub\CEH2';
+% mvdm_dir = 'C:\Users\ecarm\Documents\GitHub\vandermeerlab\code-matlab\shared';
+% BC_dir = 'C:\Users\ecarm\Documents\GitHub\NeuroLearning';
+% 
+% addpath(genpath(mvdm_dir));
+% addpath(genpath(CEH2_dir));
+% addpath(genpath(BC_dir));
 
+% data_dir = 'C:\Users\ecarm\Williams Lab Dropbox\Williams Lab Team Folder\Bryan_DropBox\CHRNA2_LINEAR_TRACK\raw';
+% inter_dir = 'C:\Users\ecarm\Williams Lab Dropbox\Williams Lab Team Folder\Bryan_DropBox\CHRNA2_LINEAR_TRACK\inter';
 
-addpath(genpath(mvdm_dir));
-addpath(genpath(CEH2_dir));
-addpath(genpath(BC_dir));
-
-data_dir = 'C:\Users\ecarm\Williams Lab Dropbox\Williams Lab Team Folder\Bryan_DropBox\CHRNA2_LINEAR_TRACK\raw';
-inter_dir = 'C:\Users\ecarm\Williams Lab Dropbox\Williams Lab Team Folder\Bryan_DropBox\CHRNA2_LINEAR_TRACK\inter';
+data_dir = 'C:\Users\bcont\Williams Lab Dropbox\Williams Lab Team Folder\Bryan_DropBox\CHRNA2_LINEAR_TRACK\raw';
+inter_dir = 'C:\Users\bcont\Williams Lab Dropbox\Williams Lab Team Folder\Bryan_DropBox\CHRNA2_LINEAR_TRACK\inter';
 
 cd(data_dir)
 
@@ -20,24 +22,6 @@ cd(data_dir)
 plot_flag = 1; % switch to 0 if you want to supress verification figures.
 time_maze_start = 30;
 min_trial_dur = 2;
-
-% put variables that are needed for everything here
-% Assigning color pallete
-Archt_green = [0.530 0.820 0.645];
-Oxford_blue = [0.039 0.137 0.259];
-Powder_blue = [0.682 0.772 0.921];
-Burnt_orange= [0.758 0.348 0.249];
-Red_crayola= [0.937 0.176 0.337];
-Web_orange= [1.00 0.678 0.020];
-
-Archt_green_alpha = [0.530 0.820 0.645 0.3];
-Oxford_blue_alpha= [0.039, 0.137, 0.259, 0.300];
-Powder_blue_alpha= [0.682 0.772 0.921 0.3];
-Burnt_orange_alpha= [0.933 0.423 0.302 0.3];
-Web_orange_alpha= [1.00 0.678 0.020 0.3];
-
-
-
 
 %% loop over sessions
 
@@ -76,13 +60,14 @@ for iS = 13%1:length(inhib_dir)
     sSampCsc= time_maze_start*fs; %This is the idx of the samplimg at sec 30
     restrictIvCsc=iv(csc.tvec(sSampCsc),csc.tvec(end)); %Creates and IV from the time the mouse was placed in the maze to the end of the recording
     csc= restrict(csc,restrictIvCsc);
-    
+    % Correction of time
     strt=csc.tvec(1);
     csc.tvec= csc.tvec-strt; %correct time csc
     nn=size(evts.t,2);
     evts.t{1,nn-1}=evts.t{1,nn-1}-strt; % Coreccting laser events start
     evts.t{1,nn}=evts.t{1,nn}-strt; % Coreccting laser events end
     
+    %Restiction of time when the mouse is plces in the maze
     sSamp=time_maze_start*30;
     restrictIvPos=iv(pos.tvec(sSamp),pos.tvec(end));
     pos=restrict(pos,restrictIvPos);
@@ -94,7 +79,7 @@ for iS = 13%1:length(inhib_dir)
     
     %% trial split
     
-    [iv_inhb,iv_noInhb, iv_running] = BC_LT_trialfun(pos, iv_inhb, plot_flag);
+    [iv_inhb,iv_noInhb, iv_running] = BC_LT_trialfun(pos, iv_inhb, 1);
     
     %% Filter
     % filter the LFP in the theta band
@@ -132,50 +117,49 @@ for iS = 13%1:length(inhib_dir)
     %% Restricting data to intervals of inhb, noInhb
     %inhb
     csc_inhb = restrict(csc, iv_inhb);
-    csc_noinhb = restrict(csc, iv_noInhb);
-    csc_running = restrict(csc, iv_running);
-    
     theta_inhb=restrict(theta_csc, iv_inhb);
     SG_inhb = restrict(SG_csc, iv_inhb);
     FG_inhb = restrict(FG_csc, iv_inhb);
     
     %no-inhb
+    csc_noinhb = restrict(csc, iv_noInhb);
     theta_noinhb = restrict(theta_csc, iv_noInhb);
     SG_noinhb = restrict(SG_csc, iv_noInhb);
     FG_noinhb = restrict(FG_csc, iv_noInhb);
     
     %running
+    csc_running = restrict(csc, iv_running);
     theta_running = restrict(theta_csc, iv_running);
     SG_running = restrict(SG_csc, iv_running);
     FG_running = restrict(FG_csc, iv_running);
     
-    %% get phase mod over trials
+    %% get phase mod over trial
     
     SGphiAmpNormInhb=BC_phase_amp_norm_bins(theta_inhb,SG_inhb);
     SGInhb_modidx=MS_ModIdx(SGphiAmpNormInhb);
-    BC_plot_modidx(SGphiAmpNormInhb,Archt_green,SGInhb_modidx,'SG', 'silencing' )
+    BC_plot_modidx(SGphiAmpNormInhb,BC_color_genertor('Archt_green'),SGInhb_modidx,'SG', 'silencing' )
     
     SGphiAmpNormNoInhb = BC_phase_amp_norm_bins(theta_noinhb,SG_noinhb);
     SGNoInhb_modidx=MS_ModIdx(SGphiAmpNormNoInhb);
-    BC_plot_modidx(SGphiAmpNormNoInhb,Powder_blue,SGNoInhb_modidx, 'SG', 'no silencing')
+    BC_plot_modidx(SGphiAmpNormNoInhb,BC_color_genertor('Powder_blue'),SGNoInhb_modidx, 'SG', 'no silencing')
     
     [SGshift_mean, SGshift_std]=LTshifted_meanModIdx(theta_running,SG_running);
     
     
     FGphiAmpNormInhb=BC_phase_amp_norm_bins(theta_inhb,FG_inhb);
     FGInhb_modidx=MS_ModIdx(FGphiAmpNormInhb);
-    BC_plot_modidx(FGphiAmpNormInhb,Archt_green,FGInhb_modidx,'FG', 'silencing' )
+    BC_plot_modidx(FGphiAmpNormInhb,BC_color_genertor('Archt_green'),FGInhb_modidx,'FG', 'silencing' )
     
     %NoInhb
     FGphiAmpNormNoInhb = BC_phase_amp_norm_bins(theta_noinhb,FG_noinhb);
     FGNoInhb_modidx=MS_ModIdx(FGphiAmpNormNoInhb);
-    BC_plot_modidx(FGphiAmpNormNoInhb,Powder_blue,FGNoInhb_modidx, 'FG', 'no silencing')
+    BC_plot_modidx(FGphiAmpNormNoInhb,BC_color_genertor('Powder_blue'),FGNoInhb_modidx, 'FG', 'no silencing')
     
     %Shifted
     [FGshift_mean,FGshift_std]=LTshifted_meanModIdx(theta_running,FG_running);
     
     
-    %% trial by trial analyses
+    %% epochs by epochs analysis
     
     % inhibition
     for ii = length(iv_inhb.tstart):-1:1
@@ -183,7 +167,8 @@ for iS = 13%1:length(inhib_dir)
             t_bp_inhib(ii)= NaN;
             sg_bp_inhib(ii) = NaN;
             fg_bp_inhib(ii) = NaN;
-            
+            this_SG_inhib(ii)= NaN;
+            this_FG_inhib(ii)= NaN;
         else
             this_csc = restrict(csc, iv_inhb.tstart(ii), iv_inhb.tend(ii));
             
@@ -198,14 +183,17 @@ for iS = 13%1:length(inhib_dir)
             sg_bp_inhib(ii) = sg_bp/ ref_bp;
             fg_bp_inhib(ii) = fg_bp/ ref_bp;
             
-            % same thing but for the phase mod
+            % Phase mod SG and FG
             this_th = restrict(theta_csc, iv_inhb.tstart(ii), iv_inhb.tend(ii));
             this_sg = restrict(SG_csc, iv_inhb.tstart(ii), iv_inhb.tend(ii));
-            
-            SG_phi_amp=BC_phase_amp_norm_bins(theta_inhb,SG_inhb);
-            SG_inhib(ii) =MS_ModIdx(SG_phi_amp);
-
-            
+            this_fg = restrict(FG_csc, iv_inhb.tstart(ii), iv_inhb.tend(ii));
+            %SG
+            this_SG_phi_amp=BC_phase_amp_norm_bins(this_th,this_sg);
+            this_SG_inhib(ii) =MS_ModIdx(this_SG_phi_amp);
+            %FG
+            this_FG_phi_amp=BC_phase_amp_norm_bins(this_th,this_fg);
+            this_FG_inhib(ii) =MS_ModIdx(this_FG_phi_amp);
+                        
         end
         
     end
@@ -216,7 +204,8 @@ for iS = 13%1:length(inhib_dir)
             t_bp_noinhib(ii)= NaN;
             sg_bp_noinhib(ii) = NaN;
             fg_bp_noinhib(ii) = NaN;
-            
+            this_SG_noinhib(ii)= NaN;
+            this_FG_noinhib(ii)= NaN;
         else
             
             this_csc = restrict(csc, iv_noInhb.tstart(ii), iv_noInhb.tend(ii));
@@ -231,18 +220,29 @@ for iS = 13%1:length(inhib_dir)
             t_bp_noinhib(ii)= t_bp/ ref_bp;
             sg_bp_noinhib(ii) = sg_bp/ ref_bp;
             fg_bp_noinhib(ii) = fg_bp/ ref_bp;
+            
+            % Phase mod SG and FG
+            this_th = restrict(theta_csc, iv_noInhb.tstart(ii), iv_noInhb.tend(ii));
+            this_sg = restrict(SG_csc, iv_noInhb.tstart(ii), iv_noInhb.tend(ii));
+            this_fg = restrict(FG_csc, iv_noInhb.tstart(ii), iv_noInhb.tend(ii));
+            %SG
+            this_SG_phi_amp=BC_phase_amp_norm_bins(this_th,this_sg);
+            this_SG_noinhib(ii) =MS_ModIdx(this_SG_phi_amp);
+            %FG
+            this_FG_phi_amp=BC_phase_amp_norm_bins(this_th,this_fg);
+            this_FG_noinhib(ii) =MS_ModIdx(this_FG_phi_amp);
         end
         
     end
-    
-    
+ 
     % Running
     for ii = length(iv_running.tstart):-1:1
         if (iv_running.tend(ii) - iv_running.tstart(ii)) < min_trial_dur
             t_bp_run(ii)= NaN;
             sg_bp_run(ii) = NaN;
             fg_bp_run(ii) = NaN;
-            
+            this_SG_run(ii)= NaN;
+            this_FG_run(ii)= NaN;
         else
             
             this_csc = restrict(csc, iv_running.tstart(ii), iv_running.tend(ii));
@@ -257,14 +257,42 @@ for iS = 13%1:length(inhib_dir)
             t_bp_run(ii)= t_bp/ ref_bp;
             sg_bp_run(ii) = sg_bp/ ref_bp;
             fg_bp_run(ii) = fg_bp/ ref_bp;
+            
+            % Phase mod SG and FG
+            this_th = restrict(theta_csc,iv_running.tstart(ii), iv_running.tend(ii));
+            this_sg = restrict(SG_csc, iv_running.tstart(ii), iv_running.tend(ii));
+            this_fg = restrict(FG_csc, iv_running.tstart(ii), iv_running.tend(ii));
+            %SG
+            this_SG_phi_amp=BC_phase_amp_norm_bins(this_th,this_sg);
+            this_SG_run(ii) =MS_ModIdx(this_SG_phi_amp);
+            %FG
+            this_FG_phi_amp=BC_phase_amp_norm_bins(this_th,this_fg);
+            this_FG_run(ii) =MS_ModIdx(this_FG_phi_amp);
         end
         
     end
     
     %% save outputs
-    
+    %inhb
     out.(info.subject).(info.sess).t_bp_inhib = t_bp_inhib; 
+    out.(info.subject).(info.sess).sg_bp_inhib = sg_bp_inhib;
+    out.(info.subject).(info.sess).fg_bp_inhib = fg_bp_inhib;
+    out.(info.subject).(info.sess).this_SG_inhib = this_SG_inhib;
+    out.(info.subject).(info.sess).this_FG_inhib = this_FG_inhib;
     
+    %noinb
+    out.(info.subject).(info.sess).t_bp_noinhib = t_bp_noinhib; 
+    out.(info.subject).(info.sess).sg_bp_noinhib = sg_bp_noinhib;
+    out.(info.subject).(info.sess).fg_bp_noinhib = fg_bp_noinhib;
+    out.(info.subject).(info.sess).this_SG_noinhib = this_SG_noinhib;
+    out.(info.subject).(info.sess).this_FG_noinhib = this_FG_noinhib;
+    
+    %running
+    out.(info.subject).(info.sess).t_bp_noinhib = t_bp_noinhib; 
+    out.(info.subject).(info.sess).sg_bp_noinhib = sg_bp_noinhib;
+    out.(info.subject).(info.sess).fg_bp_noinhib = fg_bp_noinhib;
+    out.(info.subject).(info.sess).this_SG_noinhib = this_SG_noinhib;
+    out.(info.subject).(info.sess).this_FG_noinhib = this_FG_noinhib;
     %% zscore the values
     
     
