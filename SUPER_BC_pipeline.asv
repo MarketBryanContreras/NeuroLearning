@@ -10,11 +10,11 @@
 % addpath(genpath(CEH2_dir));
 % addpath(genpath(BC_dir));
 
-% data_dir = 'C:\Users\ecarm\Williams Lab Dropbox\Williams Lab Team Folder\Bryan_DropBox\CHRNA2_LINEAR_TRACK\raw';
-% inter_dir = 'C:\Users\ecarm\Williams Lab Dropbox\Williams Lab Team Folder\Bryan_DropBox\CHRNA2_LINEAR_TRACK\inter';
+data_dir = 'C:\Users\ecarm\Williams Lab Dropbox\Williams Lab Team Folder\Bryan_DropBox\CHRNA2_LINEAR_TRACK\raw';
+inter_dir = 'C:\Users\ecarm\Williams Lab Dropbox\Williams Lab Team Folder\Bryan_DropBox\CHRNA2_LINEAR_TRACK\inter';
 
-data_dir = 'C:\Users\bcont\Williams Lab Dropbox\Williams Lab Team Folder\Bryan_DropBox\CHRNA2_LINEAR_TRACK\raw';
-inter_dir = 'C:\Users\bcont\Williams Lab Dropbox\Williams Lab Team Folder\Bryan_DropBox\CHRNA2_LINEAR_TRACK\inter';
+% data_dir = 'C:\Users\bcont\Williams Lab Dropbox\Williams Lab Team Folder\Bryan_DropBox\CHRNA2_LINEAR_TRACK\raw';
+% inter_dir = 'C:\Users\bcont\Williams Lab Dropbox\Williams Lab Team Folder\Bryan_DropBox\CHRNA2_LINEAR_TRACK\inter';
 
 cd(data_dir)
 
@@ -35,6 +35,7 @@ inhib_dir = dir('*INHIBITION*');
 
 for iS = 13%1:length(inhib_dir)
     
+    %% loading
     cd([inhib_dir(iS).folder filesep inhib_dir(iS).name])
     
     parts = strsplit(inhib_dir(iS).name, '_');
@@ -81,6 +82,20 @@ for iS = 13%1:length(inhib_dir)
     
     [iv_inhb,iv_noInhb, iv_running] = BC_LT_trialfun(pos, iv_inhb, 1);
     
+    % control for movement
+    pos_spd = pos;
+    pos_spd.data = [];
+    pos_spd.data(1,:) = pos.data(3,:);
+    pos_spd.data(2,:) = pos.data(4,:);
+    pos_spd.label = [];
+    pos_spd.label = {'x', 'y'};
+
+    spd = getLinSpd([],pos_spd);
+    cfg = []; cfg.method = 'raw'; cfg.operation = '>'; cfg.threshold = 3.5; % speed limit in cm/sec
+    iv_fast = TSDtoIV(cfg,spd); % only keep intervals with speed above thresh
+ 
+    % Restrict data so it includes fast intervals only
+       iv_running = IntersectIV([], iv_fast, iv_running); 
     %% Filter
     % filter the LFP in the theta band
     cfg_filt_t = [];
@@ -145,7 +160,9 @@ for iS = 13%1:length(inhib_dir)
     
     [SGshift_mean, SGshift_std]=LTshifted_meanModIdx(theta_running,SG_running);
     
-    
+    z_SGInhb_modidx = (SGInhb_modidx - SGshift_mean) / SGshift_std; 
+    z_SGNoInhb_modidx = (SGNoInhb_modidx - SGshift_mean) / SGshift_std; 
+
     FGphiAmpNormInhb=BC_phase_amp_norm_bins(theta_inhb,FG_inhb);
     FGInhb_modidx=MS_ModIdx(FGphiAmpNormInhb);
     BC_plot_modidx(FGphiAmpNormInhb,BC_color_genertor('Archt_green'),FGInhb_modidx,'FG', 'silencing' )
@@ -157,6 +174,10 @@ for iS = 13%1:length(inhib_dir)
     
     %Shifted
     [FGshift_mean,FGshift_std]=LTshifted_meanModIdx(theta_running,FG_running);
+    
+    
+    z_FGInhb_modidx = (FGInhb_modidx - FGshift_mean) / FGshift_std; 
+    z_FGNoInhb_modidx = (FGNoInhb_modidx - FGshift_mean) / FGshift_std; 
     
     
     %% epochs by epochs analysis
@@ -272,6 +293,27 @@ for iS = 13%1:length(inhib_dir)
         
     end
     
+    %% plot power
+    
+    if plot_flag
+       figure(101)
+       clf
+       subplot(1,3,1)
+       boxplot([t_bp_inhib, t_bp_noinhib],[zeros(size(t_bp_inhib)), ones(size(t_bp_noinhib))])
+       title('theta power')
+       set(gca, '
+       
+              subplot(1,3,2)
+       boxplot([sg_bp_inhib, sg_bp_noinhib],[zeros(size(sg_bp_inhib)), ones(size(sg_bp_noinhib))])
+       
+              subplot(1,3,3)
+       boxplot([fg_bp_inhib, fg_bp_noinhib],[zeros(size(fg_bp_inhib)), ones(size(fg_bp_noinhib))])
+        
+        
+        
+        
+    end
+    
     %% save outputs
     %inhb
     out.(info.subject).(info.sess).t_bp_inhib = t_bp_inhib; 
@@ -286,8 +328,13 @@ for iS = 13%1:length(inhib_dir)
     out.(info.subject).(info.sess).fg_bp_noinhib = fg_bp_noinhib;
     out.(info.subject).(info.sess).this_SG_noinhib = this_SG_noinhib;
     out.(info.subject).(info.sess).this_FG_noinhib = this_FG_noinhib;
+    
     %running
-    %% zscore the values
+    out.(info.subject).(info.sess).t_bp_noinhib = t_bp_noinhib; 
+    out.(info.subject).(info.sess).sg_bp_noinhib = sg_bp_noinhib;
+    out.(info.subject).(info.sess).fg_bp_noinhib = fg_bp_noinhib;
+    out.(info.subject).(info.sess).this_SG_noinhib = this_SG_noinhib;
+    out.(info.subject).(info.sess).this_FG_noinhib = this_FG_noinhib;
     
     
 end
