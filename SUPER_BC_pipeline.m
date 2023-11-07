@@ -429,32 +429,45 @@ for iS =1:length(inhib_dir)
     % plots are duplicates for some reason. WIP
     
     if plot_flag
-        figure(201)
-        clf
+        %         figure(201)
+        %         clf
         cfg_como.A_step = 2;
         cfg_como.P_step = 1;
         cfg_como.phi_bins = 18;
         
         [CoMoI, phi_f, amp_f] = MS_phase_freq(cfg_como, csc_inhb, [4 12], [30 100]);
-        subplot(1,3,1)
-        imagesc(phi_f, amp_f, CoMoI);
-        set(gca, 'ydir', 'normal')
-                caxis([0 10^-3])
-
-                pause(1)
         [CoMoNI, phi_f, amp_f] = MS_phase_freq(cfg_como, csc_noinhb, [4 12], [30 100]);
-        subplot(1,3,2)
-        imagesc(phi_f, amp_f, CoMoNI);
-        set(gca, 'ydir', 'normal')
-        caxis([0 10^-3])
-        
-        pause(1)
         [CoMoR, phi_f, amp_f] = MS_phase_freq(cfg_como, csc_running, [4 12], [30 100]);
-        subplot(1,3,3)
-        imagesc(phi_f, amp_f, CoMoR);
+        
+%%
+        figure(202)
+        clf
+                subplot(1,3,1); cla; 
+        imagesc(phi_f, amp_f, CoMoI');
         set(gca, 'ydir', 'normal')
         caxis([0 10^-3])
-        
+        title('Inhib')
+                xlabel('Phase Freq (Hz)'); ylabel('Amp Freq (Hz)'); 
+                colorbar('Location', 'southoutside')
+
+        subplot(1,3,2); cla; 
+        imagesc(phi_f, amp_f, CoMoNI');
+        set(gca, 'ydir', 'normal')
+        caxis([0 10^-3])
+        title('No InHib')
+        xlabel('Phase Freq (Hz)'); ylabel('Amp Freq (Hz)'); 
+                        colorbar('Location', 'southoutside')
+
+        subplot(1,3,3); cla; 
+        imagesc(phi_f, amp_f, CoMoR');
+        set(gca, 'ydir', 'normal')
+        caxis([0 10^-3])
+        title('Running')
+                xlabel('Phase Freq (Hz)'); ylabel('Amp Freq (Hz)'); 
+                colorbar('Location', 'southoutside')
+
+                SetFigure([], gcf)
+                maximize
         
     end
     
