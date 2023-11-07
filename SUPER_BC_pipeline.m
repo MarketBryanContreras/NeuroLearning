@@ -183,6 +183,11 @@ for iS = 13%1:length(inhib_dir)
     %% epochs by epochs analysis
     
     % inhibition
+    win_s = 256;
+            r_inhib = []; 
+            r_noinhib = []; 
+            r_run = []; 
+
     for ii = length(iv_inhb.tstart):-1:1
         if (iv_inhb.tend(ii) - iv_inhb.tstart(ii)) < min_trial_dur
             t_bp_inhib(ii)= NaN;
@@ -190,6 +195,8 @@ for iS = 13%1:length(inhib_dir)
             fg_bp_inhib(ii) = NaN;
             this_SG_inhib(ii)= NaN;
             this_FG_inhib(ii)= NaN;
+            r_inhib = NaN(length(1:0.1:160), length(1:0.1:160)); 
+
         else
             this_csc = restrict(csc, iv_inhb.tstart(ii), iv_inhb.tend(ii));
             
@@ -214,10 +221,19 @@ for iS = 13%1:length(inhib_dir)
             %FG
             this_FG_phi_amp=BC_phase_amp_norm_bins(this_th,this_fg);
             this_FG_inhib(ii) =MS_ModIdx(this_FG_phi_amp);
-                        
-        end
+            
+            % cross freq coupling
+                [~, F, ~,P] = spectrogram(this_csc.data,hanning(win_s),win_s/2,1:0.1:160,this_csc.cfg.hdr{1}.SamplingFrequency); % spectrogram -- will take a while to compute!
+       
+                [r_inhib(:,:,ii),~] = corrcoef(10*log10(P')); % correlation matrix (across frequencies) of spectrogram
         
+                
+                
+             
+        end
     end
+    
+
     
     % NO inhibition
     for ii = length(iv_noInhb.tstart):-1:1
@@ -227,6 +243,8 @@ for iS = 13%1:length(inhib_dir)
             fg_bp_noinhib(ii) = NaN;
             this_SG_noinhib(ii)= NaN;
             this_FG_noinhib(ii)= NaN;
+                        r_noinhib = NaN(length(1:0.1:160), length(1:0.1:160)); 
+
         else
             
             this_csc = restrict(csc, iv_noInhb.tstart(ii), iv_noInhb.tend(ii));
@@ -252,6 +270,14 @@ for iS = 13%1:length(inhib_dir)
             %FG
             this_FG_phi_amp=BC_phase_amp_norm_bins(this_th,this_fg);
             this_FG_noinhib(ii) =MS_ModIdx(this_FG_phi_amp);
+            
+                     
+            % cross freq coupling
+                [~, F, ~,P] = spectrogram(this_csc.data,hanning(win_s),win_s/2,1:0.1:160,this_csc.cfg.hdr{1}.SamplingFrequency); % spectrogram -- will take a while to compute!
+        
+                [r_noinhib(:,:,ii),~] = corrcoef(10*log10(P')); % correlation matrix (across frequencies) of spectrogram
+        
+                
         end
         
     end
@@ -264,6 +290,8 @@ for iS = 13%1:length(inhib_dir)
             fg_bp_run(ii) = NaN;
             this_SG_run(ii)= NaN;
             this_FG_run(ii)= NaN;
+                        r_run = NaN(length(1:0.1:160), length(1:0.1:160)); 
+
         else
             
             this_csc = restrict(csc, iv_running.tstart(ii), iv_running.tend(ii));
@@ -290,15 +318,21 @@ for iS = 13%1:length(inhib_dir)
             this_FG_phi_amp=BC_phase_amp_norm_bins(this_th,this_fg);
             this_FG_run(ii) =MS_ModIdx(this_FG_phi_amp);
         end
+                 % cross freq coupling
+                [~, F, ~,P] = spectrogram(this_csc.data,hanning(win_s),win_s/2,1:0.1:160,this_csc.cfg.hdr{1}.SamplingFrequency); % spectrogram -- will take a while to compute!
+       
+                [r_run(:,:,ii),~] = corrcoef(10*log10(P')); % correlation matrix (across frequencies) of spectrogram
+        
         
     end
+
     
-    %% plot power
+    %% plot power and cross freq coupling
     
     if plot_flag
        figure(101)
        clf
-       subplot(1,3,1)
+       subplot(2,3,1)
        boxplot([t_bp_inhib, t_bp_noinhib],[zeros(size(t_bp_inhib)), ones(size(t_bp_noinhib))])
        
        %%%% fill in nice plotting %%%%%%%
@@ -308,15 +342,33 @@ for iS = 13%1:length(inhib_dir)
        title('theta power')
        set(gca, 'XTickLabel', {'Inhib', 'No Inhib'})
        
-              subplot(1,3,2)
+              subplot(2,3,2)
        boxplot([sg_bp_inhib, sg_bp_noinhib],[zeros(size(sg_bp_inhib)), ones(size(sg_bp_noinhib))])
        
-              subplot(1,3,3)
+              subplot(2,3,3)
        boxplot([fg_bp_inhib, fg_bp_noinhib],[zeros(size(fg_bp_inhib)), ones(size(fg_bp_noinhib))])
         
         
-        
-        
+       subplot(2,3,4)
+       imagesc(F,F,nanmean(r_inhib,3));
+       caxis([-0.1 1]); axis xy; colorbar; grid on;
+       set(gca,'XLim',[0 100],'YLim',[0 100],'FontSize',14,'XTick',0:20:140,'YTick',0:20:140);
+       title('Inhibition')
+       
+       subplot(2,3,5)
+       imagesc(F,F,nanmean(r_noinhib,3));
+       caxis([-0.1 1]); axis xy; colorbar; grid on;
+       set(gca,'XLim',[0 100],'YLim',[0 100],'FontSize',14,'XTick',0:20:140,'YTick',0:20:140);
+       title('No Inhibition')
+       
+       subplot(2,3,6)
+%        this_r = ;
+%        this_r(logical(eye(size(this_r)))) = NaN; 
+       imagesc(F,F,nanmean(r_run,3));
+       caxis([-0.1 .5]); axis xy; colorbar; grid on;
+       set(gca,'XLim',[0 100],'YLim',[0 100],'FontSize',14,'XTick',0:20:140,'YTick',0:20:140);
+       title('Running')
+       
     end
     
     
@@ -326,7 +378,8 @@ for iS = 13%1:length(inhib_dir)
 
     figure
         Triggered_Spec_FT(csc, iv_noInhb.tstart, 'Opto Off', [1:0.2:120], [-2 0], [-5 10])
-
+        
+        
     %% save outputs
     %inhb
     out.(info.subject).(info.sess).t_bp_inhib = t_bp_inhib; 
