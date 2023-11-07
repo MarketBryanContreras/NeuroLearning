@@ -13,7 +13,7 @@
 % data_dir = 'C:\Users\ecarm\Williams Lab Dropbox\Williams Lab Team Folder\Bryan_DropBox\CHRNA2_LINEAR_TRACK\raw';
 % inter_dir = 'C:\Users\ecarm\Williams Lab Dropbox\Williams Lab Team Folder\Bryan_DropBox\CHRNA2_LINEAR_TRACK\inter';
 
-%Arch_t%data_dir = 'C:\Users\bcont\Williams Lab Dropbox\Williams Lab Team Folder\Bryan_DropBox\CHRNA2_LINEAR_TRACK\raw\Archt';
+%data_dir = 'C:\Users\bcont\Williams Lab Dropbox\Williams Lab Team Folder\Bryan_DropBox\CHRNA2_LINEAR_TRACK\raw\Archt';
 data_dir = 'C:\Users\bcont\Williams Lab Dropbox\Williams Lab Team Folder\Bryan_DropBox\CHRNA2_LINEAR_TRACK\raw\eyfp';
 
 inter_dir = 'C:\Users\bcont\Williams Lab Dropbox\Williams Lab Team Folder\Bryan_DropBox\CHRNA2_LINEAR_TRACK\inter';
@@ -23,7 +23,7 @@ cd(data_dir)
 %% parameters
 plot_flag = 0; % switch to 0 if you want to supress verification figures.
 time_maze_start = 30;
-min_trial_dur = 2;
+min_trial_dur = 0.5;
 
 %% loop over sessions
 
@@ -52,19 +52,19 @@ for iS =1:length(inhib_dir)
     cfg_csc.desired_sampling_frequency = 2000;
     
     if strcmpi(info.subject, 'BC1602')
-        cfg_csc.fc ={'CSC4.ncs'}; %'CSC2.ncs'
+        cfg_csc.fc ={'CSC2.ncs'}; %'CSC4.ncs'
         pattern = 'TTL Input on AcqSystem1_0 board 0 port 3 value (0x0002).';
     elseif strcmpi(info.subject, 'BC051')
-        cfg_csc.fc ={'CSC4.ncs'};
+        cfg_csc.fc ={'CSC5.ncs'};
         pattern = 'TTL Input on AcqSystem1_0 board 0 port 3 value (0x0002).';
     elseif strcmpi(info.subject, 'BC1807')
         cfg_csc.fc ={'CSC3.ncs'};
         pattern = 'TTL Input on AcqSystem1_0 board 0 port 3 value (0x0002).';
     elseif strcmpi(info.subject, 'BC053')
-        cfg_csc.fc ={'CSC2.ncs'};
+        cfg_csc.fc ={'CSC5.ncs'};
         pattern = 'TTL Input on AcqSystem1_0 board 0 port 1 value (0x0040).';
     elseif strcmpi(info.subject, 'BC054')
-        cfg_csc.fc ={'CSC3.ncs'};
+        cfg_csc.fc ={'CSC5.ncs'};
         pattern = 'TTL Input on AcqSystem1_0 board 0 port 1 value (0x0040).';
     elseif strcmpi(info.subject, 'BC011')
         cfg_csc.fc ={'CSC2.ncs'};
@@ -149,8 +149,7 @@ for iS =1:length(inhib_dir)
     FG_pow = BC_power(FG_csc);
     FG_phi = angle(hilbert(FG_csc.data));
     
-    
-    
+  
     %% Restricting data to intervals of inhb, noInhb
     %inhb
     csc_inhb = restrict(csc, iv_inhb);
@@ -174,12 +173,14 @@ for iS =1:length(inhib_dir)
     
     SGphiAmpNormInhb=BC_phase_amp_norm_bins(theta_inhb,SG_inhb);
     SGInhb_modidx=MS_ModIdx(SGphiAmpNormInhb);
-    BC_plot_modidx(SGphiAmpNormInhb,BC_color_genertor('Swamp_green'),SGInhb_modidx,'SG', 'silencing' )
-    
+    if plot_flag
+    BC_plot_modidx(SGphiAmpNormInhb,BC_color_genertor('Archt_green'),SGInhb_modidx,'SG', 'silencing' )
+    end
     SGphiAmpNormNoInhb = BC_phase_amp_norm_bins(theta_noinhb,SG_noinhb);
     SGNoInhb_modidx=MS_ModIdx(SGphiAmpNormNoInhb);
-    BC_plot_modidx(SGphiAmpNormNoInhb,BC_color_genertor('Torment_blue'),SGNoInhb_modidx, 'SG', 'no silencing')
-    
+    if plot_flag
+    BC_plot_modidx(SGphiAmpNormNoInhb,BC_color_genertor('Powder_blue'),SGNoInhb_modidx, 'SG', 'no silencing')
+    end
     [SGshift_mean, SGshift_std]=LTshifted_meanModIdx(theta_running,SG_running);
     
     z_SGInhb_modidx = (SGInhb_modidx - SGshift_mean) / SGshift_std; 
@@ -187,13 +188,15 @@ for iS =1:length(inhib_dir)
 
     FGphiAmpNormInhb=BC_phase_amp_norm_bins(theta_inhb,FG_inhb);
     FGInhb_modidx=MS_ModIdx(FGphiAmpNormInhb);
-    BC_plot_modidx(FGphiAmpNormInhb,BC_color_genertor('Swamp_green'),FGInhb_modidx,'FG', 'silencing' )
-    
+    if plot_flag
+    BC_plot_modidx(FGphiAmpNormInhb,BC_color_genertor('Archt_green'),FGInhb_modidx,'FG', 'silencing' )
+    end
     %NoInhb
     FGphiAmpNormNoInhb = BC_phase_amp_norm_bins(theta_noinhb,FG_noinhb);
     FGNoInhb_modidx=MS_ModIdx(FGphiAmpNormNoInhb);
-    BC_plot_modidx(FGphiAmpNormNoInhb,BC_color_genertor('Torment_blue'),FGNoInhb_modidx, 'FG', 'no silencing')
-    
+    if plot_flag
+    BC_plot_modidx(FGphiAmpNormNoInhb,BC_color_genertor('Powder_blue'),FGNoInhb_modidx, 'FG', 'no silencing')
+    end
     %Shifted
     [FGshift_mean,FGshift_std]=LTshifted_meanModIdx(theta_running,FG_running);
     
@@ -241,23 +244,13 @@ for iS =1:length(inhib_dir)
             modidx_SG_inhib(ii) =MS_ModIdx(this_SG_phi_amp);
             %FG
             this_FG_phi_amp=BC_phase_amp_norm_bins(this_th,this_fg);
-            modidx_FG_inhib(ii) =MS_ModIdx(this_FG_phi_amp);          
-        end
-
+            modidx_FG_inhib(ii) =MS_ModIdx(this_FG_phi_amp);
             % cross freq coupling
-                [~, F, ~,P] = spectrogram(this_csc.data,hanning(win_s),win_s/2,1:0.1:160,this_csc.cfg.hdr{1}.SamplingFrequency); % spectrogram -- will take a while to compute!
-       
-                [r_inhib(:,:,ii),~] = corrcoef(10*log10(P')); % correlation matrix (across frequencies) of spectrogram
-
-        
-                
-                
-             
+            [~, F, ~,P] = spectrogram(this_csc.data,hanning(win_s),win_s/2,1:0.1:160,this_csc.cfg.hdr{1}.SamplingFrequency); % spectrogram -- will take a while to compute!
+            [r_inhib(:,:,ii),~] = corrcoef(10*log10(P')); % correlation matrix (across frequencies) of spectrogram
         end
     end
-    
 
-    
     % NO inhibition
     for ii = length(iv_noInhb.tstart):-1:1
         if (iv_noInhb.tend(ii) - iv_noInhb.tstart(ii)) < min_trial_dur
@@ -266,7 +259,7 @@ for iS =1:length(inhib_dir)
             fg_bp_noinhib(ii) = NaN;
             modidx_SG_noinhib(ii)= NaN;
             modidx_FG_noinhib(ii)= NaN;
-
+            r_noinhib = NaN(length(1:0.1:160), length(1:0.1:160));
         else
             
             this_csc = restrict(csc, iv_noInhb.tstart(ii), iv_noInhb.tend(ii));
@@ -294,12 +287,10 @@ for iS =1:length(inhib_dir)
             modidx_FG_noinhib(ii) =MS_ModIdx(this_FG_phi_amp);
 
             % cross freq coupling
-                [~, F, ~,P] = spectrogram(this_csc.data,hanning(win_s),win_s/2,1:0.1:160,this_csc.cfg.hdr{1}.SamplingFrequency); % spectrogram -- will take a while to compute!
-        
-                [r_noinhib(:,:,ii),~] = corrcoef(10*log10(P')); % correlation matrix (across frequencies) of spectrogram
+            [~, F, ~,P] = spectrogram(this_csc.data,hanning(win_s),win_s/2,1:0.1:160,this_csc.cfg.hdr{1}.SamplingFrequency); % spectrogram -- will take a while to compute!
+            [r_noinhib(:,:,ii),~] = corrcoef(10*log10(P')); % correlation matrix (across frequencies) of spectrogram
                         
         end
-        
     end
  
     % Running
@@ -337,32 +328,30 @@ for iS =1:length(inhib_dir)
             %FG
             this_FG_phi_amp=BC_phase_amp_norm_bins(this_th,this_fg);
             modidx_FG_run(ii) =MS_ModIdx(this_FG_phi_amp);
-        end
-                 % cross freq coupling
+          % cross freq coupling
                 [~, F, ~,P] = spectrogram(this_csc.data,hanning(win_s),win_s/2,1:0.1:160,this_csc.cfg.hdr{1}.SamplingFrequency); % spectrogram -- will take a while to compute!
        
                 [r_run(:,:,ii),~] = corrcoef(10*log10(P')); % correlation matrix (across frequencies) of spectrogram
-        
-        
+                
+        end
     end
-
-    
+   
     %% plot power and cross freq coupling
     
     if plot_flag
         figure(101)
         clf
-        subplot(1,3,1)
+        subplot(3,3,[1 4])
         boxplot([t_bp_inhib, t_bp_noinhib],[zeros(size(t_bp_inhib)), ones(size(t_bp_noinhib))])
-                title('Normalized SG ModIdx ArchT')
+                title('Normalized SG ModIdx ArchT');
         ylabel('Z-Scores');
         ax = gca;
         %        ax.
-        title('Theta power')
+        title('Theta power');
         set(gca, 'XTickLabel', {'Silencing', 'No silencing'})
         
-        colors = [BC_color_genertor('Powder_blue');  % RGB values for Group 2
-                  BC_color_genertor('Archt_green')]  % RGB values for Group1;
+        colors = [BC_color_genertor('Torment_blue');  % RGB values for Group 2
+                  BC_color_genertor('Swamp_green')]; % RGB values for Group1;
         h = findobj(gca, 'Tag', 'Box');  % Get handles to the box objects
         for aa = 1:numel(h)
             patch(get(h(aa), 'XData'), get(h(aa), 'YData'), colors(aa, :), 'FaceAlpha', 0.5);
@@ -374,7 +363,7 @@ for iS =1:length(inhib_dir)
         box off;                     % Turn off the box around the plot
         
         % Slow Gamma
-        subplot(1,3,2)
+        subplot(3,3,[2 5])
         boxplot([sg_bp_inhib, sg_bp_noinhib],[zeros(size(sg_bp_inhib)), ones(size(sg_bp_noinhib))])
         title('SG power')
         set(gca, 'XTickLabel', {'Silencing', 'No silencing'})
@@ -389,7 +378,7 @@ for iS =1:length(inhib_dir)
         box off;       
         
         % Fast Gamma
-        subplot(1,3,3)
+        subplot(3,3,[3 6])
         boxplot([fg_bp_inhib, fg_bp_noinhib],[zeros(size(fg_bp_inhib)), ones(size(fg_bp_noinhib))])
         title('FG power')
         set(gca, 'XTickLabel', {'Silencing', 'No silencing'})
@@ -402,11 +391,31 @@ for iS =1:length(inhib_dir)
         % Adjust plot aesthetics
         set(gca, 'TickDir', 'out');  % Move ticks outside the plot
         box off;       
-   % Adjust figure properties
+        subplot(3,3,7)
+        imagesc(F,F,nanmean(r_inhib,3));
+        caxis([-0.1 1]); axis xy; colorbar; grid on;
+        set(gca,'XLim',[0 100],'YLim',[0 100],'FontSize',14,'XTick',0:20:140,'YTick',0:20:140);
+        title('Inhibition')
+        
+        subplot(3,3,8)
+        imagesc(F,F,nanmean(r_noinhib,3));
+        caxis([-0.1 1]); axis xy; colorbar; grid on;
+        set(gca,'XLim',[0 100],'YLim',[0 100],'FontSize',14,'XTick',0:20:140,'YTick',0:20:140);
+        title('No Inhibition')
+        
+        subplot(3,3,9)
+        %        this_r = ;
+        %        this_r(logical(eye(size(this_r)))) = NaN;
+        imagesc(F,F,nanmean(r_run,3));
+        caxis([-0.1 .5]); axis xy; colorbar; grid on;
+        set(gca,'XLim',[0 100],'YLim',[0 100],'FontSize',14,'XTick',0:20:140,'YTick',0:20:140);
+        title('Running')
+        
+        % Adjust figure properties
         fig = gcf;                   % Get current figure handle
         fig.Color = [1 1 1];         % Set background color to white
         % Resize the figure (optional)
-        fig.Position = [100, 100, 1000, 500];  % [x, y, width, height]
+        fig.Position = [200, 200, 1000, 700];  % [x, y, width, height]
         %saveas(gcf, 'FG_NormModIdx.png');%%%% fill in nice plotting %%%%%%%
 
     end
@@ -448,18 +457,12 @@ for iS =1:length(inhib_dir)
     
     %% trial averaged spectra
     
-
+% 
 %     Triggered_Spec_FT(csc, iv_inhb.tstart, 'Opto On', [1:0.2:120], [-2 0], [-5 10])
 % 
 %     figure
 %         Triggered_Spec_FT(csc, iv_noInhb.tstart, 'Opto Off', [1:0.2:120], [-2 0], [-5 10])
-
-
-    Triggered_Spec_FT(csc, iv_inhb.tstart, 'Opto On', [1:0.2:120], [-2 0], [-5 10])
-
-    figure
-        Triggered_Spec_FT(csc, iv_noInhb.tstart, 'Opto Off', [1:0.2:120], [-2 0], [-5 10])
-        
+%         
 
     %% save outputs
     %inhb
@@ -484,11 +487,10 @@ for iS =1:length(inhib_dir)
     out.(info.subject).(info.sess).fg_bp_noinhib = fg_bp_noinhib;
     out.(info.subject).(info.sess).modidx_SG_noinhib = modidx_SG_noinhib;
     out.(info.subject).(info.sess).modidx_FG_noinhib = modidx_FG_noinhib;
-    
+
 end
+% Formating for saving output
 
-
-
-
-
-
+%cd(inter_dir)
+%out_Archt_07_nov_23=out;save('out_Archt_07_nov_23.mat','out_Archt_07_nov_23')
+%out_eyfp_07_nov_23=out;save('out_eyfp_07_nov_23.mat','out_eyfp_07_nov_23')
