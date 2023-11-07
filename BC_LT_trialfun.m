@@ -76,9 +76,9 @@ end
         ylim([0 100]);
         % xlabel('Time (s)','Fontsize',14);
         % ylabel('Position in the maze (cm)');
-        leg=legend([h01;h02],{'Laser 520nm','Running no inhibition'});
+        leg=legend([h01;h02],{'Silencing','No silencing'});
         legendFontSize = 12; % Adjust the font size as needed
-        leg.Position=[0.850 0.3914 0.1047 0.0487];
+        leg.Position=[0.890 0.3914 0.1047 0.0487];
         set(leg, 'FontSize', legendFontSize);
         box off;
         legend boxoff ;
@@ -96,6 +96,8 @@ end
         title(han,'Example of displacement of mouse in the x axis during inhibition session','FontSize', 20);
         fig = gcf;                   % Get current figure handle
         fig.Color = [1 1 1];
+        fig.Color = [1 1 1];         % Set background color to white
+        fig.Position = [100, 100, 1600, 700];  % [x, y, width, height]
         hold off;
         
     end

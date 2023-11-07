@@ -40,7 +40,8 @@ title(['Thetha-phase modulation of ',phi_name,' amplitude during ',period ],'Fon
 %Bar plot mod idx
 subplot(3,5,[5,10])
 bar(mod_idx,'FaceColor',Oxford_blue, 'EdgeColor',Oxford_blue);
-ylim([0 1e-3]);
+max_y= ceil(log10(mod_idx));
+ylim([0 10^max_y]);
 ylabel('Modulation index','Fontsize', 12);
 set(gca, 'TickDir', 'out');  % Move ticks outside the plot
 box off;                     % Turn off the box around the plot
