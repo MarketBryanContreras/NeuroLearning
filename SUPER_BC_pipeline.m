@@ -205,6 +205,11 @@ for iS =1:length(inhib_dir)
     %% epochs by epochs analysis
     
     % inhibition
+    win_s = 256;
+            r_inhib = []; 
+            r_noinhib = []; 
+            r_run = []; 
+
     for ii = length(iv_inhb.tstart):-1:1
         if (iv_inhb.tend(ii) - iv_inhb.tstart(ii)) < min_trial_dur
             t_bp_inhib(ii)= NaN;
@@ -212,6 +217,7 @@ for iS =1:length(inhib_dir)
             fg_bp_inhib(ii) = NaN;
             modidx_SG_inhib(ii)= NaN;
             modidx_FG_inhib(ii)= NaN;
+            r_inhib = NaN(length(1:0.1:160), length(1:0.1:160)); 
         else
             this_csc = restrict(csc, iv_inhb.tstart(ii), iv_inhb.tend(ii));
             
@@ -235,11 +241,22 @@ for iS =1:length(inhib_dir)
             modidx_SG_inhib(ii) =MS_ModIdx(this_SG_phi_amp);
             %FG
             this_FG_phi_amp=BC_phase_amp_norm_bins(this_th,this_fg);
-            modidx_FG_inhib(ii) =MS_ModIdx(this_FG_phi_amp);
-                        
+            modidx_FG_inhib(ii) =MS_ModIdx(this_FG_phi_amp);          
         end
+
+            % cross freq coupling
+                [~, F, ~,P] = spectrogram(this_csc.data,hanning(win_s),win_s/2,1:0.1:160,this_csc.cfg.hdr{1}.SamplingFrequency); % spectrogram -- will take a while to compute!
+       
+                [r_inhib(:,:,ii),~] = corrcoef(10*log10(P')); % correlation matrix (across frequencies) of spectrogram
+
         
+                
+                
+             
+        end
     end
+    
+
     
     % NO inhibition
     for ii = length(iv_noInhb.tstart):-1:1
@@ -249,6 +266,7 @@ for iS =1:length(inhib_dir)
             fg_bp_noinhib(ii) = NaN;
             modidx_SG_noinhib(ii)= NaN;
             modidx_FG_noinhib(ii)= NaN;
+
         else
             
             this_csc = restrict(csc, iv_noInhb.tstart(ii), iv_noInhb.tend(ii));
@@ -274,6 +292,12 @@ for iS =1:length(inhib_dir)
             %FG
             this_FG_phi_amp=BC_phase_amp_norm_bins(this_th,this_fg);
             modidx_FG_noinhib(ii) =MS_ModIdx(this_FG_phi_amp);
+
+            % cross freq coupling
+                [~, F, ~,P] = spectrogram(this_csc.data,hanning(win_s),win_s/2,1:0.1:160,this_csc.cfg.hdr{1}.SamplingFrequency); % spectrogram -- will take a while to compute!
+        
+                [r_noinhib(:,:,ii),~] = corrcoef(10*log10(P')); % correlation matrix (across frequencies) of spectrogram
+                        
         end
         
     end
@@ -284,8 +308,10 @@ for iS =1:length(inhib_dir)
             t_bp_run(ii)= NaN;
             sg_bp_run(ii) = NaN;
             fg_bp_run(ii) = NaN;
+
             modidx_SG_run(ii)= NaN;
             modidx_FG_run(ii)= NaN;
+
         else
             
             this_csc = restrict(csc, iv_running.tstart(ii), iv_running.tend(ii));
@@ -312,10 +338,16 @@ for iS =1:length(inhib_dir)
             this_FG_phi_amp=BC_phase_amp_norm_bins(this_th,this_fg);
             modidx_FG_run(ii) =MS_ModIdx(this_FG_phi_amp);
         end
+                 % cross freq coupling
+                [~, F, ~,P] = spectrogram(this_csc.data,hanning(win_s),win_s/2,1:0.1:160,this_csc.cfg.hdr{1}.SamplingFrequency); % spectrogram -- will take a while to compute!
+       
+                [r_run(:,:,ii),~] = corrcoef(10*log10(P')); % correlation matrix (across frequencies) of spectrogram
+        
         
     end
+
     
-    %% plot power
+    %% plot power and cross freq coupling
     
     if plot_flag
         figure(101)
@@ -376,6 +408,7 @@ for iS =1:length(inhib_dir)
         % Resize the figure (optional)
         fig.Position = [100, 100, 1000, 500];  % [x, y, width, height]
         %saveas(gcf, 'FG_NormModIdx.png');%%%% fill in nice plotting %%%%%%%
+
     end
     
         
@@ -415,10 +448,18 @@ for iS =1:length(inhib_dir)
     
     %% trial averaged spectra
     
+
 %     Triggered_Spec_FT(csc, iv_inhb.tstart, 'Opto On', [1:0.2:120], [-2 0], [-5 10])
 % 
 %     figure
 %         Triggered_Spec_FT(csc, iv_noInhb.tstart, 'Opto Off', [1:0.2:120], [-2 0], [-5 10])
+
+
+    Triggered_Spec_FT(csc, iv_inhb.tstart, 'Opto On', [1:0.2:120], [-2 0], [-5 10])
+
+    figure
+        Triggered_Spec_FT(csc, iv_noInhb.tstart, 'Opto Off', [1:0.2:120], [-2 0], [-5 10])
+        
 
     %% save outputs
     %inhb
