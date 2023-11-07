@@ -426,8 +426,6 @@ for iS =1:length(inhib_dir)
     
     %% plot the CoModulation matrix
     
-    % plots are duplicates for some reason. WIP
-    
     if plot_flag
         figure(201)
         clf
