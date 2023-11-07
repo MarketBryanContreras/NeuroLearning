@@ -63,9 +63,9 @@ for iSub = 1:length(eyfp_list)
 end
 
 
-opto_cells  =cell(size(opto));
-opto_cells{opto == 1} = 'Light'; 
-opto_cells{opto == 0} = 'No Light'; 
+opto_cells  = [];
+opto_cells(opto == 1) = 'Inhib'; 
+opto_cells(opto == 0) = 'Inhib'; 
 
 %% collect all in one table
 tbl= table(subject', cohort', opto', trial_n',SG_modidx',FG_modidx', 'VariableNames', {'Subject', 'Cohort', 'Opto', 'Trial', 'SG_modidx', 'FG_modidx'});
