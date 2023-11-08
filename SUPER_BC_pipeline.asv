@@ -37,7 +37,7 @@ inhib_dir(indices_to_remove) = [];
 
 % load data from raw
 
-for iS =1%:length(inhib_dir)
+for iS =4%:length(inhib_dir)
     
     %% loading
     cd([inhib_dir(iS).folder filesep inhib_dir(iS).name])
@@ -55,7 +55,7 @@ for iS =1%:length(inhib_dir)
         cfg_csc.fc ={'CSC4.ncs'}; %'CSC4.ncs'
         pattern = 'TTL Input on AcqSystem1_0 board 0 port 3 value (0x0002).';
     elseif strcmpi(info.subject, 'BC051')
-        cfg_csc.fc ={'CSC4.ncs'};
+        cfg_csc.fc ={'CSC5.ncs'};
         pattern = 'TTL Input on AcqSystem1_0 board 0 port 3 value (0x0002).';
     elseif strcmpi(info.subject, 'BC1807')
         cfg_csc.fc ={'CSC3.ncs'};
