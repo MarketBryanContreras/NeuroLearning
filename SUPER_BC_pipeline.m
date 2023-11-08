@@ -13,6 +13,7 @@
 % data_dir = 'C:\Users\ecarm\Williams Lab Dropbox\Williams Lab Team Folder\Bryan_DropBox\CHRNA2_LINEAR_TRACK\raw';
 % inter_dir = 'C:\Users\ecarm\Williams Lab Dropbox\Williams Lab Team Folder\Bryan_DropBox\CHRNA2_LINEAR_TRACK\inter';
 
+
 %data_dir = 'C:\Users\bcont\Williams Lab Dropbox\Williams Lab Team Folder\Bryan_DropBox\CHRNA2_LINEAR_TRACK\raw\Archt';
 % data_dir = 'C:\Users\bcont\Williams Lab Dropbox\Williams Lab Team Folder\Bryan_DropBox\CHRNA2_LINEAR_TRACK\raw\eyfp';
 
@@ -25,7 +26,7 @@ inter_dir = 'C:\Users\bcont\Williams Lab Dropbox\Williams Lab Team Folder\Bryan_
 cd(data_dir)
 
 %% parameters
-plot_flag = 0; % switch to 0 if you want to supress verification figures.
+plot_flag = 1; % switch to 0 if you want to supress verification figures.
 time_maze_start = 30;
 min_trial_dur = 0.5;
 
@@ -41,7 +42,7 @@ inhib_dir(indices_to_remove) = [];
 
 % load data from raw
 
-for iS =1:length(inhib_dir)
+for iS =1%:length(inhib_dir)
     
     %% loading
     cd([inhib_dir(iS).folder filesep inhib_dir(iS).name])
@@ -56,10 +57,10 @@ for iS =1:length(inhib_dir)
     cfg_csc.desired_sampling_frequency = 2000;
     
     if strcmpi(info.subject, 'BC1602')
-        cfg_csc.fc ={'CSC2.ncs'}; %'CSC4.ncs'
+        cfg_csc.fc ={'CSC4.ncs'}; %'CSC4.ncs'
         pattern = 'TTL Input on AcqSystem1_0 board 0 port 3 value (0x0002).';
     elseif strcmpi(info.subject, 'BC051')
-        cfg_csc.fc ={'CSC5.ncs'};
+        cfg_csc.fc ={'CSC4.ncs'};
         pattern = 'TTL Input on AcqSystem1_0 board 0 port 3 value (0x0002).';
     elseif strcmpi(info.subject, 'BC1807')
         cfg_csc.fc ={'CSC3.ncs'};
