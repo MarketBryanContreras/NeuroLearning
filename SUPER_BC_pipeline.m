@@ -18,7 +18,7 @@
 
 % dynamic based on computer user. 
 data_dir = [getenv('USERPROFILE') '\Williams Lab Dropbox\Williams Lab Team Folder\Bryan_DropBox\CHRNA2_LINEAR_TRACK\raw\Archt'];
-data_dir = [getenv('USERPROFILE') '\Williams Lab Dropbox\Williams Lab Team Folder\Bryan_DropBox\CHRNA2_LINEAR_TRACK\raw\eyfp']
+% data_dir = [getenv('USERPROFILE') '\Williams Lab Dropbox\Williams Lab Team Folder\Bryan_DropBox\CHRNA2_LINEAR_TRACK\raw\eyfp']; 
 
 inter_dir = 'C:\Users\bcont\Williams Lab Dropbox\Williams Lab Team Folder\Bryan_DropBox\CHRNA2_LINEAR_TRACK\inter';
 
@@ -431,8 +431,8 @@ for iS =1:length(inhib_dir)
     if plot_flag
         %         figure(201)
         %         clf
-        cfg_como.A_step = 2;
-        cfg_como.P_step = 1;
+        cfg_como.A_step = .5;
+        cfg_como.P_step = .5;
         cfg_como.phi_bins = 18;
         
         [CoMoI, phi_f, amp_f] = MS_phase_freq(cfg_como, csc_inhb, [4 12], [30 100]);
