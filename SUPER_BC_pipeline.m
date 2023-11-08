@@ -13,8 +13,13 @@
 % data_dir = 'C:\Users\ecarm\Williams Lab Dropbox\Williams Lab Team Folder\Bryan_DropBox\CHRNA2_LINEAR_TRACK\raw';
 % inter_dir = 'C:\Users\ecarm\Williams Lab Dropbox\Williams Lab Team Folder\Bryan_DropBox\CHRNA2_LINEAR_TRACK\inter';
 
-data_dir = 'C:\Users\bcont\Williams Lab Dropbox\Williams Lab Team Folder\Bryan_DropBox\CHRNA2_LINEAR_TRACK\raw\Archt';
-%data_dir = 'C:\Users\bcont\Williams Lab Dropbox\Williams Lab Team Folder\Bryan_DropBox\CHRNA2_LINEAR_TRACK\raw\eyfp';
+
+%data_dir = 'C:\Users\bcont\Williams Lab Dropbox\Williams Lab Team Folder\Bryan_DropBox\CHRNA2_LINEAR_TRACK\raw\Archt';
+% data_dir = 'C:\Users\bcont\Williams Lab Dropbox\Williams Lab Team Folder\Bryan_DropBox\CHRNA2_LINEAR_TRACK\raw\eyfp';
+
+% dynamic based on computer user. 
+data_dir = [getenv('USERPROFILE') '\Williams Lab Dropbox\Williams Lab Team Folder\Bryan_DropBox\CHRNA2_LINEAR_TRACK\raw\Archt'];
+data_dir = [getenv('USERPROFILE') '\Williams Lab Dropbox\Williams Lab Team Folder\Bryan_DropBox\CHRNA2_LINEAR_TRACK\raw\eyfp']
 
 inter_dir = 'C:\Users\bcont\Williams Lab Dropbox\Williams Lab Team Folder\Bryan_DropBox\CHRNA2_LINEAR_TRACK\inter';
 
@@ -419,6 +424,54 @@ for iS =1%:length(inhib_dir)
         %saveas(gcf, 'FG_NormModIdx.png');%%%% fill in nice plotting %%%%%%%
 
     end
+    
+    %% plot the CoModulation matrix
+    
+    % plots are duplicates for some reason. WIP
+    
+    if plot_flag
+        %         figure(201)
+        %         clf
+        cfg_como.A_step = 2;
+        cfg_como.P_step = 1;
+        cfg_como.phi_bins = 18;
+        
+        [CoMoI, phi_f, amp_f] = MS_phase_freq(cfg_como, csc_inhb, [4 12], [30 100]);
+        [CoMoNI, phi_f, amp_f] = MS_phase_freq(cfg_como, csc_noinhb, [4 12], [30 100]);
+        [CoMoR, phi_f, amp_f] = MS_phase_freq(cfg_como, csc_running, [4 12], [30 100]);
+        
+%%
+        figure(202)
+        clf
+                subplot(1,3,1); cla; 
+        imagesc(phi_f, amp_f, CoMoI');
+        set(gca, 'ydir', 'normal')
+        caxis([0 10^-3])
+        title('Inhib')
+                xlabel('Phase Freq (Hz)'); ylabel('Amp Freq (Hz)'); 
+                colorbar('Location', 'southoutside')
+
+        subplot(1,3,2); cla; 
+        imagesc(phi_f, amp_f, CoMoNI');
+        set(gca, 'ydir', 'normal')
+        caxis([0 10^-3])
+        title('No InHib')
+        xlabel('Phase Freq (Hz)'); ylabel('Amp Freq (Hz)'); 
+                        colorbar('Location', 'southoutside')
+
+        subplot(1,3,3); cla; 
+        imagesc(phi_f, amp_f, CoMoR');
+        set(gca, 'ydir', 'normal')
+        caxis([0 10^-3])
+        title('Running')
+                xlabel('Phase Freq (Hz)'); ylabel('Amp Freq (Hz)'); 
+                colorbar('Location', 'southoutside')
+
+                SetFigure([], gcf)
+                maximize
+        
+    end
+    
     
         
         
