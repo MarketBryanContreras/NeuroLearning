@@ -115,7 +115,7 @@ stats.t_bp = fitlme(tbl,'Theta_bp ~ 1+ Opto + (1|Cohort) + (1|Subject) + (1|Tria
 stats.sg_bp = fitlme(tbl,'SG_bp ~ 1+ Opto + (1|Cohort) + (1|Subject) + (1|Trial)');
 stats.fg_bp = fitlme(tbl,'FG_bp ~ 1+ Opto + (1|Cohort) + (1|Subject) + (1|Trial)');
 
-archt_stats.SG_mod = fitlme(archt_tbl,'SG_modidx ~ 1+ Opto + (1|Subject) + (1|Trial)');
+archt_stats.SG_mod = fitlme(archt_tbl,'SG_modidx ~ 1+ Opto+ (1|Subject) + (1|Trial)');
 archt_stats.FG_mod = fitlme(archt_tbl,'FG_modidx ~ 1+ Opto + (1|Subject) + (1|Trial)');
 archt_stats.t_bp =   fitlme(archt_tbl,'Theta_bp ~ 1+ Opto + (1|Subject) + (1|Trial)');
 archt_stats.sg_bp =   fitlme(archt_tbl,'SG_bp ~ 1+ Opto + (1|Subject)+ (1|Trial)');
@@ -129,12 +129,356 @@ eyfp_stats.fg_bp =   fitlme(eyfp_tbl,'FG_bp ~ 1+ Opto + (1|Subject)+ (1|Trial)')
 
 stats.SG_mod = fitglme(tbl,'SG_modidx ~ 1+ Opto + (1|Subject)');
 %% Plotting
-figure(102)
-subplot(1,2,1)
-%boxchart(tbl.Opto,tbl.SG_modidx,,tbl.Opto)
-boxchart(tbl.Cohort,tbl.SG_modidx,'GroupByColor',tbl.Opto )
 
-subplot(1,2,2)
+%boxchart(tbl.Opto,tbl.SG_modidx,,tbl.Opto)
+%boxchart(tbl.Cohort,tbl.SG_modidx,'GroupByColor',tbl.Opto )
+%% ArchT
+% Filtering SG Data
+archt_sg_modidx_values_opto_1 = tbl.SG_modidx(tbl.Opto == 1 & tbl.Cohort==1);
+archt_sg_modidx_values_opto_0 = tbl.SG_modidx(tbl.Opto == 0 & tbl.Cohort==1);
+
+archt_sg_xx=[archt_sg_modidx_values_opto_1' archt_sg_modidx_values_opto_0'];
+
+archt_sg_aa=repmat(1,1,length(archt_sg_modidx_values_opto_1));
+archt_sg_bb=repmat(0,1,length(archt_sg_modidx_values_opto_0));
+
+archt_sg_yy=[archt_sg_aa archt_sg_bb];
+% Filtering FG Data
+archt_fg_modidx_values_opto_1 = tbl.FG_modidx(tbl.Opto == 1 & tbl.Cohort==1);
+archt_fg_modidx_values_opto_0 = tbl.FG_modidx(tbl.Opto == 0 & tbl.Cohort==1);
+
+archt_fg_xx=[archt_fg_modidx_values_opto_1' archt_fg_modidx_values_opto_0'];
+
+archt_fg_aa=repmat(1,1,length(archt_fg_modidx_values_opto_1));
+archt_fg_bb=repmat(0,1,length(archt_fg_modidx_values_opto_0));
+archt_fg_yy=[archt_fg_aa archt_fg_bb];
+
+% Filtering Theta_bp Data
+archt_theta_bp_values_opto_1 = tbl.Theta_bp(tbl.Opto == 1 & tbl.Cohort==1);
+archt_theta_bp_values_opto_0 = tbl.Theta_bp(tbl.Opto == 0 & tbl.Cohort==1);
+
+archt_theta_bp_xx=[archt_theta_bp_values_opto_1' archt_theta_bp_values_opto_0'];
+
+archt_theta_bp_aa=repmat(1,1,length(archt_theta_bp_values_opto_1));
+archt_theta_bp_bb=repmat(0,1,length(archt_theta_bp_values_opto_0));
+
+archt_theta_bp_yy=[archt_theta_bp_aa archt_theta_bp_bb];
+
+% Filtering SG_bp Data
+archt_sg_bp_values_opto_1 = tbl.SG_bp(tbl.Opto == 1 & tbl.Cohort==1);
+archt_sg_bp_values_opto_0 = tbl.SG_bp(tbl.Opto == 0 & tbl.Cohort==1);
+
+archt_sg_bp_xx=[archt_sg_bp_values_opto_1' archt_sg_bp_values_opto_0'];
+
+archt_sg_bp_aa=repmat(1,1,length(archt_sg_bp_values_opto_1));
+archt_sg_bp_bb=repmat(0,1,length(archt_sg_bp_values_opto_0));
+
+archt_sg_bp_yy=[archt_sg_bp_aa archt_sg_bp_bb];
+
+% Filtering FG_bp Data
+archt_fg_bp_values_opto_1 = tbl.FG_bp(tbl.Opto == 1 & tbl.Cohort==1);
+archt_fg_bp_values_opto_0 = tbl.FG_bp(tbl.Opto == 0 & tbl.Cohort==1);
+
+archt_fg_bp_xx=[archt_fg_bp_values_opto_1' archt_fg_bp_values_opto_0'];
+
+archt_fg_bp_aa=repmat(1,1,length(archt_fg_bp_values_opto_1));
+archt_fg_bp_bb=repmat(0,1,length(archt_fg_bp_values_opto_0));
+
+archt_fg_bp_yy=[archt_fg_bp_aa archt_fg_bp_bb];
+
+%% eyfp
+% Filtering SG Data
+eyfp_sg_modidx_values_opto_1 = tbl.SG_modidx(tbl.Opto == 1 & tbl.Cohort==2);
+eyfp_sg_modidx_values_opto_0 = tbl.SG_modidx(tbl.Opto == 0 & tbl.Cohort==2);
+
+eyfp_sg_xx=[eyfp_sg_modidx_values_opto_1' eyfp_sg_modidx_values_opto_0'];
+
+eyfp_sg_aa=repmat(1,1,length(eyfp_sg_modidx_values_opto_1));
+eyfp_sg_bb=repmat(0,1,length(eyfp_sg_modidx_values_opto_0));
+
+eyfp_sg_yy=[eyfp_sg_aa eyfp_sg_bb];
+% Filtering FG Data
+eyfp_fg_modidx_values_opto_1 = tbl.FG_modidx(tbl.Opto == 1 & tbl.Cohort==2);
+eyfp_fg_modidx_values_opto_0 = tbl.FG_modidx(tbl.Opto == 0 & tbl.Cohort==2);
+
+eyfp_fg_xx=[eyfp_fg_modidx_values_opto_1' eyfp_fg_modidx_values_opto_0'];
+
+eyfp_fg_aa=repmat(1,1,length(eyfp_fg_modidx_values_opto_1));
+eyfp_fg_bb=repmat(0,1,length(eyfp_fg_modidx_values_opto_0));
+eyfp_fg_yy=[eyfp_fg_aa eyfp_fg_bb];
+
+% Filtering Theta_bp Data
+eyfp_theta_bp_values_opto_1 = tbl.Theta_bp(tbl.Opto == 1 & tbl.Cohort==2);
+eyfp_theta_bp_values_opto_0 = tbl.Theta_bp(tbl.Opto == 0 & tbl.Cohort==2);
+
+eyfp_theta_bp_xx=[eyfp_theta_bp_values_opto_1' eyfp_theta_bp_values_opto_0'];
+
+eyfp_theta_bp_aa=repmat(1,1,length(eyfp_theta_bp_values_opto_1));
+eyfp_theta_bp_bb=repmat(0,1,length(eyfp_theta_bp_values_opto_0));
+
+eyfp_theta_bp_yy=[eyfp_theta_bp_aa eyfp_theta_bp_bb];
+
+% Filtering SG_bp Data
+eyfp_sg_bp_values_opto_1 = tbl.SG_bp(tbl.Opto == 1 & tbl.Cohort==2);
+eyfp_sg_bp_values_opto_0 = tbl.SG_bp(tbl.Opto == 0 & tbl.Cohort==2);
+
+eyfp_sg_bp_xx=[eyfp_sg_bp_values_opto_1' eyfp_sg_bp_values_opto_0'];
+
+eyfp_sg_bp_aa=repmat(1,1,length(eyfp_sg_bp_values_opto_1));
+eyfp_sg_bp_bb=repmat(0,1,length(eyfp_sg_bp_values_opto_0));
+
+eyfp_sg_bp_yy=[eyfp_sg_bp_aa eyfp_sg_bp_bb];
+
+% Filtering FG_bp Data
+eyfp_fg_bp_values_opto_1 = tbl.FG_bp(tbl.Opto == 1 & tbl.Cohort==2);
+eyfp_fg_bp_values_opto_0 = tbl.FG_bp(tbl.Opto == 0 & tbl.Cohort==2);
+
+eyfp_fg_bp_xx=[eyfp_fg_bp_values_opto_1' eyfp_fg_bp_values_opto_0'];
+
+eyfp_fg_bp_aa=repmat(1,1,length(eyfp_fg_bp_values_opto_1));
+eyfp_fg_bp_bb=repmat(0,1,length(eyfp_fg_bp_values_opto_0));
+
+eyfp_fg_bp_yy=[eyfp_fg_bp_aa eyfp_fg_bp_bb];
+
+%% Plotting Mod IDX stats
+%Archt
+figure(102)
+clf
+subplot(2,2,1)
+boxplot(archt_sg_xx,archt_sg_yy, 'Labels', {'No silencing', 'Silencing'});
+%Significance plot
+yt = get(gca, 'YTick');
+set(gca, 'Xtick', 1:3);
+xt = get(gca, 'XTick');
+hold on
+plot(xt([1 2]), [1 1]*yt(5), '-k',mean(xt([1 2])),yt(5)*1.1, '*k', mean(xt([1 2]))+0.05*mean(xt([1 2])),yt(5)*1.1, '*k',mean(xt([1 2]))-0.05*mean(xt([1 2])),yt(5)*1.1, '*k') %Three asteriks
+%plot(xt([1 2]), [1 1]*yt(5), '-k',mean(xt([1 2]))-0.025*mean(xt([1 2])),yt(5)*1.1, '*k', mean(xt([1 2]))+0.025*mean(xt([1 2])),yt(5)*1.1,'*k') 2 asteriks
+
+title('SG ArchT');
+colors = [BC_color_genertor('archt_green');  % RGB values for Group 2
+    BC_color_genertor('Powder_blue')]; % RGB values for Group1;
+h = findobj(gca, 'Tag', 'Box');  % Get handles to the box objects
+for aa = 1:numel(h)
+    patch(get(h(aa), 'XData'), get(h(aa), 'YData'), colors(aa, :), 'FaceAlpha', 0.5);
+end
+% Customize line and whisker colors
+set(findobj(gca,'Type','Line'),'Color',[0.2 0.2 0.2]);
+% Adjust plot aesthetics
+set(gca, 'TickDir', 'out');  % Move ticks outside the plot
+box off;                     % Turn off the box around the plot
+
+subplot(2, 2, 2);
+boxplot(archt_fg_xx,archt_fg_yy, 'Labels', {'No silencing', 'Silencing'});
+title('FG  ArchT');
+colors = [BC_color_genertor('archt_green');  % RGB values for Group 2
+    BC_color_genertor('Powder_blue')]; % RGB values for Group1;
+h = findobj(gca, 'Tag', 'Box');  % Get handles to the box objects
+for aa = 1:numel(h)
+    patch(get(h(aa), 'XData'), get(h(aa), 'YData'), colors(aa, :), 'FaceAlpha', 0.5);
+end
+% Customize line and whisker colors
+set(findobj(gca,'Type','Line'),'Color',[0.2 0.2 0.2]);
+% Adjust plot aesthetics
+set(gca, 'TickDir', 'out');  % Move ticks outside the plot
+box off;                     % Turn off the box around the plot
+
+%eyfp
+subplot(2,2,3)
+boxplot(eyfp_sg_xx,eyfp_sg_yy, 'Labels', {'No silencing', 'Silencing'});
+title('SG control');
+colors = [BC_color_genertor('swamp_green');  % RGB values for Group 2
+    BC_color_genertor('torment_blue')]; % RGB values for Group1;
+h = findobj(gca, 'Tag', 'Box');  % Get handles to the box objects
+for aa = 1:numel(h)
+    patch(get(h(aa), 'XData'), get(h(aa), 'YData'), colors(aa, :), 'FaceAlpha', 0.5);
+end
+% Customize line and whisker colors
+set(findobj(gca,'Type','Line'),'Color',[0.2 0.2 0.2]);
+% Adjust plot aesthetics
+set(gca, 'TickDir', 'out');  % Move ticks outside the plot
+box off;                     % Turn off the box around the plot
+
+subplot(2, 2, 4);
+boxplot(eyfp_fg_xx,eyfp_fg_yy, 'Labels', {'No silencing', 'Silencing'});
+
+title('FG control');
+colors = [BC_color_genertor('swamp_green');  % RGB values for Group 2
+    BC_color_genertor('torment_blue')]; % RGB values for Group1;
+h = findobj(gca, 'Tag', 'Box');  % Get handles to the box objects
+for aa = 1:numel(h)
+    patch(get(h(aa), 'XData'), get(h(aa), 'YData'), colors(aa, :), 'FaceAlpha', 0.5);
+end
+% Customize line and whisker colors
+set(findobj(gca,'Type','Line'),'Color',[0.2 0.2 0.2]);
+% Adjust plot aesthetics
+set(gca, 'TickDir', 'out');  % Move ticks outside the plot
+box off;                     % Turn off the box around the plot
+
+%sgtitle('General Title');
+
+
+ % Adjust figure properties
+ suptitle('\bf Mod IDX ');           % Add a general title above the entire figure
+ fig = gcf;                   % Get current figure handle
+ fig.Color = [1 1 1];         % Set background color to white
+ % Resize the figure (optional)
+ fig.Position = [200, 200, 1000, 700];  % [x, y, width, height]
+ %saveas(gcf, 'FG_NormModIdx.png');%%%% fill in nice plotting %%%%%%%
+%% Plotting Band power stats
+figure(103)
+clf
+subplot(2,3,1)
+boxplot(archt_theta_bp_xx,archt_theta_bp_yy, 'Labels', {'No silencing', 'Silencing'});
+ylabel('Power (mW)');
+%Significance plot
+yt = get(gca, 'YTick');
+ylim([0 yt(end)*1.2])
+% set(gca, 'Xtick', 1:3);
+xt = get(gca, 'XTick');
+hold on
+plot(xt([1 2]), [1 1]*yt(end)*1.1, '-k',mean(xt([1 2])),yt(end)*1.15, '*k', mean(xt([1 2]))+0.05*mean(xt([1 2])),yt(end)*1.15, '*k',mean(xt([1 2]))-0.05*mean(xt([1 2])),yt(end)*1.15, '*k') %Three asteriks
+% plot(xt([1 2]), [1 1]*yt(5), '-k',mean(xt([1 2]))-0.025*mean(xt([1 2])),yt(5)*1.1, '*k', mean(xt([1 2]))+0.025*mean(xt([1 2])),yt(5)*1.1,'*k') %2 asteriks
+
+title('Theta ArchT');
+colors = [BC_color_genertor('archt_green');  % RGB values for Group 2
+    BC_color_genertor('Powder_blue')]; % RGB values for Group1;
+h = findobj(gca, 'Tag', 'Box');  % Get handles to the box objects
+for aa = 1:numel(h)
+    patch(get(h(aa), 'XData'), get(h(aa), 'YData'), colors(aa, :), 'FaceAlpha', 0.5);
+end
+% Customize line and whisker colors
+set(findobj(gca,'Type','Line'),'Color',[0.2 0.2 0.2]);
+% Adjust plot aesthetics
+set(gca, 'TickDir', 'out');  % Move ticks outside the plot
+box off;                     % Turn off the box around the plot
+
+subplot(2, 3, 2);
+boxplot(archt_sg_bp_xx,archt_sg_bp_yy, 'Labels', {'No silencing', 'Silencing'});
+%%Significance plot
+% yt = get(gca, 'YTick');
+% set(gca, 'Xtick', 1:3);
+% xt = get(gca, 'XTick');
+% hold on
+% plot(xt([1 2]), [1 1]*yt(5), '-k',mean(xt([1 2])),yt(5)*1.1, '*k', mean(xt([1 2]))+0.05*mean(xt([1 2])),yt(5)*1.1, '*k',mean(xt([1 2]))-0.05*mean(xt([1 2])),yt(5)*1.1, '*k') %Three asteriks
+% plot(xt([1 2]), [1 1]*yt(5), '-k',mean(xt([1 2]))-0.025*mean(xt([1 2])),yt(5)*1.1, '*k', mean(xt([1 2]))+0.025*mean(xt([1 2])),yt(5)*1.1,'*k') 2 asteriks
+
+title('SG ArchT');
+colors = [BC_color_genertor('archt_green');  % RGB values for Group 2
+    BC_color_genertor('Powder_blue')]; % RGB values for Group1;
+h = findobj(gca, 'Tag', 'Box');  % Get handles to the box objects
+for aa = 1:numel(h)
+    patch(get(h(aa), 'XData'), get(h(aa), 'YData'), colors(aa, :), 'FaceAlpha', 0.5);
+end
+% Customize line and whisker colors
+set(findobj(gca,'Type','Line'),'Color',[0.2 0.2 0.2]);
+% Adjust plot aesthetics
+set(gca, 'TickDir', 'out');  % Move ticks outside the plot
+box off;                     % Turn off the box around the plot
+
+subplot(2, 3, 3);
+boxplot(archt_fg_bp_xx,archt_fg_bp_yy, 'Labels', {'No silencing', 'Silencing'});
+%Significance plot
+yt = get(gca, 'YTick');
+ylim([0 yt(end)*1.5])
+% set(gca, 'Xtick', 1:3);
+xt = get(gca, 'XTick');
+hold on
+plot(xt([1 2]), [1 1]*yt(end)*1.3, '-k',mean(xt([1 2])),yt(end)*1.35, '*k', mean(xt([1 2]))+0.05*mean(xt([1 2])),yt(end)*1.35, '*k',mean(xt([1 2]))-0.05*mean(xt([1 2])),yt(end)*1.35, '*k') %Three asteriks
+% plot(xt([1 2]), [1 1]*yt(5), '-k',mean(xt([1 2]))-0.025*mean(xt([1 2])),yt(5)*1.1, '*k', mean(xt([1 2]))+0.025*mean(xt([1 2])),yt(5)*1.1,'*k') %2 asteriks
+
+title('FG ArchT');
+colors = [BC_color_genertor('archt_green');  % RGB values for Group 2
+    BC_color_genertor('Powder_blue')]; % RGB values for Group1;
+h = findobj(gca, 'Tag', 'Box');  % Get handles to the box objects
+for aa = 1:numel(h)
+    patch(get(h(aa), 'XData'), get(h(aa), 'YData'), colors(aa, :), 'FaceAlpha', 0.5);
+end
+% Customize line and whisker colors
+set(findobj(gca,'Type','Line'),'Color',[0.2 0.2 0.2]);
+% Adjust plot aesthetics
+set(gca, 'TickDir', 'out');  % Move ticks outside the plot
+box off;                     % Turn off the box around the plot
+
+%EYFP
+
+subplot(2,3,4)
+boxplot(eyfp_theta_bp_xx,eyfp_theta_bp_yy, 'Labels', {'No silencing', 'Silencing'});
+ylabel('Power (mW)');
+%%Significance plot
+% yt = get(gca, 'YTick');
+% set(gca, 'Xtick', 1:3);
+% xt = get(gca, 'XTick');
+% hold on
+% plot(xt([1 2]), [1 1]*yt(5), '-k',mean(xt([1 2])),yt(5)*1.1, '*k', mean(xt([1 2]))+0.05*mean(xt([1 2])),yt(5)*1.1, '*k',mean(xt([1 2]))-0.05*mean(xt([1 2])),yt(5)*1.1, '*k') %Three asteriks
+% plot(xt([1 2]), [1 1]*yt(5), '-k',mean(xt([1 2]))-0.025*mean(xt([1 2])),yt(5)*1.1, '*k', mean(xt([1 2]))+0.025*mean(xt([1 2])),yt(5)*1.1,'*k') 2 asteriks
+
+title('Theta control');
+colors = [BC_color_genertor('swamp_green');  % RGB values for Group 2
+    BC_color_genertor('torment_blue')]; % RGB values for Group1;
+h = findobj(gca, 'Tag', 'Box');  % Get handles to the box objects
+for aa = 1:numel(h)
+    patch(get(h(aa), 'XData'), get(h(aa), 'YData'), colors(aa, :), 'FaceAlpha', 0.5);
+end
+% Customize line and whisker colors
+set(findobj(gca,'Type','Line'),'Color',[0.2 0.2 0.2]);
+% Adjust plot aesthetics
+set(gca, 'TickDir', 'out');  % Move ticks outside the plot
+box off;                     % Turn off the box around the plot
+
+subplot(2, 3, 5);
+boxplot(eyfp_sg_bp_xx,eyfp_sg_bp_yy, 'Labels', {'No silencing', 'Silencing'});
+%%Significance plot
+% yt = get(gca, 'YTick');
+% set(gca, 'Xtick', 1:3);
+% xt = get(gca, 'XTick');
+% hold on
+% plot(xt([1 2]), [1 1]*yt(5), '-k',mean(xt([1 2])),yt(5)*1.1, '*k', mean(xt([1 2]))+0.05*mean(xt([1 2])),yt(5)*1.1, '*k',mean(xt([1 2]))-0.05*mean(xt([1 2])),yt(5)*1.1, '*k') %Three asteriks
+% plot(xt([1 2]), [1 1]*yt(5), '-k',mean(xt([1 2]))-0.025*mean(xt([1 2])),yt(5)*1.1, '*k', mean(xt([1 2]))+0.025*mean(xt([1 2])),yt(5)*1.1,'*k') 2 asteriks
+
+title('SG control');
+colors = [BC_color_genertor('swamp_green');  % RGB values for Group 2
+    BC_color_genertor('torment_blue')]; % RGB values for Group1;
+h = findobj(gca, 'Tag', 'Box');  % Get handles to the box objects
+for aa = 1:numel(h)
+    patch(get(h(aa), 'XData'), get(h(aa), 'YData'), colors(aa, :), 'FaceAlpha', 0.5);
+end
+% Customize line and whisker colors
+set(findobj(gca,'Type','Line'),'Color',[0.2 0.2 0.2]);
+% Adjust plot aesthetics
+set(gca, 'TickDir', 'out');  % Move ticks outside the plot
+box off;                     % Turn off the box around the plot
+
+subplot(2, 3, 6);
+boxplot(eyfp_fg_bp_xx,eyfp_fg_bp_yy, 'Labels', {'No silencing', 'Silencing'});
+%%Significance plot
+% yt = get(gca, 'YTick');
+% set(gca, 'Xtick', 1:3);
+% xt = get(gca, 'XTick');
+% hold on
+% plot(xt([1 2]), [1 1]*yt(5), '-k',mean(xt([1 2])),yt(5)*1.1, '*k', mean(xt([1 2]))+0.05*mean(xt([1 2])),yt(5)*1.1, '*k',mean(xt([1 2]))-0.05*mean(xt([1 2])),yt(5)*1.1, '*k') %Three asteriks
+% plot(xt([1 2]), [1 1]*yt(5), '-k',mean(xt([1 2]))-0.025*mean(xt([1 2])),yt(5)*1.1, '*k', mean(xt([1 2]))+0.025*mean(xt([1 2])),yt(5)*1.1,'*k') 2 asteriks
+
+title('FG control');
+colors = [BC_color_genertor('swamp_green');  % RGB values for Group 2
+    BC_color_genertor('torment_blue')]; % RGB values for Group1;
+h = findobj(gca, 'Tag', 'Box');  % Get handles to the box objects
+for aa = 1:numel(h)
+    patch(get(h(aa), 'XData'), get(h(aa), 'YData'), colors(aa, :), 'FaceAlpha', 0.5);
+end
+% Customize line and whisker colors
+set(findobj(gca,'Type','Line'),'Color',[0.2 0.2 0.2]);
+% Adjust plot aesthetics
+set(gca, 'TickDir', 'out');  % Move ticks outside the plot
+box off;                     % Turn off the box around the plot
+
+% Adjust figure properties
+ suptitle('\bf Band Power');           % Add a general title above the entire figure
+ fig = gcf;                   % Get current figure handle
+ fig.Color = [1 1 1];         % Set background color to white
+ % Resize the figure (optional)
+ fig.Position = [200, 200, 1000, 700];  % [x, y, width, height]
+ %saveas(gcf, 'FG_NormModIdx.png');%%%% fill in nice plotting %%%%%%%
+%%
 %boxchart(tbl.Subject,tbl.FG_modidx,'GroupByColor',tbl.Opto)
 boxplot( tbl.FG_modidx,tbl.Opto )
 

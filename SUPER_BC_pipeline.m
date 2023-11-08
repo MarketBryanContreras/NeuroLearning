@@ -230,7 +230,7 @@ for iS =1%:length(inhib_dir)
             this_csc = restrict(csc, iv_inhb.tstart(ii), iv_inhb.tend(ii));
             
             % get the power
-            t_bp = bandpower(this_csc.data, this_csc.cfg.hdr{1}.SamplingFrequency, [5 12]);
+            t_bp =  (this_csc.data, this_csc.cfg.hdr{1}.SamplingFrequency, [5 12]);
             sg_bp = bandpower(this_csc.data, this_csc.cfg.hdr{1}.SamplingFrequency, [30 58]);
             fg_bp = bandpower(this_csc.data, this_csc.cfg.hdr{1}.SamplingFrequency, [60 100]);
             
@@ -348,7 +348,7 @@ for iS =1%:length(inhib_dir)
         clf
         subplot(3,3,[1 4])
         boxplot([t_bp_inhib, t_bp_noinhib],[zeros(size(t_bp_inhib)), ones(size(t_bp_noinhib))])
-                title('Normalized SG ModIdx ArchT');
+        title('Normalized SG ModIdx ArchT');
         ylabel('Z-Scores');
         ax = gca;
         %        ax.
