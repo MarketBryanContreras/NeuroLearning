@@ -517,6 +517,29 @@ for iS =1%:length(inhib_dir)
 %         Triggered_Spec_FT(csc, iv_noInhb.tstart, 'Opto Off', [1:0.2:120], [-2 0], [-5 10])
 %         
 
+%% example LFP
+
+if plot_flag
+    
+    figure(110)
+    clf
+    hold on
+    
+    plot(csc.tvec, (theta_csc.data), 'color', Archt_green, 'linewidth', 1);
+    
+    plot(csc.tvec, (SG_csc.data), 'color', Web_orange, 'linewidth', 1);
+    plot(csc.tvec, abs(hilbert(SG_csc.data)), 'color', Web_orange, 'linewidth', .5);
+    
+    plot(csc.tvec, (FG_csc.data), 'color', Red_crayola, 'linewidth', 1);
+    plot(csc.tvec, abs(hilbert(FG_csc.data)), 'color', Red_crayola, 'linewidth', .5);
+    
+    plot(csc.tvec, csc.data+0.0005, 'color', Oxford_blue, 'linewidth', 1);
+    % plot(csc.tvec, abs(hilbert(theta_csc.data))+0.0005, 'color', Powder_blue, 'linewidth', 1);
+    
+    % xlim([9 20])
+    
+end
+
     %% save outputs
     %inhb
     out.(info.subject).(info.sess).t_bp_inhib = t_bp_inhib; 
