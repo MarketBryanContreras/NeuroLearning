@@ -9,30 +9,24 @@
 % addpath(genpath(mvdm_dir));
 % addpath(genpath(CEH2_dir));
 % addpath(genpath(BC_dir));
-
-% data_dir = 'C:\Users\ecarm\Williams Lab Dropbox\Williams Lab Team Folder\Bryan_DropBox\CHRNA2_LINEAR_TRACK\raw';
-% inter_dir = 'C:\Users\ecarm\Williams Lab Dropbox\Williams Lab Team Folder\Bryan_DropBox\CHRNA2_LINEAR_TRACK\inter';
-
-
-%data_dir = 'C:\Users\bcont\Williams Lab Dropbox\Williams Lab Team Folder\Bryan_DropBox\CHRNA2_LINEAR_TRACK\raw\Archt';
-% data_dir = 'C:\Users\bcont\Williams Lab Dropbox\Williams Lab Team Folder\Bryan_DropBox\CHRNA2_LINEAR_TRACK\raw\eyfp';
-
-% Dynamic based on computer user windows. 
-%data_dir = [getenv('USERPROFILE') '\Williams Lab Dropbox\Williams Lab Team Folder\Bryan_DropBox\CHRNA2_LINEAR_TRACK\raw\Archt'];
-% data_dir = [getenv('USERPROFILE') '\Williams Lab Dropbox\Williams Lab Team Folder\Bryan_DropBox\CHRNA2_LINEAR_TRACK\raw\eyfp']; 
-
-% Dynamic for mac 
-data_dir = [getenv('HOME')  filesep 'Williams Lab Dropbox' filesep 'Williams Lab Team Folder' filesep 'Bryan_DropBox' filesep 'CHRNA2_LINEAR_TRACK' filesep 'raw' filesep 'Archt'];
-inter_dir = [getenv('HOME')  filesep 'Williams Lab Dropbox' filesep 'Williams Lab Team Folder' filesep 'Bryan_DropBox' filesep 'CHRNA2_LINEAR_TRACK' filesep 'inter'];
-
-cd(data_dir)
-
 %% parameters
 plot_flag = 1; % switch to 0 if you want to supress verification figures.
 time_maze_start = 30;
 min_trial_dur = 0.5;
-
-%% loop over sessions
+%% Dynamic loader
+sys=computer;
+if contains(sys,'PCWIN')
+    % Dynamic based on computer user windows.
+    data_dir = [getenv('USERPROFILE') '\Williams Lab Dropbox\Williams Lab Team Folder\Bryan_DropBox\CHRNA2_LINEAR_TRACK\raw\Archt'];
+    data_dir = [getenv('USERPROFILE') '\Williams Lab Dropbox\Williams Lab Team Folder\Bryan_DropBox\CHRNA2_LINEAR_TRACK\raw\eyfp'];
+elseif contains(sys,'MAC')
+        % Dynamic based on computer user for mac
+        data_dir = [getenv('HOME')  filesep 'Williams Lab Dropbox' filesep 'Williams Lab Team Folder' filesep 'Bryan_DropBox' filesep 'CHRNA2_LINEAR_TRACK' filesep 'raw' filesep 'Archt'];
+        inter_dir = [getenv('HOME')  filesep 'Williams Lab Dropbox' filesep 'Williams Lab Team Folder' filesep 'Bryan_DropBox' filesep 'CHRNA2_LINEAR_TRACK' filesep 'inter'];
+else disp("This system is not supported on the dynamic loader yet, pleae add it or contact BC for it")
+end
+cd(data_dir)
+%% Loop over sessions
 
 % get all sessions with 'D4_INHIBITION'
 inhib_dir = dir('*D4_INHIBITION*');
@@ -44,7 +38,7 @@ inhib_dir(indices_to_remove) = [];
 
 % Loop to load data from raw
 
-for iS =1:length(inhib_dir)
+for iS =1%:length(inhib_dir)
    
     %% loading
     cd([inhib_dir(iS).folder filesep inhib_dir(iS).name])
@@ -432,8 +426,7 @@ for iS =1:length(inhib_dir)
     % plots are duplicates for some reason. WIP
     
     if plot_flag
-        %         figure(201)
-        %         clf
+        
         cfg_como.A_step = .5;
         cfg_como.P_step = .5;
         cfg_como.phi_bins = 18;
@@ -519,25 +512,32 @@ for iS =1:length(inhib_dir)
 %         Triggered_Spec_FT(csc, iv_noInhb.tstart, 'Opto Off', [1:0.2:120], [-2 0], [-5 10])
 %         
 
-%% example LFP
+%% Figure example LFP
 
 if plot_flag
     
-    figure(110)
+    figure(190)
     clf
     hold on
     
-    plot(csc.tvec, (theta_csc.data), 'color', Archt_green, 'linewidth', 1);
+    ax1=subplot(4,1,1)
+        plot(csc.tvec, (theta_csc.data), 'color',BC_color_genertor('Archt_green') , 'linewidth', 1);
     
-    plot(csc.tvec, (SG_csc.data), 'color', Web_orange, 'linewidth', 1);
-    plot(csc.tvec, abs(hilbert(SG_csc.data)), 'color', Web_orange, 'linewidth', .5);
+    ax2=subplot(4,1,2)
+    hold on
+    plot(csc.tvec, (SG_csc.data), 'color',BC_color_genertor('Web_orange') , 'linewidth', 1);
+    plot(csc.tvec, abs(hilbert(SG_csc.data)), 'color', BC_color_genertor('Web_orange'), 'linewidth', .5);
     
-    plot(csc.tvec, (FG_csc.data), 'color', Red_crayola, 'linewidth', 1);
-    plot(csc.tvec, abs(hilbert(FG_csc.data)), 'color', Red_crayola, 'linewidth', .5);
+    ax3=subplot(4,1,3)
+    hold on
+    plot(csc.tvec, (FG_csc.data), 'color', BC_color_genertor('Red_crayola'), 'linewidth', 1);
+    plot(csc.tvec, abs(hilbert(FG_csc.data)), 'color', BC_color_genertor('Red_crayola'), 'linewidth', .5);
     
-    plot(csc.tvec, csc.data+0.0005, 'color', Oxford_blue, 'linewidth', 1);
+    ax4=subplot(4,1,4)
+    plot(csc.tvec, csc.data+0.0005, 'color', BC_color_genertor('Oxford_blue'), 'linewidth', 1);
     % plot(csc.tvec, abs(hilbert(theta_csc.data))+0.0005, 'color', Powder_blue, 'linewidth', 1);
     
+    linkaxes([ax1,ax2,ax3,ax4],'x')
     % xlim([9 20])
     
 end
