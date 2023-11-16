@@ -42,7 +42,7 @@ inhib_dir(indices_to_remove) = [];
 
 % load data from raw
 
-for iS =1%:length(inhib_dir)
+for iS =2%:length(inhib_dir)
     
     %% loading
     cd([inhib_dir(iS).folder filesep inhib_dir(iS).name])
@@ -57,16 +57,16 @@ for iS =1%:length(inhib_dir)
     cfg_csc.desired_sampling_frequency = 2000;
     
     if strcmpi(info.subject, 'BC1602')
-        cfg_csc.fc ={'CSC4.ncs'}; %'CSC4.ncs'
+        cfg_csc.fc ={'CSC2.ncs'}; %'CSC4.ncs'
         pattern = 'TTL Input on AcqSystem1_0 board 0 port 3 value (0x0002).';
     elseif strcmpi(info.subject, 'BC051')
-        cfg_csc.fc ={'CSC4.ncs'};
+        cfg_csc.fc ={'CSC5.ncs'};
         pattern = 'TTL Input on AcqSystem1_0 board 0 port 3 value (0x0002).';
     elseif strcmpi(info.subject, 'BC1807')
         cfg_csc.fc ={'CSC3.ncs'};
         pattern = 'TTL Input on AcqSystem1_0 board 0 port 3 value (0x0002).';
     elseif strcmpi(info.subject, 'BC053')
-        cfg_csc.fc ={'CSC5.ncs'};
+        cfg_csc.fc ={'CSC2.ncs'};
         pattern = 'TTL Input on AcqSystem1_0 board 0 port 1 value (0x0040).';
     elseif strcmpi(info.subject, 'BC054')
         cfg_csc.fc ={'CSC5.ncs'};
@@ -230,7 +230,7 @@ for iS =1%:length(inhib_dir)
             this_csc = restrict(csc, iv_inhb.tstart(ii), iv_inhb.tend(ii));
             
             % get the power
-            t_bp =  (this_csc.data, this_csc.cfg.hdr{1}.SamplingFrequency, [5 12]);
+            t_bp =  bandpower(this_csc.data, this_csc.cfg.hdr{1}.SamplingFrequency, [5 12]);
             sg_bp = bandpower(this_csc.data, this_csc.cfg.hdr{1}.SamplingFrequency, [30 58]);
             fg_bp = bandpower(this_csc.data, this_csc.cfg.hdr{1}.SamplingFrequency, [60 100]);
             
@@ -355,8 +355,8 @@ for iS =1%:length(inhib_dir)
         title('Theta power');
         set(gca, 'XTickLabel', {'Silencing', 'No silencing'})
         
-        colors = [BC_color_genertor('Torment_blue');  % RGB values for Group 2
-                  BC_color_genertor('Swamp_green')]; % RGB values for Group1;
+        colors = [BC_color_genertor('powder_blue');  % RGB values for Group 2
+                  BC_color_genertor('archt_green')]; % RGB values for Group1;
         h = findobj(gca, 'Tag', 'Box');  % Get handles to the box objects
         for aa = 1:numel(h)
             patch(get(h(aa), 'XData'), get(h(aa), 'YData'), colors(aa, :), 'FaceAlpha', 0.5);

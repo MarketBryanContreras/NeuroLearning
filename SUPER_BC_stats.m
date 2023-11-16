@@ -251,7 +251,7 @@ yt = get(gca, 'YTick');
 set(gca, 'Xtick', 1:3);
 xt = get(gca, 'XTick');
 hold on
-plot(xt([1 2]), [1 1]*yt(5), '-k',mean(xt([1 2])),yt(5)*1.1, '*k', mean(xt([1 2]))+0.05*mean(xt([1 2])),yt(5)*1.1, '*k',mean(xt([1 2]))-0.05*mean(xt([1 2])),yt(5)*1.1, '*k') %Three asteriks
+plot(xt([1 2]), [1 1]*yt(end), '-k',mean(xt([1 2])),yt(end)*1.1, '*k', mean(xt([1 2]))+0.05*mean(xt([1 2])),yt(end)*1.1, '*k',mean(xt([1 2]))-0.05*mean(xt([1 2])),yt(end)*1.1, '*k') %Three asteriks
 %plot(xt([1 2]), [1 1]*yt(5), '-k',mean(xt([1 2]))-0.025*mean(xt([1 2])),yt(5)*1.1, '*k', mean(xt([1 2]))+0.025*mean(xt([1 2])),yt(5)*1.1,'*k') 2 asteriks
 
 title('SG ArchT');
@@ -318,7 +318,7 @@ box off;                     % Turn off the box around the plot
 
 
  % Adjust figure properties
- suptitle('\bf Mod IDX ');           % Add a general title above the entire figure
+ t=title("\bf Mod IDX");           % Add a general title above the entire figure")
  fig = gcf;                   % Get current figure handle
  fig.Color = [1 1 1];         % Set background color to white
  % Resize the figure (optional)
@@ -531,15 +531,148 @@ tbl_avg= table(subject', logical(cohort'), logical(opto'),SG_modidx_z', FG_modid
 
 %% stats for avg Z mod
 
-figure(102)
-subplot(1,2,1)
-%boxchart(tbl.Opto,tbl.SG_modidx,,tbl.Opto)
-boxchart(tbl_avg.Subject,tbl_avg.SG_modidx_z,'GroupByColor',tbl_avg.Opto )
 
-subplot(1,2,2)
-%boxchart(tbl.Subject,tbl.FG_modidx,'GroupByColor',tbl.Opto)
-boxchart(tbl_avg.Subject,tbl_avg.FG_modidx_z,'GroupByColor',tbl_avg.Opto )
+% subplot(1,2,1)
+% boxchart(tbl.Opto,tbl.SG_modidx,,tbl.Opto)
+% boxchart(tbl_avg.Subject,tbl_avg.SG_modidx_z,'GroupByColor',tbl_avg.Opto )
+% 
+% subplot(1,2,2)
+% boxchart(tbl.Subject,tbl.FG_modidx,'GroupByColor',tbl.Opto)
+% boxchart(tbl_avg.Subject,tbl_avg.FG_modidx_z,'GroupByColor',tbl_avg.Opto )
+archt_gv_opto=[];
+eyfp_gv_opto=[];
+archt_silencing_SG_modidx_z=(tbl_avg.SG_modidx_z(tbl_avg.Opto==1 & tbl_avg.Cohort==1));
+archt_gv_opto=[archt_gv_opto (tbl_avg.Opto(tbl_avg.Opto==1 & tbl_avg.Cohort==1))'];
+archt_nosilencing_SG_modidx_z=(tbl_avg.SG_modidx_z(tbl_avg.Opto==0 & tbl_avg.Cohort==1));
+archt_gv_opto=[archt_gv_opto (tbl_avg.Opto(tbl_avg.Opto==0 & tbl_avg.Cohort==1))'];
 
+archt_SG_modidx_z=[archt_silencing_SG_modidx_z' archt_nosilencing_SG_modidx_z'];
+
+archt_silencing_FG_modidx_z=(tbl_avg.FG_modidx_z(tbl_avg.Opto==1 & tbl_avg.Cohort==1));
+archt_nosilencing_FG_modidx_z=(tbl_avg.FG_modidx_z(tbl_avg.Opto==0 & tbl_avg.Cohort==1));
+
+archt_FG_modidx_z=[archt_silencing_FG_modidx_z' archt_nosilencing_FG_modidx_z'];
+
+eyfp_silencing_SG_modidx_z=(tbl_avg.SG_modidx_z(tbl_avg.Opto==1 & tbl_avg.Cohort==0));
+eyfp_gv_opto=[eyfp_gv_opto (tbl_avg.Opto(tbl_avg.Opto==1 & tbl_avg.Cohort==0))'];
+eyfp_nosilencing_SG_modidx_z=(tbl_avg.SG_modidx_z(tbl_avg.Opto==0 & tbl_avg.Cohort==0));
+eyfp_gv_opto=[eyfp_gv_opto (tbl_avg.Opto(tbl_avg.Opto==0 & tbl_avg.Cohort==0))'];
+
+eyfp_SG_modidx_z=[eyfp_silencing_SG_modidx_z' eyfp_nosilencing_SG_modidx_z'];
+
+eyfp_silencing_FG_modidx_z=(tbl_avg.FG_modidx_z(tbl_avg.Opto==1 & tbl_avg.Cohort==0));
+eyfp_nosilencing_FG_modidx_z=(tbl_avg.FG_modidx_z(tbl_avg.Opto==0 & tbl_avg.Cohort==0));
+
+eyfp_FG_modidx_z=[eyfp_silencing_FG_modidx_z' eyfp_nosilencing_FG_modidx_z'];
+
+%% Plotting z_scores
+ff=figure(104);
+clf;
+subplot(1,4,1)
+boxplot(archt_SG_modidx_z, archt_gv_opto,'Labels', {'No silencing', 'Silencing'})
+xtickangle(45);
+hold on
+for ii=1:length(archt_silencing_SG_modidx_z)
+    
+    x=archt_silencing_SG_modidx_z(ii);
+    y=archt_nosilencing_SG_modidx_z(ii);
+    plot([1, 2], [y, x], '-o', 'Color', BC_color_genertor('oxford_blue',0.3), 'LineWidth', 1, 'MarkerSize', 2, 'MarkerFaceColor',BC_color_genertor('oxford_blue') , 'MarkerEdgeColor', BC_color_genertor('oxford_blue'), 'Marker', 'o');  % Traces a line to the first point
+    
+end
+title('SG ArchT');
+colors = [BC_color_genertor('archt_green');  % RGB values for Group 2
+    BC_color_genertor('powder_blue')]; % RGB values for Group1;
+h = findobj(gca, 'Tag', 'Box');  % Get handles to the box objects
+for aa = 1:numel(h)
+    patch(get(h(aa), 'XData'), get(h(aa), 'YData'), colors(aa, :), 'FaceAlpha', 0.5);
+end
+% Customize line and whisker colors
+set(findobj(gca,'Type','Line'),'Color',[0.2 0.2 0.2]);
+% Adjust plot aesthetics
+set(gca, 'TickDir', 'out');  % Move ticks outside the plot
+box off;                     % Turn off the box around the plot
+
+subplot(1,4,2)
+boxplot(archt_FG_modidx_z, archt_gv_opto,'Labels', {'No silencing', 'Silencing'})
+xtickangle(45);
+hold on
+for ii=1:length(archt_silencing_FG_modidx_z)
+    
+    x=archt_silencing_FG_modidx_z(ii);
+    y=archt_nosilencing_FG_modidx_z(ii);
+    plot([1, 2], [y, x], '-o', 'Color', BC_color_genertor('oxford_blue',0.3), 'LineWidth', 1, 'MarkerSize', 2, 'MarkerFaceColor',BC_color_genertor('oxford_blue') , 'MarkerEdgeColor', BC_color_genertor('oxford_blue'), 'Marker', 'o');  % Traces a line to the first point
+    
+end
+title('FG ArchT');
+colors = [BC_color_genertor('archt_green');  % RGB values for Group 2
+    BC_color_genertor('powder_blue')]; % RGB values for Group1;
+h = findobj(gca, 'Tag', 'Box');  % Get handles to the box objects
+for aa = 1:numel(h)
+    patch(get(h(aa), 'XData'), get(h(aa), 'YData'), colors(aa, :), 'FaceAlpha', 0.5);
+end
+% Customize line and whisker colors
+set(findobj(gca,'Type','Line'),'Color',[0.2 0.2 0.2]);
+% Adjust plot aesthetics
+set(gca, 'TickDir', 'out');  % Move ticks outside the plot
+box off;                     % Turn off the box around the plot
+
+%EFP
+
+subplot(1,4,3)
+boxplot(eyfp_SG_modidx_z, eyfp_gv_opto,'Labels', {'No silencing', 'Silencing'})
+xtickangle(45);
+hold on
+for ii=1:length(eyfp_silencing_SG_modidx_z)
+    
+    x=eyfp_silencing_SG_modidx_z(ii);
+    y=eyfp_nosilencing_SG_modidx_z(ii);
+    plot([1, 2], [y, x], '-o', 'Color', BC_color_genertor('oxford_blue',0.1), 'LineWidth', 1, 'MarkerSize', 2, 'MarkerFaceColor',BC_color_genertor('oxford_blue') , 'MarkerEdgeColor', BC_color_genertor('oxford_blue'), 'Marker', 'o');  % Traces a line to the first point
+    
+end
+title('SG control');
+colors = [BC_color_genertor('swamp_green');  % RGB values for Group 2
+    BC_color_genertor('torment_blue')]; % RGB values for Group1;
+h = findobj(gca, 'Tag', 'Box');  % Get handles to the box objects
+for aa = 1:numel(h)
+    patch(get(h(aa), 'XData'), get(h(aa), 'YData'), colors(aa, :), 'FaceAlpha', 0.8);
+end
+% Customize line and whisker colors
+set(findobj(gca,'Type','Line'),'Color',[0.2 0.2 0.2]);
+% Adjust plot aesthetics
+set(gca, 'TickDir', 'out');  % Move ticks outside the plot
+box off;                     % Turn off the box around the plot
+
+subplot(1,4,4)
+boxplot(eyfp_FG_modidx_z, eyfp_gv_opto,'Labels', {'No silencing', 'Silencing'})
+xtickangle(45);
+hold on
+for ii=1:length(eyfp_silencing_FG_modidx_z)
+    
+    x=eyfp_silencing_FG_modidx_z(ii);
+    y=eyfp_nosilencing_FG_modidx_z(ii);
+    plot([1, 2], [y, x], '-o', 'Color', BC_color_genertor('oxford_blue',0.3), 'LineWidth', 1, 'MarkerSize', 2, 'MarkerFaceColor',BC_color_genertor('oxford_blue') , 'MarkerEdgeColor', BC_color_genertor('oxford_blue'), 'Marker', 'o');  % Traces a line to the first point
+    
+end
+title('FG control');
+colors = [BC_color_genertor('swamp_green');  % RGB values for Group 2
+    BC_color_genertor('torment_blue')]; % RGB values for Group1;
+h = findobj(gca, 'Tag', 'Box');  % Get handles to the box objects
+for aa = 1:numel(h)
+    patch(get(h(aa), 'XData'), get(h(aa), 'YData'), colors(aa, :), 'FaceAlpha', 0.8);
+end
+% Customize line and whisker colors
+set(findobj(gca,'Type','Line'),'Color',[0.2 0.2 0.2]);
+% Adjust plot aesthetics
+set(gca, 'TickDir', 'out');  % Move ticks outside the plot
+box off;                     % Turn off the box around the plot
+
+% Adjust figure properties
+ suptitle('\bf MOD IDX Z scores');           % Add a general title above the entire figure
+ fig = gcf;                   % Get current figure handle
+ fig.Color = [1 1 1];         % Set background color to white
+ % Resize the figure (optional)
+ fig.Position = [200, 200, 1000, 700];  % [x, y, width, height]
+ %saveas(gcf, 'FG_NormModIdx.png');%%%% fill in nice plotting %%%%%%%
 %% avg lme
 
 
