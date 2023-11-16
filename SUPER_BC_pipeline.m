@@ -17,11 +17,13 @@
 %data_dir = 'C:\Users\bcont\Williams Lab Dropbox\Williams Lab Team Folder\Bryan_DropBox\CHRNA2_LINEAR_TRACK\raw\Archt';
 % data_dir = 'C:\Users\bcont\Williams Lab Dropbox\Williams Lab Team Folder\Bryan_DropBox\CHRNA2_LINEAR_TRACK\raw\eyfp';
 
-% dynamic based on computer user. 
-data_dir = [getenv('USERPROFILE') '\Williams Lab Dropbox\Williams Lab Team Folder\Bryan_DropBox\CHRNA2_LINEAR_TRACK\raw\Archt'];
+% Dynamic based on computer user windows. 
+%data_dir = [getenv('USERPROFILE') '\Williams Lab Dropbox\Williams Lab Team Folder\Bryan_DropBox\CHRNA2_LINEAR_TRACK\raw\Archt'];
 % data_dir = [getenv('USERPROFILE') '\Williams Lab Dropbox\Williams Lab Team Folder\Bryan_DropBox\CHRNA2_LINEAR_TRACK\raw\eyfp']; 
 
-inter_dir = 'C:\Users\bcont\Williams Lab Dropbox\Williams Lab Team Folder\Bryan_DropBox\CHRNA2_LINEAR_TRACK\inter';
+% Dynamic for mac 
+data_dir = [getenv('HOME')  filesep 'Williams Lab Dropbox' filesep 'Williams Lab Team Folder' filesep 'Bryan_DropBox' filesep 'CHRNA2_LINEAR_TRACK' filesep 'raw' filesep 'Archt'];
+inter_dir = [getenv('HOME')  filesep 'Williams Lab Dropbox' filesep 'Williams Lab Team Folder' filesep 'Bryan_DropBox' filesep 'CHRNA2_LINEAR_TRACK' filesep 'inter'];
 
 cd(data_dir)
 
@@ -40,10 +42,10 @@ indices_to_remove = contains({inhib_dir.name}, 'disconnected');
 % Remove the directories containing 'disconnected'
 inhib_dir(indices_to_remove) = [];
 
-% load data from raw
+% Loop to load data from raw
 
-for iS =2%:length(inhib_dir)
-    
+for iS =1:length(inhib_dir)
+   
     %% loading
     cd([inhib_dir(iS).folder filesep inhib_dir(iS).name])
     
@@ -516,6 +518,29 @@ for iS =2%:length(inhib_dir)
 %     figure
 %         Triggered_Spec_FT(csc, iv_noInhb.tstart, 'Opto Off', [1:0.2:120], [-2 0], [-5 10])
 %         
+
+%% example LFP
+
+if plot_flag
+    
+    figure(110)
+    clf
+    hold on
+    
+    plot(csc.tvec, (theta_csc.data), 'color', Archt_green, 'linewidth', 1);
+    
+    plot(csc.tvec, (SG_csc.data), 'color', Web_orange, 'linewidth', 1);
+    plot(csc.tvec, abs(hilbert(SG_csc.data)), 'color', Web_orange, 'linewidth', .5);
+    
+    plot(csc.tvec, (FG_csc.data), 'color', Red_crayola, 'linewidth', 1);
+    plot(csc.tvec, abs(hilbert(FG_csc.data)), 'color', Red_crayola, 'linewidth', .5);
+    
+    plot(csc.tvec, csc.data+0.0005, 'color', Oxford_blue, 'linewidth', 1);
+    % plot(csc.tvec, abs(hilbert(theta_csc.data))+0.0005, 'color', Powder_blue, 'linewidth', 1);
+    
+    % xlim([9 20])
+    
+end
 
     %% save outputs
     %inhb
