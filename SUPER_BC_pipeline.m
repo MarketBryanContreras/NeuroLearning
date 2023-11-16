@@ -515,31 +515,39 @@ for iS =1%:length(inhib_dir)
 %% Figure example LFP
 
 if plot_flag
-    
+
     figure(190)
     clf
     hold on
-    
+
     ax1=subplot(4,1,1)
-        plot(csc.tvec, (theta_csc.data), 'color',BC_color_genertor('Archt_green') , 'linewidth', 1);
-    
+    plot(csc.tvec, (theta_csc.data), 'color',BC_color_genertor('Swamp_green') , 'linewidth', 1);
+    h01=LTplotIvBars(iv_inhb,theta_csc.data,BC_color_genertor('Archt_green'),0.1);
+    h02=LTplotIvBars(iv_noInhb,theta_csc.data,BC_color_genertor('Burnt_orange'),0.1);
+
     ax2=subplot(4,1,2)
     hold on
     plot(csc.tvec, (SG_csc.data), 'color',BC_color_genertor('Web_orange') , 'linewidth', 1);
     plot(csc.tvec, abs(hilbert(SG_csc.data)), 'color', BC_color_genertor('Web_orange'), 'linewidth', .5);
-    
+    h01=LTplotIvBars(iv_inhb,x_data,BC_color_genertor('Archt_green'),0.8);
+    h02=LTplotIvBars(iv_noInhb,x_data,BC_color_genertor('Burnt_orange'),0.4);
+
     ax3=subplot(4,1,3)
     hold on
     plot(csc.tvec, (FG_csc.data), 'color', BC_color_genertor('Red_crayola'), 'linewidth', 1);
     plot(csc.tvec, abs(hilbert(FG_csc.data)), 'color', BC_color_genertor('Red_crayola'), 'linewidth', .5);
-    
+    h01=LTplotIvBars(iv_inhb,x_data,BC_color_genertor('Archt_green'),0.8);
+    h02=LTplotIvBars(iv_noInhb,x_data,BC_color_genertor('Burnt_orange'),0.4);
+
     ax4=subplot(4,1,4)
     plot(csc.tvec, csc.data+0.0005, 'color', BC_color_genertor('Oxford_blue'), 'linewidth', 1);
+    h01=LTplotIvBars(iv_inhb,x_data,BC_color_genertor('Archt_green'),0.8);
+    h02=LTplotIvBars(iv_noInhb,x_data,BC_color_genertor('Burnt_orange'),0.4);
     % plot(csc.tvec, abs(hilbert(theta_csc.data))+0.0005, 'color', Powder_blue, 'linewidth', 1);
-    
+
     linkaxes([ax1,ax2,ax3,ax4],'x')
     % xlim([9 20])
-    
+
 end
 
     %% save outputs
