@@ -1,4 +1,4 @@
-%% Super_BC_ phase_mod
+ %% Super_BC_ phase_mod
 
 %% initialize
 
