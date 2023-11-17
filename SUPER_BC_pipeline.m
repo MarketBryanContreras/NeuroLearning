@@ -2,13 +2,8 @@
 
 %% initialize
 
-% CEH2_dir = 'C:\Users\ecarm\Documents\GitHub\CEH2';
-% mvdm_dir = 'C:\Users\ecarm\Documents\GitHub\vandermeerlab\code-matlab\shared';
-% BC_dir = 'C:\Users\ecarm\Documents\GitHub\NeuroLearning';
-% 
-% addpath(genpath(mvdm_dir));
-% addpath(genpath(CEH2_dir));
-% addpath(genpath(BC_dir));
+% Mkae sure to add code from the CEH2 repo, Vadermeer lab code-shared repo,
+% NeuroLearning repo before going forward
 %% parameters
 plot_flag = 1; % switch to 0 if you want to supress verification figures.
 time_maze_start = 30;
@@ -520,30 +515,42 @@ if plot_flag
     clf
     hold on
 
-    ax1=subplot(4,1,1)
+    ax1=subplot(4,2,1)
     plot(csc.tvec, (theta_csc.data), 'color',BC_color_genertor('Swamp_green') , 'linewidth', 1);
     h01=LTplotIvBars(iv_inhb,theta_csc.data,BC_color_genertor('Archt_green'),0.1);
     h02=LTplotIvBars(iv_noInhb,theta_csc.data,BC_color_genertor('Burnt_orange'),0.1);
+    ylim([min(theta_csc.data) max(theta_csc.data)]);
+    xlim([0 max(csc.tvec)]);
 
-    ax2=subplot(4,1,2)
+    ax2=subplot(4,2,3)
     hold on
     plot(csc.tvec, (SG_csc.data), 'color',BC_color_genertor('Web_orange') , 'linewidth', 1);
     plot(csc.tvec, abs(hilbert(SG_csc.data)), 'color', BC_color_genertor('Web_orange'), 'linewidth', .5);
-    h01=LTplotIvBars(iv_inhb,x_data,BC_color_genertor('Archt_green'),0.8);
-    h02=LTplotIvBars(iv_noInhb,x_data,BC_color_genertor('Burnt_orange'),0.4);
+    h01=LTplotIvBars(iv_inhb,SG_csc.data,BC_color_genertor('Archt_green'),0.1);
+    h02=LTplotIvBars(iv_noInhb,SG_csc.data,BC_color_genertor('Burnt_orange'),0.1);
+    ylim([min(SG_csc.data) max(SG_csc.data)]);
+    xlim([0 max(csc.tvec)]);
 
-    ax3=subplot(4,1,3)
+
+    ax3=subplot(4,2,5)
     hold on
     plot(csc.tvec, (FG_csc.data), 'color', BC_color_genertor('Red_crayola'), 'linewidth', 1);
     plot(csc.tvec, abs(hilbert(FG_csc.data)), 'color', BC_color_genertor('Red_crayola'), 'linewidth', .5);
-    h01=LTplotIvBars(iv_inhb,x_data,BC_color_genertor('Archt_green'),0.8);
-    h02=LTplotIvBars(iv_noInhb,x_data,BC_color_genertor('Burnt_orange'),0.4);
+    h01=LTplotIvBars(iv_inhb,FG_csc.data,BC_color_genertor('Archt_green'),0.1);
+    h02=LTplotIvBars(iv_noInhb,FG_csc.data,BC_color_genertor('Burnt_orange'),0.1);
+     ylim([min(FG_csc.data) max(FG_csc.data)]);
+    xlim([0 max(csc.tvec)]);
 
-    ax4=subplot(4,1,4)
+
+    ax4=subplot(4,2,7)
     plot(csc.tvec, csc.data+0.0005, 'color', BC_color_genertor('Oxford_blue'), 'linewidth', 1);
-    h01=LTplotIvBars(iv_inhb,x_data,BC_color_genertor('Archt_green'),0.8);
-    h02=LTplotIvBars(iv_noInhb,x_data,BC_color_genertor('Burnt_orange'),0.4);
-    % plot(csc.tvec, abs(hilbert(theta_csc.data))+0.0005, 'color', Powder_blue, 'linewidth', 1);
+    h01=LTplotIvBars(iv_inhb,csc.data+0.0005,BC_color_genertor('Archt_green'),0.1);
+    h02=LTplotIvBars(iv_noInhb,csc.data+0.0005,BC_color_genertor('Burnt_orange'),0.1);
+    ylim([min(csc.data+0.0005) max(csc.data+0.0005)]);
+    xlim([0 max(csc.tvec)]);
+
+
+    
 
     linkaxes([ax1,ax2,ax3,ax4],'x')
     % xlim([9 20])
