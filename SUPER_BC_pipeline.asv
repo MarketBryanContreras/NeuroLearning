@@ -550,7 +550,6 @@ if plot_flag
 
     ax7=subplot(4,2,7,'position', [0.03, 0.10, 0.46, 0.18])
     plot(csc.tvec, csc.data+0.0005, 'color', BC_color_genertor('Oxford_blue'), 'linewidth', 1);
-    ylabel('Raw signal')
     h01=LTplotIvBars(iv_inhb,csc.data+0.0005,BC_color_genertor('Archt_green'),0.1);
     h02=LTplotIvBars(iv_noInhb,csc.data+0.0005,BC_color_genertor('Burnt_orange'),0.1);
     ylim([min(csc.data+0.0005) max(csc.data+0.0005)]);
