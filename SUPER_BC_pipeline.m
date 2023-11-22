@@ -9,16 +9,18 @@ sys=computer;
 if contains(sys,'PCWIN')
     % Dynamic based on computer user windows.
     data_dir = [getenv('USERPROFILE') '\Williams Lab Dropbox\Williams Lab Team Folder\Bryan_DropBox\CHRNA2_LINEAR_TRACK\raw\Archt'];
-    data_dir = [getenv('USERPROFILE') '\Williams Lab Dropbox\Williams Lab Team Folder\Bryan_DropBox\CHRNA2_LINEAR_TRACK\raw\eyfp'];
+    %data_dir = [getenv('USERPROFILE') '\Williams Lab Dropbox\Williams Lab Team Folder\Bryan_DropBox\CHRNA2_LINEAR_TRACK\raw\eyfp'];
+    inter_dir=[getenv('USERPROFILE') '\Williams Lab Dropbox\Williams Lab Team Folder\Bryan_DropBox\CHRNA2_LINEAR_TRACK\inter']
 elseif contains(sys,'MAC')
-        % Dynamic based on computer user for mac
-        data_dir = [getenv('HOME')  filesep 'Williams Lab Dropbox' filesep 'Williams Lab Team Folder' filesep 'Bryan_DropBox' filesep 'CHRNA2_LINEAR_TRACK' filesep 'raw' filesep 'Archt'];
-        inter_dir = [getenv('HOME')  filesep 'Williams Lab Dropbox' filesep 'Williams Lab Team Folder' filesep 'Bryan_DropBox' filesep 'CHRNA2_LINEAR_TRACK' filesep 'inter'];
+    % Dynamic based on computer user for mac
+    data_dir = [getenv('HOME')  filesep 'Williams Lab Dropbox' filesep 'Williams Lab Team Folder' filesep 'Bryan_DropBox' filesep 'CHRNA2_LINEAR_TRACK' filesep 'raw' filesep 'Archt'];
+    %data_dir = [getenv('HOME')  filesep 'Williams Lab Dropbox' filesep 'Williams Lab Team Folder' filesep 'Bryan_DropBox' filesep 'CHRNA2_LINEAR_TRACK' filesep 'raw' filesep 'eyfp'];
+    inter_dir = [getenv('HOME')  filesep 'Williams Lab Dropbox' filesep 'Williams Lab Team Folder' filesep 'Bryan_DropBox' filesep 'CHRNA2_LINEAR_TRACK' filesep 'inter'];
 else disp("This system is not supported on the dynamic loader yet, pleae add it or contact BC for it")
 end
 cd(data_dir)
 %% Parameters
-plot_flag = 1; % switch to 0 if you want to supress verification figures.
+plot_flag = 0; % switch to 0 if you want to supress verification figures.
 time_maze_start = 30;
 min_trial_dur = 0.5;
 
@@ -512,51 +514,67 @@ for iS =1%:length(inhib_dir)
 
 if plot_flag
 
-    figure(190)
+    fig190=figure(190)
     clf
+    
+    
     hold on
 
-    ax1=subplot(4,2,1,'position', [0.03, 0.78, 0.46, 0.18])
+    %Silencing
+    %Theta filtered
+    ax1=subplot(5,2,1,'position', [0.05, 0.82, 0.43, 0.16])
     plot(csc.tvec, (theta_csc.data), 'color',BC_color_genertor('Swamp_green') , 'linewidth', 1);
-    ylabel('Theta amplitude')
+    ylabel({'Theta filtered signal','(mV)'})
     h01=LTplotIvBars(iv_inhb,theta_csc.data,BC_color_genertor('Archt_green'),0.1);
     h02=LTplotIvBars(iv_noInhb,theta_csc.data,BC_color_genertor('Burnt_orange'),0.1);
     ylim([min(theta_csc.data) max(theta_csc.data)]);
     xlim([0 max(csc.tvec)]);
     title('Silencing')
     
+    %Theta phase
+    ax3=subplot(5,2,3,'position', [0.05, 0.63, 0.43, 0.16])
+    hold on
+    plot(csc.tvec, theta_phi, 'color',BC_color_genertor('Swamp_green') , 'linewidth', 1);
+    ylabel({'Theta phase','(rad)'})
+    ylim([min(theta_phi)-0.1 max(theta_phi)+0.1]);
+    xlim([0 max(csc.tvec)]);
     
-    ax3=subplot(4,2,3,'position', [0.03, 0.55, 0.46, 0.18])
+    % SG Amplitude 
+    ax5=subplot(5,2,5,'position', [0.05, 0.44, 0.43, 0.16]);
     hold on
     plot(csc.tvec, (SG_csc.data), 'color',BC_color_genertor('Web_orange') , 'linewidth', 1);
     plot(csc.tvec, abs(hilbert(SG_csc.data)), 'color', BC_color_genertor('Web_orange'), 'linewidth', .5);
-    ylabel('SG amplitude envelope')
+    ylabel({'SG amplitude envelope','(mV)'})
     h01=LTplotIvBars(iv_inhb,SG_csc.data,BC_color_genertor('Archt_green'),0.1);
     h02=LTplotIvBars(iv_noInhb,SG_csc.data,BC_color_genertor('Burnt_orange'),0.1);
     ylim([min(SG_csc.data) max(SG_csc.data)]);
     xlim([0 max(csc.tvec)]);
 
-
-    ax5=subplot(4,2,5,'position', [0.03, 0.33, 0.46, 0.18])
+% FG amplitude 
+    ax7=subplot(5,2,7,'position', [0.05, 0.25, 0.43, 0.16]);
     hold on
     plot(csc.tvec, (FG_csc.data), 'color', BC_color_genertor('Red_crayola'), 'linewidth', 1);
     plot(csc.tvec, abs(hilbert(FG_csc.data)), 'color', BC_color_genertor('Red_crayola'), 'linewidth', .5);
-    ylabel('FG amplitude envelope')
+    ylabel({'FG amplitude envelope','(mV)'})    
     h01=LTplotIvBars(iv_inhb,FG_csc.data,BC_color_genertor('Archt_green'),0.1);
     h02=LTplotIvBars(iv_noInhb,FG_csc.data,BC_color_genertor('Burnt_orange'),0.1);
      ylim([min(FG_csc.data) max(FG_csc.data)]);
     xlim([0 max(csc.tvec)]);
 
-
-    ax7=subplot(4,2,7,'position', [0.03, 0.10, 0.46, 0.18])
+% Raw signal 
+    ax9=subplot(5,2,9,'position', [0.05, 0.06, 0.43, 0.16]);
     plot(csc.tvec, csc.data+0.0005, 'color', BC_color_genertor('Oxford_blue'), 'linewidth', 1);
-    ylabel('Raw signal')
+    ylabel({'Raw LFP signal', '(mV)'})
     h01=LTplotIvBars(iv_inhb,csc.data+0.0005,BC_color_genertor('Archt_green'),0.1);
     h02=LTplotIvBars(iv_noInhb,csc.data+0.0005,BC_color_genertor('Burnt_orange'),0.1);
     ylim([min(csc.data+0.0005) max(csc.data+0.0005)]);
     xlim([0 max(csc.tvec)]);
 
-    ax2=subplot(4,2,2,'position', [0.52, 0.78, 0.46, 0.18])
+   
+    
+    %No silencing
+    %Theta filtered
+    ax2=subplot(5,2,2,'position', [0.52,0.82, 0.43, 0.16]);
     plot(csc.tvec, (theta_csc.data), 'color',BC_color_genertor('Swamp_green') , 'linewidth', 1);
     h01=LTplotIvBars(iv_inhb,theta_csc.data,BC_color_genertor('Archt_green'),0.1);
     h02=LTplotIvBars(iv_noInhb,theta_csc.data,BC_color_genertor('Burnt_orange'),0.1);
@@ -564,7 +582,17 @@ if plot_flag
     xlim([0 max(csc.tvec)]);
     title('No silencing')
 
-    ax4=subplot(4,2,4,'position', [0.52, 0.55, 0.46, 0.18])
+     %Theta phase
+    ax4=subplot(5,2,4,'position', [0.52, 0.63, 0.43, 0.16])
+    plot(csc.tvec, theta_phi, 'color',BC_color_genertor('Swamp_green') , 'linewidth', 1);
+    
+    h01=LTplotIvBars(iv_inhb,theta_csc.data,BC_color_genertor('Archt_green'),0.1);
+    h02=LTplotIvBars(iv_noInhb,theta_csc.data,BC_color_genertor('Burnt_orange'),0.1);
+    ylim([min(theta_phi) max(theta_phi)]);
+    xlim([0 max(csc.tvec)]);
+
+    %SG amplitude
+    ax6=subplot(5,2,6,'position', [0.52,0.44, 0.43, 0.16]);
     hold on
     plot(csc.tvec, (SG_csc.data), 'color',BC_color_genertor('Web_orange') , 'linewidth', 1);
     plot(csc.tvec, abs(hilbert(SG_csc.data)), 'color', BC_color_genertor('Web_orange'), 'linewidth', .5);
@@ -573,33 +601,31 @@ if plot_flag
     ylim([min(SG_csc.data) max(SG_csc.data)]);
     xlim([0 max(csc.tvec)]);
 
-
-    ax6=subplot(4,2,6,'position', [0.52, 0.33, 0.46, 0.18])
+    %FG amplitude
+    ax8=subplot(5,2,8,'position', [0.52,0.25, 0.43, 0.16]);
     hold on
     plot(csc.tvec, (FG_csc.data), 'color', BC_color_genertor('Red_crayola'), 'linewidth', 1);
     plot(csc.tvec, abs(hilbert(FG_csc.data)), 'color', BC_color_genertor('Red_crayola'), 'linewidth', .5);
     h01=LTplotIvBars(iv_inhb,FG_csc.data,BC_color_genertor('Archt_green'),0.1);
     h02=LTplotIvBars(iv_noInhb,FG_csc.data,BC_color_genertor('Burnt_orange'),0.1);
-     ylim([min(FG_csc.data) max(FG_csc.data)]);
+    ylim([min(FG_csc.data) max(FG_csc.data)]);
     xlim([0 max(csc.tvec)]);
 
-
-    ax8=subplot(4,2,8,'position', [0.52, 0.10, 0.46, 0.18])
+    %Raw data
+    ax10=subplot(5,2,10,'position', [0.52, 0.06, 0.43, 0.16]);
     plot(csc.tvec, csc.data+0.0005, 'color', BC_color_genertor('Oxford_blue'), 'linewidth', 1);
     h01=LTplotIvBars(iv_inhb,csc.data+0.0005,BC_color_genertor('Archt_green'),0.1);
     h02=LTplotIvBars(iv_noInhb,csc.data+0.0005,BC_color_genertor('Burnt_orange'),0.1);
     ylim([min(csc.data+0.0005) max(csc.data+0.0005)]);
     xlim([0 max(csc.tvec)]);
 
-    
-
-   
     link1=linkprop([ax1,ax2],'Ylim');
     link2=linkprop([ax3,ax4],'Ylim');
     link3=linkprop([ax5,ax6],'Ylim');
     link4=linkprop([ax7,ax8],'Ylim');
-    linkaxes([ax1,ax3,ax5,ax7],'x')
-    linkaxes([ax2,ax4,ax6,ax8],'x')
+    link5=linkprop([ax9,ax10],'Ylim');
+    linkaxes([ax1,ax3,ax5,ax7,ax9],'x')
+    linkaxes([ax2,ax4,ax6,ax8,ax10],'x')
 
     % Adjust plot aesthetics
     set(ax1, 'TickDir', 'out');  % Move ticks outside the plot
@@ -618,6 +644,11 @@ if plot_flag
     set(ax7, 'box','off');
     set(ax8, 'TickDir', 'out');  % Move ticks outside the plot
     set(ax8, 'box','off');
+    set(ax9, 'TickDir', 'out');  % Move ticks outside the plot
+    set(ax9, 'box','off');
+    set(ax10, 'TickDir', 'out');  % Move ticks outside the plot
+    set(ax10, 'box','off');
+   
 end
 
     %% save outputs

@@ -5,12 +5,23 @@
 %% Adjust the name of the files to load
 ArchT_file_name='out_ArchT_07_nov_23.mat';
 eyfp_file_name='out_eyfp_07_nov_23.mat';
-%% Load
-load(['C:\Users\bcont\Williams Lab Dropbox\Williams Lab Team Folder\Bryan_DropBox\CHRNA2_LINEAR_TRACK\inter' filesep ,ArchT_file_name])
-load(['C:\Users\bcont\Williams Lab Dropbox\Williams Lab Team Folder\Bryan_DropBox\CHRNA2_LINEAR_TRACK\inter' filesep ,eyfp_file_name])
-%%
-parts = strsplit(ArchT_file_name, '.');
-archt_var= parts{1}; 
+%% Dynamic loader
+sys=computer;
+if contains(sys,'PCWIN')
+    % Dynamic based on computer user windows.
+    load([getenv('USERPROFILE') '\Williams Lab Dropbox\Williams Lab Team Folder\Bryan_DropBox\CHRNA2_LINEAR_TRACK\inter' filesep ,ArchT_file_name])
+    load([getenv('USERPROFILE') '\Williams Lab Dropbox\Williams Lab Team Folder\Bryan_DropBox\CHRNA2_LINEAR_TRACK\inter' filesep ,eyfp_file_name])
+elseif contains(sys,'MAC')
+    % Dynamic based on computer user for mac
+    load([getenv('HOME')  filesep 'Williams Lab Dropbox' filesep 'Williams Lab Team Folder' filesep 'Bryan_DropBox' filesep 'CHRNA2_LINEAR_TRACK' filesep 'inter' filesep ,ArchT_file_name]);
+    load([getenv('HOME')  filesep 'Williams Lab Dropbox' filesep 'Williams Lab Team Folder' filesep 'Bryan_DropBox' filesep 'CHRNA2_LINEAR_TRACK' filesep 'inter' filesep ,eyfp_file_name]);
+    inter_dir = [getenv('HOME')  filesep 'Williams Lab Dropbox' filesep 'Williams Lab Team Folder' filesep 'Bryan_DropBox' filesep 'CHRNA2_LINEAR_TRACK' filesep 'inter'];
+else disp("This system is not supported on the dynamic loader yet, pleae add it or contact BC for it")
+end
+
+%% Prototype to load a file from setting above
+% parts = strsplit(ArchT_file_name, '.');
+% archt_var= parts{1};
 %% collect and make table
 tbl = table(); 
 stats = []; 
@@ -130,8 +141,9 @@ eyfp_stats.fg_bp =   fitlme(eyfp_tbl,'FG_bp ~ 1+ Opto + (1|Subject)+ (1|Trial)')
 stats.SG_mod = fitglme(tbl,'SG_modidx ~ 1+ Opto + (1|Subject)');
 %% Plotting
 
-%boxchart(tbl.Opto,tbl.SG_modidx,,tbl.Opto)
-%boxchart(tbl.Cohort,tbl.SG_modidx,'GroupByColor',tbl.Opto )
+boxchart(tbl.Subject,tbl.SG_modidx,'GroupByColor',tbl.Opto)
+boxchart(tbl.Subject,tbl.FG_modidx,'GroupByColor',tbl.Opto)
+boxchart(tbl.Cohort,tbl.SG_modidx,'GroupByColor',tbl.Opto )
 %% ArchT
 % Filtering SG Data
 archt_sg_modidx_values_opto_1 = tbl.SG_modidx(tbl.Opto == 1 & tbl.Cohort==1);
@@ -318,15 +330,17 @@ box off;                     % Turn off the box around the plot
 
 
  % Adjust figure properties
- t=title("\bf Mod IDX");           % Add a general title above the entire figure")
+ t=title(" Mod IDX");           % Add a general title above the entire figure")
  fig = gcf;                   % Get current figure handle
  fig.Color = [1 1 1];         % Set background color to white
  % Resize the figure (optional)
  fig.Position = [200, 200, 1000, 700];  % [x, y, width, height]
  %saveas(gcf, 'FG_NormModIdx.png');%%%% fill in nice plotting %%%%%%%
 %% Plotting Band power stats
-figure(103)
+fig103=figure(103)
 clf
+
+
 subplot(2,3,1)
 boxplot(archt_theta_bp_xx,archt_theta_bp_yy, 'Labels', {'No silencing', 'Silencing'});
 ylabel('Power (mW)');
@@ -472,15 +486,14 @@ set(gca, 'TickDir', 'out');  % Move ticks outside the plot
 box off;                     % Turn off the box around the plot
 
 % Adjust figure properties
- suptitle('\bf Band Power');           % Add a general title above the entire figure
+
  fig = gcf;                   % Get current figure handle
  fig.Color = [1 1 1];         % Set background color to white
  % Resize the figure (optional)
  fig.Position = [200, 200, 1000, 700];  % [x, y, width, height]
  %saveas(gcf, 'FG_NormModIdx.png');%%%% fill in nice plotting %%%%%%%
-%%
-%boxchart(tbl.Subject,tbl.FG_modidx,'GroupByColor',tbl.Opto)
-boxplot( tbl.FG_modidx,tbl.Opto )
+
+
 
 
 %% average value tabl
