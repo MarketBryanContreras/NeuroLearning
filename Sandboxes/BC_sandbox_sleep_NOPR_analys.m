@@ -2,8 +2,8 @@
 
 %% Initialize
 % Go to the directory of some data
-%data_dir= '/Users/bryancontrerasmercado/Williams Lab Dropbox/Williams Lab Team Folder/Bryan_DropBox/CHRNA2_NOVEL_OBJECT/raw_data/NOPR/BC011_2023_10_10_D2_NOPR';
-data_dir= 'C:\Users\bcont\Williams Lab Dropbox\Williams Lab Team Folder\Bryan_DropBox\CHRNA2_NOVEL_OBJECT\raw_data\NOPR\BC053_2023_11_16_D1_HAB_T2'
+data_dir= '/Users/bryancontrerasmercado/Williams Lab Dropbox/Williams Lab Team Folder/Bryan_DropBox/CHRNA2_NOVEL_OBJECT/raw_data/NOPR/BC053_2023_11_16_D1_HAB_T2';
+%data_dir= 'C:\Users\bcont\Williams Lab Dropbox\Williams Lab Team Folder\Bryan_DropBox\CHRNA2_NOVEL_OBJECT\raw_data\NOPR\BC053_2023_11_16_D1_HAB_T2'
 cd(data_dir)
 %% Parameters
 emg_chan = 'CSC1.ncs';
@@ -72,6 +72,14 @@ end
 %% sleep state
 
 % specify known wake times or periods to ignore. 
-wake_t = [6020 6722 6884 7437 7740 7870 7940 8140 8234 8460 9030 9170 11450 12740 15831 16898 17290 17418 17562 18133]; 
+wake_t = [0 4000 5015 5631 8824 9340 10605 10873 10618 108080 11531 11803 12450 13021 13618 13743 14188 14397]; 
+%wake_t = [0 0]; 
+
 wake_idx = nearest_idx(wake_t, csc_s.tvec);
 wake_idx = reshape(wake_idx,2, length(wake_idx)/2)'; 
+%% score the sleep. 
+ 
+%% Getting the percentage of sleep sates 
+figure(222)
+clf
+histogram(hypno.data)
