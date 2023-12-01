@@ -84,8 +84,18 @@ figure(222)
 clf
 [y,x]=histcounts(hypno.data,[0.5:1:3.5])
 y_per=(y/sum(y))*100;
+if plot_flag
 b=bar([1:1:3],y_per)
 b.FaceColor = 'flat';
 cord = linspecer(5);
-b.CData([1:1:3],:) = [cord([1:1:3])];
+for ci=1:3
+    b.CData(ci,:) = cord(ci,:);
+end
+b.LineStyle= "none";
 xticklabels({'Wake','SWS','REM'})
+% Add percentage labels on top of each bar
+for ii = 1:numel(y_per)
+    text(ii, y_per(ii), sprintf('%.1f%%', y_per(ii)), 'HorizontalAlignment', 'center', 'VerticalAlignment', 'bottom');
+end
+ylabel('Time spent per state [%]')
+end
