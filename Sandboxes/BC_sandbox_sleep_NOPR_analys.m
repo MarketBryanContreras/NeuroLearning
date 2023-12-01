@@ -2,8 +2,8 @@
 
 %% Initialize
 % Go to the directory of some data
-data_dir= '/Users/bryancontrerasmercado/Williams Lab Dropbox/Williams Lab Team Folder/Bryan_DropBox/CHRNA2_NOVEL_OBJECT/raw_data/NOPR/BC053_2023_11_16_D1_HAB_T2';
-%data_dir= 'C:\Users\bcont\Williams Lab Dropbox\Williams Lab Team Folder\Bryan_DropBox\CHRNA2_NOVEL_OBJECT\raw_data\NOPR\BC053_2023_11_16_D1_HAB_T2'
+%data_dir= '/Users/bryancontrerasmercado/Williams Lab Dropbox/Williams Lab Team Folder/Bryan_DropBox/CHRNA2_NOVEL_OBJECT/raw_data/NOPR/BC053_2023_11_16_D1_HAB_T2';
+data_dir= 'C:\Users\bcont\Williams Lab Dropbox\Williams Lab Team Folder\Bryan_DropBox\CHRNA2_NOVEL_OBJECT\raw_data\NOPR\BC053_2023_11_16_D1_HAB_T2'
 cd(data_dir)
 %% Parameters
 emg_chan = 'CSC1.ncs';
@@ -78,8 +78,14 @@ wake_t = [0 4000 5015 5631 8824 9340 10605 10873 10618 108080 11531 11803 12450 
 wake_idx = nearest_idx(wake_t, csc_s.tvec);
 wake_idx = reshape(wake_idx,2, length(wake_idx)/2)'; 
 %% score the sleep. 
- 
+[hypno, csc_out, emg_out] = dSub_Sleep_screener(csc_s, emg_s, wake_idx)
 %% Getting the percentage of sleep sates 
 figure(222)
 clf
-histogram(hypno.data)
+[y,x]=histcounts(hypno.data,[0.5:1:3.5])
+y_per=(y/sum(y))*100;
+b=bar([1:1:3],y_per)
+b.FaceColor = 'flat';
+cord = linspecer(5);
+b.CData([1:1:3],:) = [cord([1:1:3])];
+xticklabels({'Wake','SWS','REM'})
