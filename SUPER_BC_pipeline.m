@@ -20,7 +20,7 @@ else disp("This system is not supported on the dynamic loader yet, pleae add it 
 end
 cd(data_dir)
 %% Parameters
-plot_flag = 0; % switch to 0 if you want to supress verification figures.
+plot_flag = 1; % switch to 0 if you want to supress verification figures.
 time_maze_start = 30;
 min_trial_dur = 0.5;
 

@@ -78,7 +78,9 @@ wake_t = [0 4000 5015 5631 8824 9340 10605 10873 10618 108080 11531 11803 12450 
 wake_idx = nearest_idx(wake_t, csc_s.tvec);
 wake_idx = reshape(wake_idx,2, length(wake_idx)/2)'; 
 %% score the sleep. 
-[hypno, csc_out, emg_out] = dSub_Sleep_screener(csc_s, emg_s, wake_idx)
+
+[hypno, csc_out, emg_out] = dSub_Sleep_screener(csc_s, emg_s, wake_idx);  % can add in 'wake_idx' as the last input. 
+
 %% Getting the percentage of sleep sates 
 figure(222)
 clf
