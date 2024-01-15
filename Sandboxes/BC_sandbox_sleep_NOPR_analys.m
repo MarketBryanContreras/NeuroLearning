@@ -82,7 +82,7 @@ wake_idx = reshape(wake_idx,2, length(wake_idx)/2)';
 %% Getting the percentage of sleep sates 
 figure(222)
 clf
-[y,x]=histcounts(hypno.data,[0.5:1:3.5])
+[y,x]=histcounts(hypno.data,[0.5:1:3.5]);
 y_per=(y/sum(y))*100;
 if plot_flag
 b=bar([1:1:3],y_per)
@@ -99,3 +99,4 @@ for ii = 1:numel(y_per)
 end
 ylabel('Time spent per state [%]')
 end
+%to do add a label of the total time that the mice spent sleeping 
