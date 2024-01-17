@@ -5,10 +5,9 @@
 %BC053 D1
 %data_dir= '/Users/bryancontrerasmercado/Williams Lab Dropbox/Williams Lab Team Folder/Bryan_DropBox/CHRNA2_NOVEL_OBJECT/raw_data/NOPR/BC053_2023_11_16_D1_HAB_T2';
 %BC053 D2
-
-%data_dir= '/Users/bryancontrerasmercado/Williams Lab Dropbox/Williams Lab Team Folder/Bryan_DropBox/CHRNA2_NOVEL_OBJECT/raw_data/NOPR/BC053_2023_11_16_D1_HAB_T2';
+data_dir= '/Users/bryancontrerasmercado/Williams Lab Dropbox/Williams Lab Team Folder/Bryan_DropBox/CHRNA2_NOVEL_OBJECT/raw_data/NOPR/BC053_2023_11_16_D1_HAB_T2';
 %mac
-data_dir= 'C:\Users\bcont\Williams Lab Dropbox\Williams Lab Team Folder\Bryan_DropBox\CHRNA2_NOVEL_OBJECT\raw_data\NOPR\BC053_2023_11_16_D1_HAB_T2';
+%data_dir= 'C:\Users\bcont\Williams Lab Dropbox\Williams Lab Team Folder\Bryan_DropBox\CHRNA2_NOVEL_OBJECT\raw_data\NOPR\BC053_2023_11_16_D1_HAB_T2';
 %'windows
 
 cd(data_dir)
@@ -123,9 +122,14 @@ if plot_flag
     end
     ylabel('Time spent per state [%]')
 
-    %Donut 
+    %Donut
     subplot(1,2,2)
     d=donutchart(y_per, {'Wake','SWS','REM'})
-    colororder reef
+    new_colors= [...
+        0.3467    0.5360    0.6907;
+        0.9153    0.2816    0.2878;
+        0.4416    0.7490    0.4322];
+    colororder(newcolors);
+    sgtitle(sprintf('Sleep phases %s', info.subject), 'fontweight', 'bold', 'fontsize', 16);
 end
 %to do add a label of the total time that the mice spent sleeping
