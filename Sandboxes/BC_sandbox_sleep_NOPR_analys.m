@@ -8,9 +8,10 @@
 %data_dir= '/Users/bryancontrerasmercado/Williams Lab Dropbox/Williams Lab Team Folder/Bryan_DropBox/CHRNA2_NOVEL_OBJECT/raw_data/NOPR/BC053_2023_11_16_D1_HAB_T2';
 %BC053 D2
 %data_dir= '/Users/bryancontrerasmercado/Williams Lab Dropbox/Williams Lab Team Folder/Bryan_DropBox/CHRNA2_NOVEL_OBJECT/raw_data/NOPR/BC053_2023_11_16_D1_HAB_T2';
-data_dir='/Users/bryancontrerasmercado/Williams Lab Dropbox/Williams Lab Team Folder/Bryan_DropBox/CHRNA2_NOVEL_OBJECT/raw_data/NOPR/BC1807/BC1807_2023_07_07_D2_NOPR';
+%data_dir='/Users/bryancontrerasmercado/Williams Lab Dropbox/Williams Lab Team Folder/Bryan_DropBox/CHRNA2_NOVEL_OBJECT/raw_data/NOPR/BC1807/BC1807_2023_07_07_D2_NOPR';
 %mac
 %data_dir= 'C:\Users\bcont\Williams Lab Dropbox\Williams Lab Team Folder\Bryan_DropBox\CHRNA2_NOVEL_OBJECT\raw_data\NOPR\BC053_2023_11_16_D1_HAB_T2';
+data_dir= 'C:\Users\bcont\Williams Lab Dropbox\Williams Lab Team Folder\Bryan_DropBox\CHRNA2_NOVEL_OBJECT\raw_data\NOPR\BC1807\BC1807_2023_07_07_D2_NOPR'
 %'windows
 
 cd(data_dir)
@@ -141,14 +142,73 @@ end
 pos = MS_DLC2TSD(cd, [], [4.5 4.5]); %Need to ask Eric how to solve for the size of the cage. For now we will assume its 4.5
 
 %Correct time and remove time where the mouse was not in OF
-
+pos.tvec=pos.tvec-pos.tvec(1);
 %Correct positions of objects to the mean of the location for both objects
 for ii= 5:1:8
     pos.data(ii,:)=mean(pos.data(ii,:));
 end
 %Calculate the distance between the objects and the mouse nose
-d=sqrt(x2-x1)^2+(y2-y1)^2
-%Plot the position of the mouse 
+%A. Calculate the distance between the nose and the first object
+distances.data=[];
+for iframe= length(pos.data(1,:)):-1:1
+    x1=pos.data(1,iframe);
+    y1=pos.data(2,iframe);
+    x2=pos.data(5,iframe);
+    y2=pos.data(6,iframe);
+    d=sqrt(((x2-x1)^2)+((y2-y1)^2));
+    distances.data(1,iframe)=d;
+    if iframe==1
+        clear iframe;clear x1;clear x2;clear y1;clear y2;clear d;
+    end
+end
+
+%B.Same for object 2
+for iframe= length(pos.data(1,:)):-1:1
+    x1=pos.data(1,iframe);
+    y1=pos.data(2,iframe);
+    x2=pos.data(7,iframe);
+    y2=pos.data(8,iframe);
+    d=sqrt(((x2-x1)^2)+((y2-y1)^2));
+    distances.data(2,iframe)=d;
+end
+%Plot the position of the mouse
+figure (20)
+%Actual position
+subplot(8,1,1:4);
+%plot the actual position 
+time_frames=[1:length(pos.data)];
+%Option 1
+scatter(pos.data(1,:), pos.data(2,:), 'o', 'MarkerFaceColor', 'b', 'MarkerEdgeColor', 'none', 'MarkerFaceAlpha', 0.01);
+hold on
+scatter(pos.data(5,1),pos.data(6,1) , 'o', 'MarkerFaceColor', 'm', 'MarkerEdgeColor', 'none')
+scatter(pos.data(7,1),pos.data(8,1) , 'o', 'MarkerFaceColor', 'r', 'MarkerEdgeColor', 'none')
+%%-----To do----- Figure out an animation 
+%Plot the the x position of the mouse across time
+
+%plot X position of the mouse
+subplot(8,1,5);
+plot(time_frames,pos.data(1,:));
+xlim([0,time_frames(end)])
+%xlabel('Time(s)');
+ylabel('X pos (cm)');
+%plot Y position of the mouse
+subplot(8,1,6);
+plot(time_frames,pos.data(2,:), 'Color',BC_color_genertor('Oxford_blue'));
+xlim([0,time_frames(end)])
+%xlabel('Time(s)');
+ylabel('Y pos (cm)');
+%Plot the distances to object 1
+subplot(8,1,7);
+plot(time_frames, distances.data(1,:), 'm');
+xlim([0,time_frames(end)])
+%xlabel('Time(s)');
+ylabel('Distance to object A');
+%Plot the distnaces to object 2
+subplot(8,1,8);
+plot(time_frames,distances.data(2,:),'r');
+xlim([0,time_frames(end)])
+xlabel('Time(s)');
+ylabel('Distance to object B');
 
 %Calculate the angle of the mouse head and if it is pointing towards the object
 
