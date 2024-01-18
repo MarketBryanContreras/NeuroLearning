@@ -89,7 +89,7 @@ for iS =1%:length(inhib_dir)
     evts.t{1,nn-1}=evts.t{1,nn-1}-strt;                                    % Coreccting laser events start
     evts.t{1,nn}=evts.t{1,nn}-strt;                                        % Coreccting laser events end
     
-    %Restiction of time when the mouse is plces in the maze
+    %Restiction of time when the mouse is placed in the maze
     sSamp=time_maze_start*30;
     restrictIvPos=iv(pos.tvec(sSamp),pos.tvec(end));
     pos=restrict(pos,restrictIvPos);
