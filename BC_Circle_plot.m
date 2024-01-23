@@ -1,4 +1,4 @@
-function BC_Circle_plot(rad, xCent, yCent, color)
+function [Xcord,Ycord]=BC_Circle_plot(rad, xCent, yCent, color, plot_flag)
 %% The function BC_Circle_plot:
 %            [Plot a circle with the radious, x center and  y center specified by the user]
 %   Inputs:
@@ -20,8 +20,10 @@ Xcord=xCent + rad*cos(theta);
 Ycord=yCent + rad*sin(theta);
 
 %Plot the coordinates
-if nargin >=3;
-plot(Xcord,Ycord, 'Color',color, 'LineWidth', 2);
-else
-plot(Xcord,Ycord, 'LineWidth', 2);
+if plot_flag==1
+    if nargin >=3;
+        plot(Xcord,Ycord, 'Color',color, 'LineWidth', 2);
+    else
+        plot(Xcord,Ycord, 'LineWidth', 2);
+    end
 end
