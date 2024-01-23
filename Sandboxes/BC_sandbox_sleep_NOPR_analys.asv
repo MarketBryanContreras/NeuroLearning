@@ -251,6 +251,8 @@ aidx=find(inA);
 bidx=find(inB);
 sprintf('The mouse was in %d frames within the radious of object 1 and %d within the radious of object 2',numel(xdata(inA)), numel(xdata(inB)))
 %Get periods where the mouse spends more than 5 frames (0.33 sec)
-diff(aidx)
+intervals=diff([0,aidx,0]);
+ar(ar<=10)=1; %smoothing the inconsistancies 
+find(ar)
 
 %Remove perios where the mouse is on top of object (if any)

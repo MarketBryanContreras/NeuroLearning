@@ -240,6 +240,10 @@ xlim([0,time_frames(end)])
 xlabel('Time(s)');
 ylabel('Distance to object B');
 end
+%% Leta assign the intervals where te mice is inisde the radious
+%Parameters
+minFrames=5; % The minimum number of frames where the mouse is in radious
+
 %Calculate the angle of the mouse head and if it is pointing towards the object
 
 %Figure out intervals where the mouse nose was close to the object and the
@@ -251,8 +255,9 @@ aidx=find(inA);
 bidx=find(inB);
 sprintf('The mouse was in %d frames within the radious of object 1 and %d within the radious of object 2',numel(xdata(inA)), numel(xdata(inB)))
 %Get periods where the mouse spends more than 5 frames (0.33 sec)
-ar=diff(aidx)
-ar(ar<=10)=1; %smoothing the inconsistancies 
+intervals=diff([0,aidx,0]);
+intervals(intervals<=10)=1; %smoothing the inconsistancies 
+
 find(ar)
 
 %Remove perios where the mouse is on top of object (if any)
