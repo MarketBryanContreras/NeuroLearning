@@ -8,10 +8,10 @@
 %data_dir= '/Users/bryancontrerasmercado/Williams Lab Dropbox/Williams Lab Team Folder/Bryan_DropBox/CHRNA2_NOVEL_OBJECT/raw_data/NOPR/BC053_2023_11_16_D1_HAB_T2';
 %BC053 D2
 %data_dir= '/Users/bryancontrerasmercado/Williams Lab Dropbox/Williams Lab Team Folder/Bryan_DropBox/CHRNA2_NOVEL_OBJECT/raw_data/NOPR/BC053_2023_11_16_D1_HAB_T2';
-%data_dir='/Users/bryancontrerasmercado/Williams Lab Dropbox/Williams Lab Team Folder/Bryan_DropBox/CHRNA2_NOVEL_OBJECT/raw_data/NOPR/BC1807/BC1807_2023_07_07_D2_NOPR';
+data_dir='/Users/bryancontrerasmercado/Williams Lab Dropbox/Williams Lab Team Folder/Bryan_DropBox/CHRNA2_NOVEL_OBJECT/raw_data/NOPR/BC1807/BC1807_2023_07_07_D2_NOPR';
 %mac
 %data_dir= 'C:\Users\bcont\Williams Lab Dropbox\Williams Lab Team Folder\Bryan_DropBox\CHRNA2_NOVEL_OBJECT\raw_data\NOPR\BC053_2023_11_16_D1_HAB_T2';
-data_dir= 'C:\Users\bcont\Williams Lab Dropbox\Williams Lab Team Folder\Bryan_DropBox\CHRNA2_NOVEL_OBJECT\raw_data\NOPR\BC1807\BC1807_2023_07_07_D2_NOPR'
+%data_dir= 'C:\Users\bcont\Williams Lab Dropbox\Williams Lab Team Folder\Bryan_DropBox\CHRNA2_NOVEL_OBJECT\raw_data\NOPR\BC1807\BC1807_2023_07_07_D2_NOPR'
 %'windows
 
 cd(data_dir)
@@ -137,7 +137,7 @@ if plot_flag
     sgtitle(sprintf('Sleep phases %s', info.subject), 'fontweight', 'bold', 'fontsize', 16);
 end
 %to do add a label of the total time that the mice spent sleeping
-%% Traacking movement and seeting up intervals when it explored the objects
+%% Traacking movement and setting up intervals when it explored the objects
 % Load the DLC data
 pos = MS_DLC2TSD(cd, [], [4.5 4.5]); %Need to ask Eric how to solve for the size of the cage. For now we will assume its 4.5
 
@@ -148,7 +148,8 @@ for ii= 5:1:8
     pos.data(ii,:)=mean(pos.data(ii,:));
 end
 %Calculate the distance between the objects and the mouse nose
-%A. Calculate the distance between the nose and the first object
+%A. Calculate the distance between the nose and object A (Object A is the
+%one on the left)
 distances.data=[];
 for iframe= length(pos.data(1,:)):-1:1
     x1=pos.data(1,iframe);
@@ -162,7 +163,7 @@ for iframe= length(pos.data(1,:)):-1:1
     end
 end
 
-%B.Same for object 2
+%B.Same for object B (Object A is the one on the right)
 for iframe= length(pos.data(1,:)):-1:1
     x1=pos.data(1,iframe);
     y1=pos.data(2,iframe);
@@ -178,10 +179,13 @@ subplot(8,1,1:4);
 %plot the actual position 
 time_frames=[1:length(pos.data)];
 %Option 1
-scatter(pos.data(1,:), pos.data(2,:), 'o', 'MarkerFaceColor', 'b', 'MarkerEdgeColor', 'none', 'MarkerFaceAlpha', 0.01);
+scatter(pos.data(1,:), pos.data(2,:), 'o', 'MarkerFaceColor', 'b', 'MarkerEdgeColor', 'none', 'MarkerFaceAlpha', 0.05);
 hold on
 scatter(pos.data(5,1),pos.data(6,1) , 'o', 'MarkerFaceColor', 'm', 'MarkerEdgeColor', 'none')
+BC_Circle_plot(5,pos.data(5,1),pos.data(6,1), BC_color_genertor('Swamp_green'));
 scatter(pos.data(7,1),pos.data(8,1) , 'o', 'MarkerFaceColor', 'r', 'MarkerEdgeColor', 'none')
+BC_Circle_plot(5,pos.data(7,1),pos.data(8,1), BC_color_genertor('Torment_blue'));
+
 %%-----To do----- Figure out an animation 
 %Plot the the x position of the mouse across time
 
@@ -200,12 +204,14 @@ ylabel('Y pos (cm)');
 %Plot the distances to object 1
 subplot(8,1,7);
 plot(time_frames, distances.data(1,:), 'm');
+yline(5, 'Color', 'r')
 xlim([0,time_frames(end)])
 %xlabel('Time(s)');
 ylabel('Distance to object A');
 %Plot the distnaces to object 2
 subplot(8,1,8);
 plot(time_frames,distances.data(2,:),'r');
+yline(5, 'Color', 'r')
 xlim([0,time_frames(end)])
 xlabel('Time(s)');
 ylabel('Distance to object B');
@@ -214,5 +220,6 @@ ylabel('Distance to object B');
 
 %Figure out intervals where the mouse nose was close to the object and the
 %head direction is pointing towards the closest object
+
 
 %Remove perios where the mouse is on top of object (if any)
