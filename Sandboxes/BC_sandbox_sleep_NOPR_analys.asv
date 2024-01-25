@@ -17,8 +17,9 @@ data_dir= 'C:\Users\bcont\Williams Lab Dropbox\Williams Lab Team Folder\Bryan_Dr
 cd(data_dir)
 
 %% Colloecting subject info
+% ----TO DO--- Adjust for MAc or WIN 
 folder = pwd;
-parts= split(folder, '/');
+parts= split(folder, '\');
 parts=parts{end};
 parts= split(parts,'_');
 
@@ -183,9 +184,10 @@ subplot(8,1,1:4);
 %plot the actual position 
 time_frames=[1:length(pos.data)];
 [aX,aY]=BC_Circle_plot(5.5,pos.data(5,1),pos.data(6,1), BC_color_genertor('Swamp_green'),plot_flag);
+hold on
 [bX,bY]=BC_Circle_plot(5.5,pos.data(7,1),pos.data(8,1), BC_color_genertor('Torment_blue'),plot_flag);
 
-if plotflag==1
+if plot_flag==1
 scatter(pos.data(5,1),pos.data(6,1) , 'o', 'MarkerFaceColor', 'm', 'MarkerEdgeColor', 'none')
 scatter(pos.data(7,1),pos.data(8,1) , 'o', 'MarkerFaceColor', 'r', 'MarkerEdgeColor', 'none')
 xlim([min(pos.data(1,:)) max(pos.data(1,:))]);
@@ -211,6 +213,7 @@ else
     end
     % close the writer object
     close(writerObj);
+end
 end
 %%% Rest of the plot
 %plot X position of the mouse
@@ -240,19 +243,33 @@ xlim([0,time_frames(end)])
 xlabel('Time(s)');
 ylabel('Distance to object B');
 end
+hold off
+%% Lets assign the intervals where te mice is inisde the radious
+%Parameters
+minFrames=5; % The minimum number of frames where the mouse is in radious
+
 %Calculate the angle of the mouse head and if it is pointing towards the object
 
 %Figure out intervals where the mouse nose was close to the object and the
 %head direction is pointing towards the closest object
 %Figure out whih data points are inside the radious
-[inA,onA]= inpolygon(pos.data(1,:),pos.data(2,:),aX,aY);
+inA= inpolygon(pos.data(1,:),pos.data(2,:),aX,aY);
 aidx=find(inA);
-[inB,onB]= inpolygon(pos.data(1,:),pos.data(2,:),bX,bY);
+aInt=BC_object_interaction_intervals(aidx,minFrames);%Get periods where the mouse spends more than 5 frames (0.33 sec)
+timeA=(sum(diff(aInt,1,2))/30);
+inB= inpolygon(pos.data(1,:),pos.data(2,:),bX,bY);
 bidx=find(inB);
-sprintf('The mouse was in %d frames within the radious of object 1 and %d within the radious of object 2',numel(xdata(inA)), numel(xdata(inB)))
-%Get periods where the mouse spends more than 5 frames (0.33 sec)
-intervals=diff([0,aidx,0]);
-ar(ar<=10)=1; %smoothing the inconsistancies 
-find(ar)
+bInt=BC_object_interaction_intervals(bidx,minFrames);
+timeB=(sum(diff(bInt,1,2))/30);
+fprintf('The mouse <strong>%s</strong> interacted <strong>%d</strong> times with the object 1 for a total of <strong>%.2f</strong> seconds and <strong>%d</strong> times with the object 2 for a total of <strong>%.2f</strong> seconds \n ', info.subject ,size(aInt,1),timeA,size(bInt,1), timeB)
 
-%Remove perios where the mouse is on top of object (if any)
+%Lets verify that these idx correspond to times the mouse was with the objects
+for jj=1:1:size(aInt,1)
+    scatter(pos.data(1,aInt(jj,1):aInt(jj,2)), pos.data(2,aInt(jj,1):aInt(jj,2)), 'o', 'MarkerFaceColor', new_colors(jj,:), 'MarkerEdgeColor', 'none', 'MarkerFaceAlpha', 0.5);
+end
+for jj=1:1:size(bInt,1)
+    scatter(pos.data(1,bInt(jj,1):bInt(jj,2)), pos.data(2,bInt(jj,1):bInt(jj,2)), 'o', 'MarkerFaceColor', new_colors(jj,:), 'MarkerEdgeColor', 'none', 'MarkerFaceAlpha', 0.5);
+end
+%% Automate collection of data for more individuals
+
+%Remove periods where the mouse is on top of the object (if any)
