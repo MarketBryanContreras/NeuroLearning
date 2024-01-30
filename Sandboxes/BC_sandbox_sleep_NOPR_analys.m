@@ -11,7 +11,7 @@
 %data_dir='/Users/bryancontrerasmercado/Williams Lab Dropbox/Williams Lab Team Folder/Bryan_DropBox/CHRNA2_NOVEL_OBJECT/raw_data/NOPR/BC1807/BC1807_2023_07_07_D2_NOPR';
 %mac
 %data_dir= 'C:\Users\bcont\Williams Lab Dropbox\Williams Lab Team Folder\Bryan_DropBox\CHRNA2_NOVEL_OBJECT\raw_data\NOPR\BC053_2023_11_16_D1_HAB_T2';
-data_dir= 'C:\Users\bcont\Williams Lab Dropbox\Williams Lab Team Folder\Bryan_DropBox\CHRNA2_NOVEL_OBJECT\raw_data\NOPR\BC1807\BC1807_2023_07_07_D2_NOPR'
+data_dir= 'C:\Users\bcont\Williams Lab Dropbox\Williams Lab Team Folder\Bryan_DropBox\CHRNA2_NOVEL_OBJECT\raw_data\Behavior\BC1807_2023_07_07_D2_NOPR'
 %'windows
 
 cd(data_dir)
@@ -242,7 +242,7 @@ yline(5, 'Color', 'r')
 xlim([0,time_frames(end)])
 xlabel('Time(s)');
 ylabel('Distance to object B');
-end
+
 hold off
 %% Lets assign the intervals where te mice is inisde the radious
 %Parameters
