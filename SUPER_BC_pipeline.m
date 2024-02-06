@@ -23,7 +23,16 @@ cd(data_dir)
 plot_flag = 1; % switch to 0 if you want to supress verification figures.
 time_maze_start = 30;
 min_trial_dur = 0.5;
+mouse_group=2; %1 for ArchT and 2 for eYFP. This just modify color of the plots
 
+%% Generating color pallet for the mouse group
+if mouse_group==1
+    gcolors = [BC_color_genertor('powder_blue');  % RGB values for Group 2
+        BC_color_genertor('archt_green')]; % RGB values for Group1;
+else
+    gcolors = [BC_color_genertor('torment_blue');  % RGB values for Group 2
+        BC_color_genertor('swamp_green')]; % RGB values for Group1;
+end
 %% Loop over sessions
 
 % get all sessions with 'D4_INHIBITION'
@@ -99,7 +108,7 @@ for iS =1%:length(inhib_dir)
     iv_inhb = MS_get_evts_off(evts, pattern);
     
     
-    %% trial split
+    %% Trial split
     
     [iv_inhb,iv_noInhb, iv_running] = BC_LT_trialfun(pos, iv_inhb, plot_flag);
     
@@ -168,43 +177,75 @@ for iS =1%:length(inhib_dir)
     SG_running = restrict(SG_csc, iv_running);
     FG_running = restrict(FG_csc, iv_running);
     
-    %% get phase mod over trial
-    
+    %% Get phase mod over trial
+
     SGphiAmpNormInhb=BC_phase_amp_norm_bins(theta_inhb,SG_inhb);
     SGInhb_modidx=MS_ModIdx(SGphiAmpNormInhb);
     if plot_flag
-    BC_plot_modidx(SGphiAmpNormInhb,BC_color_genertor('Archt_green'),SGInhb_modidx,'SG', 'silencing' )
+        if mouse_group ==1;
+        BC_plot_modidx(SGphiAmpNormInhb,BC_color_genertor('Archt_green'),SGInhb_modidx,'SG', 'Light' )
+        else
+        BC_plot_modidx(SGphiAmpNormInhb,BC_color_genertor('Swamp_green'),SGInhb_modidx,'SG', 'Light' )
+        end 
     end
     SGphiAmpNormNoInhb = BC_phase_amp_norm_bins(theta_noinhb,SG_noinhb);
     SGNoInhb_modidx=MS_ModIdx(SGphiAmpNormNoInhb);
     if plot_flag
-    BC_plot_modidx(SGphiAmpNormNoInhb,BC_color_genertor('Powder_blue'),SGNoInhb_modidx, 'SG', 'no silencing')
+        if mouse_group ==1;
+        BC_plot_modidx(SGphiAmpNormNoInhb,BC_color_genertor('Powder_blue'),SGNoInhb_modidx, 'SG', 'No light')
+        else
+        BC_plot_modidx(SGphiAmpNormNoInhb,BC_color_genertor('Torment_blue'),SGNoInhb_modidx, 'SG', 'No light')
+        end 
     end
     [SGshift_mean, SGshift_std]=LTshifted_meanModIdx(theta_running,SG_running);
-    
-    z_SGInhb_modidx = (SGInhb_modidx - SGshift_mean) / SGshift_std; 
-    z_SGNoInhb_modidx = (SGNoInhb_modidx - SGshift_mean) / SGshift_std; 
+%Z scores for SG
+    z_SGInhb_modidx = (SGInhb_modidx - SGshift_mean) / SGshift_std;
+    z_SGNoInhb_modidx = (SGNoInhb_modidx - SGshift_mean) / SGshift_std;
+%Prototype of a bar graph for the mod idx comparison between light and no light
+if plot_flag
+    figure(19)
+    bSG=bar(["No Light" "Light"],[0.3*10^-4  ;0.35*10^-4 ],'FaceColor','flat');
+    % Set the face color of each bar individually
+    for k = 1:2 % Loop through the number of columns in data
+        bSG.CData(k,:) = gcolors(k,:);
+    end
+    ylabel('Modulation Index');
+    set(gca,'fontsize', 14);
+    bSG.EdgeColor = 'none';
+    set(gca, 'TickDir', 'out');  % Move ticks outside the plot
+    set(gca,'box','off');
+    fig = gcf;                   % Get current figure handle
+    fig.Color = [1 1 1];         % Set background color to white
+    fig.Position = [100, 100, 600, 800];  % [x, y, width, height]
+end
 
+    %FG
     FGphiAmpNormInhb=BC_phase_amp_norm_bins(theta_inhb,FG_inhb);
     FGInhb_modidx=MS_ModIdx(FGphiAmpNormInhb);
     if plot_flag
-    BC_plot_modidx(FGphiAmpNormInhb,BC_color_genertor('Archt_green'),FGInhb_modidx,'FG', 'silencing' )
+        if mouse_group ==1;
+        BC_plot_modidx(FGphiAmpNormInhb,BC_color_genertor('Archt_green'),FGInhb_modidx,'FG', 'Light' )
+        else
+        BC_plot_modidx(FGphiAmpNormInhb,BC_color_genertor('Swamp_green'),FGInhb_modidx,'FG', 'Light' )
+        end
     end
     %NoInhb
     FGphiAmpNormNoInhb = BC_phase_amp_norm_bins(theta_noinhb,FG_noinhb);
     FGNoInhb_modidx=MS_ModIdx(FGphiAmpNormNoInhb);
     if plot_flag
-    BC_plot_modidx(FGphiAmpNormNoInhb,BC_color_genertor('Powder_blue'),FGNoInhb_modidx, 'FG', 'no silencing')
+        if mouse_group ==1;
+        BC_plot_modidx(FGphiAmpNormNoInhb,BC_color_genertor('Powder_blue'),FGNoInhb_modidx, 'FG', 'No light')
+        else
+        BC_plot_modidx(FGphiAmpNormNoInhb,BC_color_genertor('Torment_blue'),FGNoInhb_modidx, 'FG', 'No light')
+        end
     end
     %Shifted
     [FGshift_mean,FGshift_std]=LTshifted_meanModIdx(theta_running,FG_running);
-    
-    
+    %Z scores for FG
+
     z_FGInhb_modidx = (FGInhb_modidx - FGshift_mean) / FGshift_std; 
-    z_FGNoInhb_modidx = (FGNoInhb_modidx - FGshift_mean) / FGshift_std; 
-    
-    
-    %% epochs by epochs analysis
+    z_FGNoInhb_modidx = (FGNoInhb_modidx - FGshift_mean) / FGshift_std;  
+    %% Epochs by epochs analysis
     
     % inhibition
     win_s = 256;
