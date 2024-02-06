@@ -115,7 +115,7 @@ for iF  = 1:length(file_list)
         this_field{iF, iFields} = [DLC_data(:,f_idx(1)+1), DLC_data(:,f_idx(2)+1), DLC_data(:,f_idx(3)+1)];
     end
 end
-%So far this fields contains a row per file and a coloum for each
+%So far this field contains a row per file and a coloum for each
 %point-type (filed) tracked in DLC
 %make an empty field for each.
 fprintf('Found %i fields: ', length(fields));
@@ -124,16 +124,28 @@ for iFields = 1:length(fields)
     fprintf('<strong>%s</strong> ', fields{iFields});
 end
 fprintf('\n');
-
+% Lets split this to either have the option to put them together of gather
+% an individual structure form each file 
 % put them all together
-fnum = [];
-for iF  = 1:length(file_list)
-    for iFields = 1:length(fields)
-        data_out.(fields{iFields}) = [ data_out.(fields{iFields});  this_field{iF, iFields}];
-    end
-    fnum = [fnum , 1:length(this_field{iF, 1})];
-end
 
+if divide==0
+    fnum = [];
+    for iF  = 1:length(file_list)
+        for iFields = 1:length(fields)
+            data_out.(fields{iFields}) = [ data_out.(fields{iFields});  this_field{iF, iFields}];
+        end
+        fnum = [fnum , 1:length(this_field{iF, 1})];
+    end
+else
+fnum = [];
+    for iF  = 1:length(file_list)
+        for iFields = 1:length(fields)
+            data_out.(fields{iFields}) = [ data_out.(fields{iFields});  this_field{iF, iFields}];
+        end
+        fnum = [fnum , 1:length(this_field{iF, 1})];
+    end
+else
+end
 
 % apply simple smoothing over any points that are larger than a 3sd jump.
 for iFields = 1:length(fields)

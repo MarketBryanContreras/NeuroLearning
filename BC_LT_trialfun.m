@@ -76,7 +76,7 @@ end
         ylim([0 100]);
         % xlabel('Time (s)','Fontsize',14);
         % ylabel('Position in the maze (cm)');
-        leg=legend([h01;h02],{'Silencing','No silencing'});
+        leg=legend([h01;h02],{'Light','No light'});
         legendFontSize = 12; % Adjust the font size as needed
         leg.Position=[0.890 0.3914 0.1047 0.0487];
         set(leg, 'FontSize', legendFontSize);
