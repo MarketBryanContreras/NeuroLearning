@@ -1,4 +1,4 @@
-function [pos, behav] = MS_DLC2TSD_2(dir_in, model_in,conv_fac, plot_flag,divide)
+function [pos, behav] = MS_DLC2TSD_2(dir_in, model_in,conv_fac, plot_flag,divide_flag)
 %% MS_DLC2TSD: loads and collects all DLC files in a directory. Will skip over files without a number since DLC saves the interation number in the .csv
 %
 %
@@ -11,6 +11,8 @@ function [pos, behav] = MS_DLC2TSD_2(dir_in, model_in,conv_fac, plot_flag,divide
 %    '400000' if will only keep the files containing '400000'.
 %
 %    - plot_flag: bool do you want to see a movie of the HD / position?
+%    - divide_flag: boolean. 1 For create an independant file instead of
+%    adding them to a single file
 %
 %    Outputs:
 %    - pos [struct] position data in the tsd format.
@@ -30,20 +32,20 @@ if nargin == 0
     model_in = [];
     conv_fac = [1 1];
     plot_flag = 0;
-    divide=1;
+    divide_flag=1;
 elseif nargin == 1
     model_in = [];
     conv_fac = [1 1];
     plot_flag = 0;
-    divide=1;
+    divide_flag=1;
 elseif nargin ==2
     conv_fac = [1 1];
     plot_flag = 0;
 elseif nargin ==3
     plot_flag = 0;
-    divide=1;
+    divide_flag=1;
 elseif nargin ==4
-    divide=1;
+    divide_flag=1;
 end
 
 
@@ -134,7 +136,7 @@ fprintf('\n');
 % an individual structure form each file 
 
 % put them all together
-if divide==0
+if divide_flag==0
     fnum = [];
     for iF  = 1:length(file_list)
         for iFields = 1:length(fields)
@@ -143,63 +145,93 @@ if divide==0
         fnum = [fnum , 1:length(this_field{iF, 1})];
     end
 %Divide them
+%All data is a cell array with that stores a structure for each file being analized
 else
-    fnum = [];
-    for iF  = 1:length(file_list)
-        for iFields = 1:length(fields)
-            data_out.iF.(fields{iFields}) = [ data_out.iF.(fields{iFields});  this_field{iF, iFields}];
-        end
-        fnum.file_(iF) = [1:length(this_field{iF, 1})];
+    all_data=struct();
+    %all_data=cell(length(file_list),1);
+    for iF =   1:length(file_list)
+       for iFields = 1:length(fields)
+            data_out.(fields{iFields}) = [this_field{iF, iFields}];
+       end
+       all_data.("File"+iF)=data_out;
     end
-
 end
 
 % apply simple smoothing over any points that are larger than a 3sd jump.
-for iFields = 1:length(fields)
-    nan_idx =abs(zscore(diff(data_out.(fields{iFields})(:,1)))) > 2;
-    
-    data_out.(fields{iFields})(nan_idx,1) = NaN;
-    data_out.(fields{iFields})(:,1) = fillmissing(data_out.(fields{iFields})(:,1), 'spline');
-    nan_idx = abs(zscore(diff(data_out.(fields{iFields})(:,2)))) > 2;
-    data_out.(fields{iFields})(nan_idx,2) = NaN;
-    data_out.(fields{iFields})(:,2) = fillmissing(data_out.(fields{iFields})(:,2), 'spline');
+if divide_flag
+    for iFiles= 1:length(fieldnames(all_data))
+        for iFields = 1:length(fields)
+            nan_idx =abs(zscore(diff(all_data.("File"+iFiles).(fields{iFields})(:,1)))) > 2;
+            all_data.("File"+iFiles).(fields{iFields})(nan_idx,1) = NaN;
+            all_data.("File"+iFiles).(fields{iFields})(:,1) = fillmissing(all_data.("File"+iFiles).(fields{iFields})(:,1), 'spline');
+
+            nan_idx = abs(zscore(diff(all_data.("File"+iFiles).(fields{iFields})(:,2)))) > 2;
+            all_data.("File"+iFiles).(fields{iFields})(nan_idx,2) = NaN;
+            all_data.("File"+iFiles).(fields{iFields})(:,2) = fillmissing(all_data.("File"+iFiles).(fields{iFields})(:,2), 'spline');
+        end
+    end
+else
+    for iFields = 1:length(fields)
+        nan_idx =abs(zscore(diff(data_out.(fields{iFields})(:,1)))) > 2;
+
+        data_out.(fields{iFields})(nan_idx,1) = NaN;
+        data_out.(fields{iFields})(:,1) = fillmissing(data_out.(fields{iFields})(:,1), 'spline');
+        nan_idx = abs(zscore(diff(data_out.(fields{iFields})(:,2)))) > 2;
+        data_out.(fields{iFields})(nan_idx,2) = NaN;
+        data_out.(fields{iFields})(:,2) = fillmissing(data_out.(fields{iFields})(:,2), 'spline');
+    end
 end
 
 
 % convert to cfg units. Default conv fac is 1, so still in pixels.
-for iFields = 1:length(fields)
-    data_out.(fields{iFields})(:,1)  = data_out.(fields{iFields})(:,1)./ conv_fac(1);
-    data_out.(fields{iFields})(:,2)  = data_out.(fields{iFields})(:,2)./ conv_fac(2);
+if divide_flag
+    for iFiles=1:length(fieldnames(all_data))
+        for iFields = 1:length(fields)
+            all_data.("File"+iFiles).(fields{iFields})(:,1)  = all_data.("File"+iFiles).(fields{iFields})(:,1)./ conv_fac(1);
+            all_data.("File"+iFiles).(fields{iFields})(:,2)  = all_data.("File"+iFiles).(fields{iFields})(:,2)./ conv_fac(2);
+        end
+    end
+
+else
+    for iFields = 1:length(fields)
+        data_out.(fields{iFields})(:,1)  = data_out.(fields{iFields})(:,1)./ conv_fac(1);
+        data_out.(fields{iFields})(:,2)  = data_out.(fields{iFields})(:,2)./ conv_fac(2);
+    end
+    nan_idx = isnan(data_out.(fields{1})(:,1));
 end
 
 
-nan_idx = isnan(data_out.(fields{1})(:,1));
-
 %% grab the timestamps.
+
 if ~isempty(dir('*.nvt'))
     fprintf('<strong>%s</strong>: NVT file found, using it for timestamps\n', mfilename)
-    
     nvt_f =  dir('*.nvt');
-    
-    [data_out.tvec, ~, ~, ~, ~, ~, ~] = Nlx2MatVT(nvt_f.name, [1 1 1 1 1 1 ], 1, 1, [] );
-    data_out.tvec = data_out.tvec*10^-6; % convert to seconds
-    frameNum = 1:length(data_out.tvec); 
-    maxBufferUsed = NaN; 
-    
+    if divide
+        [all_data.tvec, ~, ~, ~, ~, ~, ~] = Nlx2MatVT(nvt_f.name, [1 1 1 1 1 1 ], 1, 1, [] );
+        all_data.tvec = data_out.tvec*10^-6; % convert to seconds
+        frameNum = 1:length(data_out.tvec);
+        maxBufferUsed = NaN;
+    else
+
+        [data_out.tvec, ~, ~, ~, ~, ~, ~] = Nlx2MatVT(nvt_f.name, [1 1 1 1 1 1 ], 1, 1, [] );
+        data_out.tvec = data_out.tvec*10^-6; % convert to seconds
+        frameNum = 1:length(data_out.tvec);
+        maxBufferUsed = NaN;
+    end
 else
-    
+
     t_file = dir('time*');
-    
+
     if contains(t_file.name, '.csv')
         TS = readtable(t_file.name);
         data_out.tvec = table2array(TS(:,2));
         frameNum = table2array(TS(:,1));
         maxBufferUsed =  max(table2array(TS(:,3)));
-        
+
     elseif contains(t_file.name, '.dat')
         cfg_ts = [];
         cfg_ts.correct_time = 0;
-        
+
         TS = MS_Load_TS(cfg_ts);
         for ii = length(TS{1}.system_clock):-1:1
             TS_len(ii) = length(TS{1}.system_clock{ii});
@@ -209,15 +241,31 @@ else
         data_out.tvec(1) = 0;
         frameNum = TS{1}.framenumber{this_cam_idx};
         maxBufferUsed = TS{1}.buffer{this_cam_idx};
-        
+
     end
     data_out.tvec = data_out.tvec./1000; % convert to seconds
-    
-    
+
+
 end
+
+%Here We want to avoid trimming timestamps
+if divide 1
+temp_evts=LoadEvents([]);
+% Make sure that the number of events correspond to the #videos+1
+    %In a normal recording session for Bryn's experiments. You would end with
+    %two videos and three events after deleting the intermediate video.
+
+    
+% If they do not match the expected values, ask the user which intervals
+% they want to use instead
+
+%If the values do macth, the
+else
+
+    %%% To do. This is assuming the 
 if length(data_out.tvec) ~= length(data_out.(fields{1}))
     fprintf('DLC samples (%.0f) differ from timestamps.dat (%.0f). Trimming...\n',length(data_out.(fields{1})), length(data_out.tvec));
-    
+
     if length(data_out.tvec)< length(data_out.(fields{1}))
         for iFields = 1:length(fields)
             data_out.(fields{iFields}) = data_out.(fields{iFields})(1:length(data_out.tvec),:);
