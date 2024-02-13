@@ -208,8 +208,8 @@ if ~isempty(dir('*.nvt'))
     nvt_f =  dir('*.nvt');
     if divide
         [all_data.tvec, ~, ~, ~, ~, ~, ~] = Nlx2MatVT(nvt_f.name, [1 1 1 1 1 1 ], 1, 1, [] );
-        all_data.tvec = data_out.tvec*10^-6; % convert to seconds
-        frameNum = 1:length(data_out.tvec);
+        all_data.tvec = all_data.tvec*10^-6; % convert to seconds
+        frameNum = 1:length(all_data.tvec);
         maxBufferUsed = NaN;
     else
 
@@ -243,56 +243,107 @@ else
         maxBufferUsed = TS{1}.buffer{this_cam_idx};
 
     end
-    data_out.tvec = data_out.tvec./1000; % convert to seconds
-
+    if divide_flag
+        all_data.tvec=all_data.tvec./1000;
+    else
+        data_out.tvec = data_out.tvec./1000; % convert to seconds
+    end
 
 end
 
 %Here We want to avoid trimming timestamps
-if divide 1
+if divide 
 temp_evts=LoadEvents([]);
+ievts= length(temp_evts.t{1,1});
+idlc=length(dir(['*DLC*']));
 % Make sure that the number of events correspond to the #videos+1
-    %In a normal recording session for Bryn's experiments. You would end with
-    %two videos and three events after deleting the intermediate video.
+%In a normal recording session for Bryn's experiments. You would end with
+%two videos and three events after deleting the intermediate video.
+if idlc==2 && ievts==3;
+    fprintf('<strong>The number of evts corresponds to the number of videos for Bryans experiments</strong> \n Using interval 1 and 2 for extracting the timestamps \n');
+    idx_start=find(contains(temp_evts.label,'Starting Recording'));
+    idx_end=find(contains(temp_evts.label,'Stopping Recording'));
+    range=[temp_evts.t{idx_start}(1),temp_evts.t{idx_end}(1);temp_evts.t{idx_start}(3),temp_evts.t{idx_end}(3)];
+else
+    fprintf('<strong>The number of evts DO NOT corresponds to the number of videos for Bryans experiments</strong> \n');
+    valid= false;
+    while ~valid
+        prompt=sprintf("Please provide the index of the recording that you want to use for your <strong>first</strong> interval. There are %d intervals in this experiment \n", ievts);
+        idx1_str=input(prompt,"s");
+        % Check if the input can be converted to a number
+        if ~isempty(idx1_str) && all(isstrprop(idx1_str, 'digit'))
+            idx1 = str2double(idx1_str); % Convert the input to a number
+            % Check if the conversion was successful
+            if ~isnan(idx1) && isreal(idx1) && idx1 > 0
+                valid = true; % Set the flag to true to exit the loop
+            end
+        end
+        % If the input is not valid, display a message and ask again
+        if ~valid
+            disp('Invalid input. Please enter a valid positive integer.');
+        end
+    end
 
-    
-% If they do not match the expected values, ask the user which intervals
-% they want to use instead
-%x = input( prompt )
+    valid= false;
+    while ~valid
+        prompt=sprintf("Please provide the index of the recording that you want to use for your <strong>second</strong> interval. There are %d intervals in this experiment \n", ievts);
+        idx2_str=input(prompt,"s");
+        
+        % Check if the input can be converted to a number
+        if ~isempty(idx2_str) && all(isstrprop(idx2_str, 'digit'))
+            idx2 = str2double(idx2_str); % Convert the input to a number
+            % Check if the conversion was successful
+            if ~isnan(idx2) && isreal(idx2) && idx2 > 0 && idx1_str~=idx2_str
+                valid = true; % Set the flag to true to exit the loop
+            end
+        end
+        % If the input is not valid, display a message and ask again
+        if ~valid
+            disp('Invalid input. Please enter a valid positive integer that was not your previous input.');
+        end
+    end
+    idx_start=find(contains(temp_evts.label,'Starting Recording'));
+    idx_end=find(contains(temp_evts.label,'Stopping Recording'));
 
+    fprintf('Great! This works. The intervals <strong>%d</strong> and <strong>%d</strong> will be used to extract the times\n', idx1,idx2);
+    range=[temp_evts.t{idx_start}(idx1),temp_evts.t{idx_end}(idx1);temp_evts.t{idx_start}(idx2),temp_evts.t{idx_end}(idx2)];
 %If the values do macth, then use the values between 'Starting Recording"
 %and 'Stopping Recording' 1 and 3 as reference for creating a tvec
+end
 else
-
     %%% ----To do-----.The following code assumes that the tvec would
     %%% correspond to the number of frames. This is not the case if you use
-if length(data_out.tvec) ~= length(data_out.(fields{1}))
-    fprintf('DLC samples (%.0f) differ from timestamps.dat (%.0f). Trimming...\n',length(data_out.(fields{1})), length(data_out.tvec));
-
-    if length(data_out.tvec)< length(data_out.(fields{1}))
-        for iFields = 1:length(fields)
-            data_out.(fields{iFields}) = data_out.(fields{iFields})(1:length(data_out.tvec),:);
+    if length(data_out.tvec) ~= length(data_out.(fields{1}))
+        fprintf('DLC samples (%.0f) differ from timestamps.dat (%.0f). Trimming position data...\n',length(data_out.(fields{1})), length(data_out.tvec));
+    %%% This only trims the position data if the tvec vector is smaller than the position-data  vector
+        if length(data_out.tvec)< length(data_out.(fields{1}))
+             fprintf('Trimming position data...\n');
+            for iFields = 1:length(fields)
+                data_out.(fields{iFields}) = data_out.(fields{iFields})(1:length(data_out.tvec),:);
+            end
         end
     end
 end
-%% get the meta data from the json to pull the recording start time.
-if ~isempty(dir('*.json'))
-    
-    j_files = dir('*.json');
-    
-    fid = fopen([fileparts(j_files.folder) filesep j_files.name]);
-    raw = fread(fid,inf);
-    str = char(raw');
-    Exp_json = jsondecode(str);
-    fclose(fid);
-    
-else
-    Exp_json = [];
-end
+
+    %% get the meta data from the json to pull the recording start time.
+    if ~isempty(dir('*.json'))
+
+        j_files = dir('*.json');
+
+        fid = fopen([fileparts(j_files.folder) filesep j_files.name]);
+        raw = fread(fid,inf);
+        str = char(raw');
+        Exp_json = jsondecode(str);
+        fclose(fid);
+
+    else
+        Exp_json = [];
+    end
 
 %% compute some other measures.
 
-
+%%-----To do----- Implement the divide version of this section of code
+% ----------------------------------You are here in the fx
 
 % get the HD
 
