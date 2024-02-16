@@ -24,7 +24,7 @@ function [pos, behav] = MS_DLC2TSD_2(dir_in, model_in,conv_fac, plot_flag,divide
 %
 %
 % EC 2023-01-28  initial version
-% BC2024-01-30 V2
+% BC 2024-01-30 V2
 %% initialize
 
 if nargin == 0
@@ -252,72 +252,72 @@ else
 end
 
 %Here We want to avoid trimming timestamps
-if divide 
-temp_evts=LoadEvents([]);
-ievts= length(temp_evts.t{1,1});
-idlc=length(dir(['*DLC*']));
-% Make sure that the number of events correspond to the #videos+1
-%In a normal recording session for Bryn's experiments. You would end with
-%two videos and three events after deleting the intermediate video.
-if idlc==2 && ievts==3;
-    fprintf('<strong>The number of evts corresponds to the number of videos for Bryans experiments</strong> \n Using interval 1 and 2 for extracting the timestamps \n');
-    idx_start=find(contains(temp_evts.label,'Starting Recording'));
-    idx_end=find(contains(temp_evts.label,'Stopping Recording'));
-    range=[temp_evts.t{idx_start}(1),temp_evts.t{idx_end}(1);temp_evts.t{idx_start}(3),temp_evts.t{idx_end}(3)];
-else
-    fprintf('<strong>The number of evts DO NOT corresponds to the number of videos for Bryans experiments</strong> \n');
-    valid= false;
-    while ~valid
-        prompt=sprintf("Please provide the index of the recording that you want to use for your <strong>first</strong> interval. There are %d intervals in this experiment \n", ievts);
-        idx1_str=input(prompt,"s");
-        % Check if the input can be converted to a number
-        if ~isempty(idx1_str) && all(isstrprop(idx1_str, 'digit'))
-            idx1 = str2double(idx1_str); % Convert the input to a number
-            % Check if the conversion was successful
-            if ~isnan(idx1) && isreal(idx1) && idx1 > 0
-                valid = true; % Set the flag to true to exit the loop
+if divide_flag
+    temp_evts=LoadEvents([]);
+    ievts= length(temp_evts.t{1,1});
+    idlc=length(dir(['*DLC*']));
+    % Make sure that the number of events correspond to the #videos+1
+    %In a normal recording session for Bryn's experiments. You would end with
+    %two videos and three events after deleting the intermediate video.
+    if idlc==2 && ievts==3;
+        fprintf('<strong>The number of evts corresponds to the number of videos for Bryans experiments</strong> \n Using interval 1 and 2 for extracting the timestamps \n');
+        idx_start=find(contains(temp_evts.label,'Starting Recording'));
+        idx_end=find(contains(temp_evts.label,'Stopping Recording'));
+        range=[temp_evts.t{idx_start}(1),temp_evts.t{idx_end}(1);temp_evts.t{idx_start}(3),temp_evts.t{idx_end}(3)];
+    else
+        fprintf('<strong>The number of evts DO NOT corresponds to the number of videos for Bryans experiments</strong> \n');
+        valid= false;
+        while ~valid
+            prompt=sprintf("Please provide the index of the recording that you want to use for your <strong>first</strong> interval. There are %d intervals in this experiment \n", ievts);
+            idx1_str=input(prompt,"s");
+            % Check if the input can be converted to a number
+            if ~isempty(idx1_str) && all(isstrprop(idx1_str, 'digit'))
+                idx1 = str2double(idx1_str); % Convert the input to a number
+                % Check if the conversion was successful
+                if ~isnan(idx1) && isreal(idx1) && idx1 > 0
+                    valid = true; % Set the flag to true to exit the loop
+                end
+            end
+            % If the input is not valid, display a message and ask again
+            if ~valid
+                disp('Invalid input. Please enter a valid positive integer.');
             end
         end
-        % If the input is not valid, display a message and ask again
-        if ~valid
-            disp('Invalid input. Please enter a valid positive integer.');
-        end
-    end
 
-    valid= false;
-    while ~valid
-        prompt=sprintf("Please provide the index of the recording that you want to use for your <strong>second</strong> interval. There are %d intervals in this experiment \n", ievts);
-        idx2_str=input(prompt,"s");
-        
-        % Check if the input can be converted to a number
-        if ~isempty(idx2_str) && all(isstrprop(idx2_str, 'digit'))
-            idx2 = str2double(idx2_str); % Convert the input to a number
-            % Check if the conversion was successful
-            if ~isnan(idx2) && isreal(idx2) && idx2 > 0 && idx1_str~=idx2_str
-                valid = true; % Set the flag to true to exit the loop
+        valid= false;
+        while ~valid
+            prompt=sprintf("Please provide the index of the recording that you want to use for your <strong>second</strong> interval. There are %d intervals in this experiment \n", ievts);
+            idx2_str=input(prompt,"s");
+
+            % Check if the input can be converted to a number
+            if ~isempty(idx2_str) && all(isstrprop(idx2_str, 'digit'))
+                idx2 = str2double(idx2_str); % Convert the input to a number
+                % Check if the conversion was successful
+                if ~isnan(idx2) && isreal(idx2) && idx2 > 0 && idx1_str~=idx2_str
+                    valid = true; % Set the flag to true to exit the loop
+                end
+            end
+            % If the input is not valid, display a message and ask again
+            if ~valid
+                disp('Invalid input. Please enter a valid positive integer that was not your previous input.');
             end
         end
-        % If the input is not valid, display a message and ask again
-        if ~valid
-            disp('Invalid input. Please enter a valid positive integer that was not your previous input.');
-        end
-    end
-    idx_start=find(contains(temp_evts.label,'Starting Recording'));
-    idx_end=find(contains(temp_evts.label,'Stopping Recording'));
+        idx_start=find(contains(temp_evts.label,'Starting Recording'));
+        idx_end=find(contains(temp_evts.label,'Stopping Recording'));
 
-    fprintf('Great! This works. The intervals <strong>%d</strong> and <strong>%d</strong> will be used to extract the times\n', idx1,idx2);
-    range=[temp_evts.t{idx_start}(idx1),temp_evts.t{idx_end}(idx1);temp_evts.t{idx_start}(idx2),temp_evts.t{idx_end}(idx2)];
-%If the values do macth, then use the values between 'Starting Recording"
-%and 'Stopping Recording' 1 and 3 as reference for creating a tvec
-end
+        fprintf('Great! This works. The intervals <strong>%d</strong> and <strong>%d</strong> will be used to extract the times\n', idx1,idx2);
+        range=[temp_evts.t{idx_start}(idx1),temp_evts.t{idx_end}(idx1);temp_evts.t{idx_start}(idx2),temp_evts.t{idx_end}(idx2)];
+        %If the values do macth, then use the values between 'Starting Recording"
+        %and 'Stopping Recording' 1 and 3 as reference for creating a tvec
+    end
 else
     %%% ----To do-----.The following code assumes that the tvec would
     %%% correspond to the number of frames. This is not the case if you use
     if length(data_out.tvec) ~= length(data_out.(fields{1}))
         fprintf('DLC samples (%.0f) differ from timestamps.dat (%.0f). Trimming position data...\n',length(data_out.(fields{1})), length(data_out.tvec));
-    %%% This only trims the position data if the tvec vector is smaller than the position-data  vector
+        %%% This only trims the position data if the tvec vector is smaller than the position-data  vector
         if length(data_out.tvec)< length(data_out.(fields{1}))
-             fprintf('Trimming position data...\n');
+            fprintf('Trimming position data...\n');
             for iFields = 1:length(fields)
                 data_out.(fields{iFields}) = data_out.(fields{iFields})(1:length(data_out.tvec),:);
             end
@@ -325,20 +325,20 @@ else
     end
 end
 
-    %% get the meta data from the json to pull the recording start time.
-    if ~isempty(dir('*.json'))
+%% get the meta data from the json to pull the recording start time.
+if ~isempty(dir('*.json'))
 
-        j_files = dir('*.json');
+    j_files = dir('*.json');
 
-        fid = fopen([fileparts(j_files.folder) filesep j_files.name]);
-        raw = fread(fid,inf);
-        str = char(raw');
-        Exp_json = jsondecode(str);
-        fclose(fid);
+    fid = fopen([fileparts(j_files.folder) filesep j_files.name]);
+    raw = fread(fid,inf);
+    str = char(raw');
+    Exp_json = jsondecode(str);
+    fclose(fid);
 
-    else
-        Exp_json = [];
-    end
+else
+    Exp_json = [];
+end
 
 %% compute some other measures.
 
@@ -346,42 +346,83 @@ end
 % ----------------------------------You are here in the fx
 
 % get the HD
+if divide_flag
+    HD=struct([]);
+    for iF= 1:length(file_list)
+        if length(fields) ==1 && sum(contains(fields, 'LED'))>0
+            ear_mid(:, 1) = all_data.("File"+iF).LED(:,1);
+            ear_mid(:,2) = all_data.("File"+iF).LED(:,2);
 
-if length(fields) ==1 && sum(contains(fields, 'LED'))>0
-    ear_mid(:, 1) = data_out.LED(:,1); 
-    ear_mid(:,2) = data_out.LED(:,2); 
-    
-    HD = nan(length(ear_mid), 1); 
+            %Save this into the actual field of each structure insteadHD.("File"+iF) = nan(length(ear_mid), 1);
 
-elseif sum(contains(fields, 'R')) > 0 && sum(contains(fields, 'L')) > 0 && sum(contains(fields, 'LED')) > 0
-    
-    ear_mid(:,1) = (data_out.(fields{contains(fields, 'R')})(:,1) + data_out.(fields{contains(fields, 'L') & ~contains(fields, 'LED')})(:,1))/2; % get x mid
-    ear_mid(:,2) = (data_out.(fields{contains(fields, 'R')})(:,2) + data_out.(fields{contains(fields, 'L') & ~contains(fields, 'LED')})(:,2))/2; % get x mid
-    HD = rad2deg(atan2(ear_mid(:,2) - data_out.LED(:,2),ear_mid(:,1) - data_out.LED(:,1)));
-    
-    
-elseif sum(contains(fields, 'body'))>0 && sum(contains(fields, 'head'))>0
-    ear_mid(:,1) = data_out.body(:,1);
-    ear_mid(:,2) = data_out.body(:,2);
-    
-    HD = rad2deg(atan2(ear_mid(:,2) - data_out.head(:,2),ear_mid(:,1) - data_out.head(:,1)));
-    
-    
-elseif sum(contains(fields, 'Green'))>0 && sum(contains(fields, 'Red'))>0
-    ear_mid(:,1) = (data_out.Red(:,1) + data_out.Green(:,1))/2; % get x mid
-    ear_mid(:,2) = (data_out.Red(:,2) + data_out.Green(:,2))/2; % get x mid
-    
-    HD = rad2deg(atan2(ear_mid(:,2) - data_out.Body(:,2),ear_mid(:,1) - data_out.Body(:,1)));
-    
-elseif sum(contains(fields, 'nose'))>0 && sum(contains(fields, 'body'))>0
-    ear_mid(:,1) = data_out.body(:,1);
-    ear_mid(:,2) = data_out.body(:,2);
-    
-    HD = rad2deg(atan2(ear_mid(:,2) - data_out.nose(:,2),ear_mid(:,1) - data_out.nose(:,1)));
+        elseif sum(contains(fields, 'R')) > 0 && sum(contains(fields, 'L')) > 0 && sum(contains(fields, 'LED')) > 0
 
+            ear_mid(:,1) = (all_data.("File"+iF).(fields{contains(fields, 'R')})(:,1) + all_data.("File"+iF)(fields{contains(fields, 'L') & ~contains(fields, 'LED')})(:,1))/2; % get x mid
+            ear_mid(:,2) = (all_data.("File"+iF).(fields{contains(fields, 'R')})(:,2) + all_data.("File"+iF)(fields{contains(fields, 'L') & ~contains(fields, 'LED')})(:,2))/2; % get x mid
+            HD.("File"+iF) = rad2deg(atan2(ear_mid(:,2) - all_data.("File"+iF).LED(:,2),ear_mid(:,1) - all_data.("File"+iF).LED(:,1)));
+
+
+        elseif sum(contains(fields, 'body'))>0 && sum(contains(fields, 'head'))>0
+            ear_mid(:,1) = all_data.("File"+iF).body(:,1);
+            ear_mid(:,2) = all_data.("File"+iF)(:,2);
+
+            HD.("File"+iF) = rad2deg(atan2(ear_mid(:,2) - all_data.("File"+iF).head(:,2),ear_mid(:,1) - all_data.("File"+iF).head(:,1)));
+
+
+        elseif sum(contains(fields, 'Green'))>0 && sum(contains(fields, 'Red'))>0
+            ear_mid(:,1) = (all_data.("File"+iF).Red(:,1) + all_data.("File"+iF).Green(:,1))/2; % get x mid
+            ear_mid(:,2) = (all_data.("File"+iF).Red(:,2) + all_data.("File"+iF).Green(:,2))/2; % get x mid
+
+            HD.("File"+iF) = rad2deg(atan2(ear_mid(:,2) - all_data.("File"+iF).Body(:,2),ear_mid(:,1) - all_data.("File"+iF).Body(:,1)));
+
+        elseif sum(contains(fields, 'nose'))>0 && sum(contains(fields, 'body'))>0
+            ear_mid(:,1) = all_data.("File"+iF).body(:,1);
+            ear_mid(:,2) = all_data.("File"+iF).body(:,2);
+
+            HD.("File"+iF) = rad2deg(atan2(ear_mid(:,2) - all_data.("File"+iF).nose(:,2),ear_mid(:,1) - all_data.("File"+iF).nose(:,1)));
+
+        end
+    end
+else
+    if length(fields) ==1 && sum(contains(fields, 'LED'))>0
+        ear_mid(:, 1) = data_out.LED(:,1);
+        ear_mid(:,2) = data_out.LED(:,2);
+
+        HD = nan(length(ear_mid), 1);
+
+    elseif sum(contains(fields, 'R')) > 0 && sum(contains(fields, 'L')) > 0 && sum(contains(fields, 'LED')) > 0
+
+        ear_mid(:,1) = (data_out.(fields{contains(fields, 'R')})(:,1) + data_out.(fields{contains(fields, 'L') & ~contains(fields, 'LED')})(:,1))/2; % get x mid
+        ear_mid(:,2) = (data_out.(fields{contains(fields, 'R')})(:,2) + data_out.(fields{contains(fields, 'L') & ~contains(fields, 'LED')})(:,2))/2; % get x mid
+        HD = rad2deg(atan2(ear_mid(:,2) - data_out.LED(:,2),ear_mid(:,1) - data_out.LED(:,1)));
+
+
+    elseif sum(contains(fields, 'body'))>0 && sum(contains(fields, 'head'))>0
+        ear_mid(:,1) = data_out.body(:,1);
+        ear_mid(:,2) = data_out.body(:,2);
+
+        HD = rad2deg(atan2(ear_mid(:,2) - data_out.head(:,2),ear_mid(:,1) - data_out.head(:,1)));
+
+
+    elseif sum(contains(fields, 'Green'))>0 && sum(contains(fields, 'Red'))>0
+        ear_mid(:,1) = (data_out.Red(:,1) + data_out.Green(:,1))/2; % get x mid
+        ear_mid(:,2) = (data_out.Red(:,2) + data_out.Green(:,2))/2; % get x mid
+
+        HD = rad2deg(atan2(ear_mid(:,2) - data_out.Body(:,2),ear_mid(:,1) - data_out.Body(:,1)));
+
+    elseif sum(contains(fields, 'nose'))>0 && sum(contains(fields, 'body'))>0
+        ear_mid(:,1) = data_out.body(:,1);
+        ear_mid(:,2) = data_out.body(:,2);
+
+        HD = rad2deg(atan2(ear_mid(:,2) - data_out.nose(:,2),ear_mid(:,1) - data_out.nose(:,1)));
+
+    end
 end
 
+
 % get the speed from the mid-ear position
+
+
 vx = dxdt(data_out.tvec,ear_mid(:,1));
 vy = dxdt(data_out.tvec,ear_mid(:,2));
 
