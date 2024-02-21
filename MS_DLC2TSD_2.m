@@ -206,7 +206,7 @@ end
 if ~isempty(dir('*.nvt'))
     fprintf('<strong>%s</strong>: NVT file found, using it for timestamps\n', mfilename)
     nvt_f =  dir('*.nvt');
-    if divide
+    if divide_flag
         [all_data.tvec, ~, ~, ~, ~, ~, ~] = Nlx2MatVT(nvt_f.name, [1 1 1 1 1 1 ], 1, 1, [] );
         all_data.tvec = all_data.tvec*10^-6; % convert to seconds
         frameNum = 1:length(all_data.tvec);
@@ -342,47 +342,70 @@ end
 
 %% compute some other measures.
 
-%%-----To do----- Implement the divide version of this section of code
-% ----------------------------------You are here in the fx
-
 % get the HD
 if divide_flag
-    HD=struct([]);
+
+    %HD=struct([]);
     for iF= 1:length(file_list)
+        ear_mid=[];
         if length(fields) ==1 && sum(contains(fields, 'LED'))>0
             ear_mid(:, 1) = all_data.("File"+iF).LED(:,1);
             ear_mid(:,2) = all_data.("File"+iF).LED(:,2);
-
-            %Save this into the actual field of each structure insteadHD.("File"+iF) = nan(length(ear_mid), 1);
+            all_data.("File"+iF).HD= nan(length(ear_mid), 1);
+            all_data.("File"+iF).vx= dxdt(all_data.tvec,ear_mid(:,1));
+            all_data.("File"+iF).vy = dxdt(all_data.tvec,ear_mid(:,2));
 
         elseif sum(contains(fields, 'R')) > 0 && sum(contains(fields, 'L')) > 0 && sum(contains(fields, 'LED')) > 0
+            % Extract the fields
+            R_index = contains(fields, 'R');
+            L_index = contains(fields, 'L') & ~contains(fields, 'LED'); % Exclude 'LED' containing fields
+            LED_index = contains(fields, 'LED');
 
-            ear_mid(:,1) = (all_data.("File"+iF).(fields{contains(fields, 'R')})(:,1) + all_data.("File"+iF)(fields{contains(fields, 'L') & ~contains(fields, 'LED')})(:,1))/2; % get x mid
-            ear_mid(:,2) = (all_data.("File"+iF).(fields{contains(fields, 'R')})(:,2) + all_data.("File"+iF)(fields{contains(fields, 'L') & ~contains(fields, 'LED')})(:,2))/2; % get x mid
-            HD.("File"+iF) = rad2deg(atan2(ear_mid(:,2) - all_data.("File"+iF).LED(:,2),ear_mid(:,1) - all_data.("File"+iF).LED(:,1)));
+            % Check if the conditions return valid indices
+            if any(R_index) && any(L_index) && any(LED_index)
+                % Calculate the x mid
+                ear_mid(:,1) = (all_data.("File"+iF).(fields{R_index})(:,1) + all_data.("File"+iF).(fields{L_index})(:,1))/2;
+                ear_mid(:,2) = (all_data.("File"+iF).(fields{R_index})(:,2) + all_data.("File"+iF).(fields{L_index})(:,2))/2;
 
+                % Check if the dimensions of ear_mid and LED match
+                if isfield(all_data.("File"+iF), 'LED') && isequal(size(all_data.("File"+iF).LED), size(ear_mid))
+                    % Compute HD
+                    all_data.("File"+iF).HD = rad2deg(atan2(ear_mid(:,2) - all_data.("File"+iF).LED(:,2), ear_mid(:,1) - all_data.("File"+iF).LED(:,1)));
+                else
+                    disp("LED data is missing or does not match the size of ear_mid.");
+                end
+            end
+            all_data.("File"+iF).vx= dxdt(all_data.tvec,ear_mid(:,1));
+            all_data.("File"+iF).vy = dxdt(all_data.tvec,ear_mid(:,2));
 
         elseif sum(contains(fields, 'body'))>0 && sum(contains(fields, 'head'))>0
             ear_mid(:,1) = all_data.("File"+iF).body(:,1);
             ear_mid(:,2) = all_data.("File"+iF)(:,2);
 
-            HD.("File"+iF) = rad2deg(atan2(ear_mid(:,2) - all_data.("File"+iF).head(:,2),ear_mid(:,1) - all_data.("File"+iF).head(:,1)));
+            all_data.("File"+iF).HD = rad2deg(atan2(ear_mid(:,2) - all_data.("File"+iF).head(:,2),ear_mid(:,1) - all_data.("File"+iF).head(:,1)));
+            all_data.("File"+iF).vx= dxdt(all_data.tvec,ear_mid(:,1));
+            all_data.("File"+iF).vy = dxdt(all_data.tvec,ear_mid(:,2));
 
 
         elseif sum(contains(fields, 'Green'))>0 && sum(contains(fields, 'Red'))>0
             ear_mid(:,1) = (all_data.("File"+iF).Red(:,1) + all_data.("File"+iF).Green(:,1))/2; % get x mid
             ear_mid(:,2) = (all_data.("File"+iF).Red(:,2) + all_data.("File"+iF).Green(:,2))/2; % get x mid
 
-            HD.("File"+iF) = rad2deg(atan2(ear_mid(:,2) - all_data.("File"+iF).Body(:,2),ear_mid(:,1) - all_data.("File"+iF).Body(:,1)));
+            all_data.("File"+iF).HD = rad2deg(atan2(ear_mid(:,2) - all_data.("File"+iF).Body(:,2),ear_mid(:,1) - all_data.("File"+iF).Body(:,1)));
+            all_data.("File"+iF).vx= dxdt(all_data.tvec,ear_mid(:,1));
+            all_data.("File"+iF).vy = dxdt(all_data.tvec,ear_mid(:,2));
 
         elseif sum(contains(fields, 'nose'))>0 && sum(contains(fields, 'body'))>0
             ear_mid(:,1) = all_data.("File"+iF).body(:,1);
             ear_mid(:,2) = all_data.("File"+iF).body(:,2);
 
-            HD.("File"+iF) = rad2deg(atan2(ear_mid(:,2) - all_data.("File"+iF).nose(:,2),ear_mid(:,1) - all_data.("File"+iF).nose(:,1)));
+            all_data.("File"+iF).HD = rad2deg(atan2(ear_mid(:,2) - all_data.("File"+iF).nose(:,2),ear_mid(:,1) - all_data.("File"+iF).nose(:,1)));
+            all_data.("File"+iF).vx= dxdt(all_data.tvec,ear_mid(:,1));
+            all_data.("File"+iF).vy = dxdt(all_data.tvec,ear_mid(:,2));
 
         end
     end
+
 else
     if length(fields) ==1 && sum(contains(fields, 'LED'))>0
         ear_mid(:, 1) = data_out.LED(:,1);
@@ -390,11 +413,13 @@ else
 
         HD = nan(length(ear_mid), 1);
 
+
     elseif sum(contains(fields, 'R')) > 0 && sum(contains(fields, 'L')) > 0 && sum(contains(fields, 'LED')) > 0
 
         ear_mid(:,1) = (data_out.(fields{contains(fields, 'R')})(:,1) + data_out.(fields{contains(fields, 'L') & ~contains(fields, 'LED')})(:,1))/2; % get x mid
         ear_mid(:,2) = (data_out.(fields{contains(fields, 'R')})(:,2) + data_out.(fields{contains(fields, 'L') & ~contains(fields, 'LED')})(:,2))/2; % get x mid
         HD = rad2deg(atan2(ear_mid(:,2) - data_out.LED(:,2),ear_mid(:,1) - data_out.LED(:,1)));
+
 
 
     elseif sum(contains(fields, 'body'))>0 && sum(contains(fields, 'head'))>0
@@ -410,47 +435,64 @@ else
 
         HD = rad2deg(atan2(ear_mid(:,2) - data_out.Body(:,2),ear_mid(:,1) - data_out.Body(:,1)));
 
+
     elseif sum(contains(fields, 'nose'))>0 && sum(contains(fields, 'body'))>0
         ear_mid(:,1) = data_out.body(:,1);
         ear_mid(:,2) = data_out.body(:,2);
 
         HD = rad2deg(atan2(ear_mid(:,2) - data_out.nose(:,2),ear_mid(:,1) - data_out.nose(:,1)));
 
+
     end
+    vx = dxdt(data_out.tvec,ear_mid(:,1));
+    vy = dxdt(data_out.tvec,ear_mid(:,2));
 end
-
-
-% get the speed from the mid-ear position
-
-
-vx = dxdt(data_out.tvec,ear_mid(:,1));
-vy = dxdt(data_out.tvec,ear_mid(:,2));
-
-
-
 
 %% convert to pos tsd
-data = [];
-for iD = 1:length(fields)
-    data = [data, data_out.(fields{iD})(:,1:2)];
-    labels{iD} = fields{iD};
-end
 
-pos = tsd(data_out.tvec,[data, sqrt(vx.^2+vy.^2)', HD]', [labels 'Speed', 'HD']);
+if divide_flag
+    data = struct();
+    pos= struct();
+
+    for iF=1:length(file_list)
+        temp_data=[];
+        temp_pos=[];
+
+        for iD = 1:length(fields)
+            temp_data= [temp_data,all_data.("File"+iF).(fields{iD})(:,1:2)];
+            labels{iD} = fields{iD};
+        end
+        data.("File"+iF)= temp_data;
+        %Verify the Tvec below, you may need to trim in the steps above
+        vx=all_data.("File"+iF).vx;
+        vy=all_data.("File"+iF).vy;
+        temp_pos = tsd(all_data.tvec,[temp_data, sqrt(vx.^2+vy.^2)', all_data.("File"+iF).HD]', [labels 'Speed', 'HD']);
+        pos.("File"+iF) = temp_pos;
+    end
+    % If you dont want to divide
+else
+
+    data = [];
+    for iD = 1:length(fields)
+        data = [data, data_out.(fields{iD})(:,1:2)];
+        labels{iD} = fields{iD};
+    end
+    pos = tsd(data_out.tvec,[data, sqrt(vx.^2+vy.^2)', HD]', [labels 'Speed', 'HD']);
+end
 
 if conv_fac(1) == 1 && conv_fac(2) == 1
     pos.units = 'px';
 else
     pos.units = 'cm';
 end
-
 pos.cfg.json = Exp_json;
-
 if isfield(pos.cfg.json, 'recordingStartTime') && ~isfield(pos.cfg.json, 'msecSinceEpoch')
     pos.cfg.json.msecSinceEpoch = pos.cfg.json.recordingStartTime.msecSinceEpoch;
 end
-
 %% convert to behav format
+
+%%-----To do----- Implement the divide version of this section of code
+% ----------------------------------You are here in the fx
 behav = [];
 behav.time = data_out.tvec;
 behav.dirName = cd;
