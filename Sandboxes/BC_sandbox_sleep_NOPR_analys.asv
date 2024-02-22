@@ -140,40 +140,50 @@ end
 %to do add a label of the total time that the mice spent sleeping
 %% Traacking movement and setting up intervals when it explored the objects
 % Load the DLC data
-pos = MS_DLC2TSD(cd, [], [4.5 4.5]); %Need to ask Eric how to solve for the size of the cage. For now we will assume its 4.5
+pos = MS_DLC2TSD_divide(cd, [], [4.5 4.5]); %Need to ask Eric how to solve for the size of the cage. For now we will assume its 4.5
+files=fieldnames(pos);
+files_idx=(find((contains((fieldnames(pos)),'File'))));
+nfiles=length(files(files_idx));
+files=files(files_idx);
 
+distances=[];
 %Correct time and remove time where the mouse was not in OF
-pos.tvec=pos.tvec-pos.tvec(1);
-%Correct positions of objects to the mean of the location for both objects
-for ii= 5:1:8
-    pos.data(ii,:)=mean(pos.data(ii,:));
-end
-%Calculate the distance between the objects and the mouse nose
-%A. Calculate the distance between the nose and object A (Object A is the
-%one on the left)
-distances.data=[];
-for iframe= length(pos.data(1,:)):-1:1
-    x1=pos.data(1,iframe);
-    y1=pos.data(2,iframe);
-    x2=pos.data(5,iframe);
-    y2=pos.data(6,iframe);
-    d=sqrt(((x2-x1)^2)+((y2-y1)^2));
-    distances.data(1,iframe)=d;
-    if iframe==1
-        clear iframe;clear x1;clear x2;clear y1;clear y2;clear d;
+for iF=1:nfiles;
+    pos.(files{iF}).tvec=pos.(files{iF}).tvec-pos.(files{iF}).tvec(1);
+    %Correct positions of objects to the mean of the location for both objects
+    for ii= 5:8
+        pos.(files{iF}).data(ii,:)=mean(pos.(files{iF}).data(ii,:));
+    end
+    %Calculate the distance between the objects and the mouse nose
+    %A. Calculate the distance between the nose and object A (Object A is the
+    %one on the left)
+    for iframe= length(pos.(files{iF}).data(1,:)):-1:1
+        x1=pos.(files{iF}).data(1,iframe);
+        y1=pos.(files{iF}).data(2,iframe);
+        x2=pos.(files{iF}).data(5,iframe);
+        y2=pos.(files{iF}).data(6,iframe);
+        d=sqrt(((x2-x1)^2)+((y2-y1)^2));
+        distances.(files{iF})(1,iframe)=d;
+        if iframe==1
+            clear iframe;clear x1;clear x2;clear y1;clear y2;clear d;
+        end
+    end
+    %B.Same for object B (Object B is the one on the right)
+    for iframe= length(pos.(files{iF}).data(1,:)):-1:1
+        x1=pos.(files{iF}).data(1,iframe);
+        y1=pos.(files{iF}).data(2,iframe);
+        x2=pos.(files{iF}).data(7,iframe);
+        y2=pos.(files{iF}).data(8,iframe);
+        d=sqrt(((x2-x1)^2)+((y2-y1)^2));
+        distances.(files{iF})(2,iframe)=d;
+        if iframe==1
+            clear iframe;clear x1;clear x2;clear y1;clear y2;clear d;
+        end
     end
 end
+distances.labels=pos.File1.label(3:4);
 
-%B.Same for object B (Object B is the one on the right)
-for iframe= length(pos.data(1,:)):-1:1
-    x1=pos.data(1,iframe);
-    y1=pos.data(2,iframe);
-    x2=pos.data(7,iframe);
-    y2=pos.data(8,iframe);
-    d=sqrt(((x2-x1)^2)+((y2-y1)^2));
-    distances.data(2,iframe)=d;
-end
-
+%%% You are here in this 
 %% Plot the position of the mouse
 %parameters
 video_flag=0;

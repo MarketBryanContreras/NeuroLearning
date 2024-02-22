@@ -1,4 +1,4 @@
-function [pos, behav] = MS_DLC2TSD_2(dir_in, model_in,conv_fac, plot_flag,divide_flag)
+function [pos, behav] = MS_DLC2TSD_divide(dir_in, model_in,conv_fac, plot_flag,divide_flag)
 %% MS_DLC2TSD: loads and collects all DLC files in a directory. Will skip over files without a number since DLC saves the interation number in the .csv
 %
 %
@@ -24,7 +24,7 @@ function [pos, behav] = MS_DLC2TSD_2(dir_in, model_in,conv_fac, plot_flag,divide
 %
 %
 % EC 2023-01-28  initial version
-% BC 2024-01-30 V2
+% BC 2024-02-22  divide version
 %% initialize
 
 if nargin == 0

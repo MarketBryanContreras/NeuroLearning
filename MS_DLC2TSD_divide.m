@@ -253,7 +253,7 @@ else
 
 end
 
-%Here We want to avoid trimming timestamps
+%Here we want to avoid trimming timestamps
 if divide_flag
     temp_evts=LoadEvents([]);
     ievts= length(temp_evts.t{1,1});
@@ -498,22 +498,21 @@ end
 if divide_flag
     behav = [];
     for iF=1:length(file_list)
-        behav.time = data_out.tvec;
+        behav.time = all_data.tvec;
         behav.("File" +iF).dirName = cd;
         behav.("File" +iF).numFiles = length(file_list);
-        behav.("File" +iF).numFrames = data_out.tvec;
+        behav.("File" +iF).numFrames = all_data.tvec;
         behav.("File" +iF).vidNum = fnum;
         behav.("File" +iF).frameNum = frameNum;
         behav.("File" +iF).maxFramesPerFile = 1000;
-        behav.height = ceil(max(data_out.(fields{1})(:,1)));
-        behav.width =  ceil(max(data_out.(fields{1})(:,2)));
-        behav.camNumber = 1;
-        behav.maxBufferUsed =  maxBufferUsed;
-        behav.position = data_out.(fields{1})(:,1:2);
-        behav.speed = sqrt(vx.^2+vy.^2)';
-        behav.HD = HD;
-        behav.json = Exp_json;
-
+        behav.("File" +iF).height = ceil(max(all_data.("File"+iF).(fields{1})(:,1)));
+        behav.("File" +iF).width =  ceil(max(all_data.("File"+iF).(fields{1})(:,2)));
+        behav.("File" +iF).camNumber = 1;
+        behav.("File" +iF).maxBufferUsed =  maxBufferUsed;
+        behav.("File" +iF).position = all_data.("File"+iF).(fields{1})(:,1:2);
+        behav.("File" +iF).speed = sqrt(all_data.("File"+iF).vx.^2+all_data.("File"+iF).vy.^2)';
+        behav.("File" +iF).HD = all_data.("File"+iF).HD;
+        behav.("File" +iF).json = Exp_json;
     end
 else
 behav = [];
