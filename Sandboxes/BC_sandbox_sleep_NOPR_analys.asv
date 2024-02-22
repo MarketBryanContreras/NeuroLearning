@@ -140,7 +140,7 @@ end
 %to do add a label of the total time that the mice spent sleeping
 %% Traacking movement and setting up intervals when it explored the objects
 % Load the DLC data
-pos = MS_DLC2TSD_2(cd, [], [4.5 4.5]); %Need to ask Eric how to solve for the size of the cage. For now we will assume its 4.5
+pos = MS_DLC2TSD(cd, [], [4.5 4.5]); %Need to ask Eric how to solve for the size of the cage. For now we will assume its 4.5
 
 %Correct time and remove time where the mouse was not in OF
 pos.tvec=pos.tvec-pos.tvec(1);
