@@ -148,12 +148,14 @@ if divide_flag==0
 %All data is a cell array with that stores a structure for each file being analized
 else
     all_data=struct();
+    fnum = [];
     %all_data=cell(length(file_list),1);
     for iF =   1:length(file_list)
        for iFields = 1:length(fields)
             data_out.(fields{iFields}) = [this_field{iF, iFields}];
        end
        all_data.("File"+iF)=data_out;
+       fnum = [fnum , 1:length(this_field{iF, 1})];
     end
 end
 
@@ -493,6 +495,22 @@ end
 
 %%-----To do----- Implement the divide version of this section of code
 % ----------------------------------You are here in the fx
+if divide_flag
+behav = [];
+
+behav.time = data_out.tvec;
+behav.("File" +iF).dirName = cd;
+behav.("File" +iF).numFiles = length(file_list);
+behav.("File" +iF).numFrames = data_out.tvec;
+behav.("File" +iF).vidNum = fnum;
+behav.("File" +iF).frameNum = frameNum;
+behav.("File" +iF).maxFramesPerFile = 1000;
+
+for iF=1:length(file_list)
+    behav.("File" +iF).numFrames
+
+end
+else
 behav = [];
 behav.time = data_out.tvec;
 behav.dirName = cd;
@@ -509,7 +527,7 @@ behav.position = data_out.(fields{1})(:,1:2);
 behav.speed = sqrt(vx.^2+vy.^2)';
 behav.HD = HD;
 behav.json = Exp_json;
-
+end
 %% test out the HD.
 if plot_flag
     figure(797)

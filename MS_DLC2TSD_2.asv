@@ -148,12 +148,14 @@ if divide_flag==0
 %All data is a cell array with that stores a structure for each file being analized
 else
     all_data=struct();
+    fnum = [];
     %all_data=cell(length(file_list),1);
     for iF =   1:length(file_list)
        for iFields = 1:length(fields)
             data_out.(fields{iFields}) = [this_field{iF, iFields}];
        end
        all_data.("File"+iF)=data_out;
+       fnum = [fnum , 1:length(this_field{iF, 1})];
     end
 end
 
@@ -449,8 +451,7 @@ else
 end
 
 %% convert to pos tsd
-%%-----To do----- Implement the divide version of this section of code
-% ----------------------------------You are here in the fx
+
 if divide_flag
     data = struct();
     pos= struct();
@@ -467,9 +468,9 @@ if divide_flag
         %Verify the Tvec below, you may need to trim in the steps above
         vx=all_data.("File"+iF).vx;
         vy=all_data.("File"+iF).vy;
-        pos = tsd(data_out.tvec,[data, sqrt(vx.^2+vy.^2)', HD]', [labels 'Speed', 'HD']);
-        pos.("File"+iF) = pos;
-
+        temp_pos = tsd(all_data.tvec,[temp_data, sqrt(vx.^2+vy.^2)', all_data.("File"+iF).HD]', [labels 'Speed', 'HD']);
+        pos.("File"+iF) = temp_pos;
+    end
     % If you dont want to divide
 else
 
@@ -491,6 +492,25 @@ if isfield(pos.cfg.json, 'recordingStartTime') && ~isfield(pos.cfg.json, 'msecSi
     pos.cfg.json.msecSinceEpoch = pos.cfg.json.recordingStartTime.msecSinceEpoch;
 end
 %% convert to behav format
+
+%%-----To do----- Implement the divide version of this section of code
+% ----------------------------------You are here in the fx
+if divide_flag
+behav = [];
+
+behav.time = data_out.tvec;
+behav.("File" +iF).dirName = cd;
+behav.("File" +iF).numFiles = length(file_list);
+behav.("File" +iF).numFrames = data_out.tvec;
+behav.("File" +iF).vidNum = fnum;
+behav.("File" +iF).frameNum = frameNum;
+behav.("File" +iF).maxFramesPerFile = 1000;
+
+for iF=1:length(file_list)
+    behav.("File" +iF).numFrames
+
+end
+else
 behav = [];
 behav.time = data_out.tvec;
 behav.dirName = cd;
@@ -507,7 +527,7 @@ behav.position = data_out.(fields{1})(:,1:2);
 behav.speed = sqrt(vx.^2+vy.^2)';
 behav.HD = HD;
 behav.json = Exp_json;
-
+end
 %% test out the HD.
 if plot_flag
     figure(797)
