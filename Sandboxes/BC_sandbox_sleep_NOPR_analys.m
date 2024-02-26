@@ -8,10 +8,10 @@
 %data_dir= '/Users/bryancontrerasmercado/Williams Lab Dropbox/Williams Lab Team Folder/Bryan_DropBox/CHRNA2_NOVEL_OBJECT/raw_data/NOPR/BC053_2023_11_16_D1_HAB_T2';
 %BC053 D2
 %data_dir= '/Users/bryancontrerasmercado/Williams Lab Dropbox/Williams Lab Team Folder/Bryan_DropBox/CHRNA2_NOVEL_OBJECT/raw_data/NOPR/BC053_2023_11_16_D1_HAB_T2';
-%data_dir='/Users/bryancontrerasmercado/Williams Lab Dropbox/Williams Lab Team Folder/Bryan_DropBox/CHRNA2_NOVEL_OBJECT/raw_data/Behavior/BC1807_2023_07_07_D2_NOPR';
+data_dir='/Users/bryancontrerasmercado/Williams Lab Dropbox/Williams Lab Team Folder/Bryan_DropBox/CHRNA2_NOVEL_OBJECT/raw_data/Behavior/BC1807_2023_07_07_D2_NOPR';
 %mac
 %data_dir= 'C:\Users\bcont\Williams Lab Dropbox\Williams Lab Team Folder\Bryan_DropBox\CHRNA2_NOVEL_OBJECT\raw_data\NOPR\BC053_2023_11_16_D1_HAB_T2';
-data_dir= 'C:\Users\bcont\Williams Lab Dropbox\Williams Lab Team Folder\Bryan_DropBox\CHRNA2_NOVEL_OBJECT\raw_data\Behavior\BC1807_2023_07_07_D2_NOPR'
+%data_dir= 'C:\Users\bcont\Williams Lab Dropbox\Williams Lab Team Folder\Bryan_DropBox\CHRNA2_NOVEL_OBJECT\raw_data\Behavior\BC1807_2023_07_07_D2_NOPR'
 %'windows
 
 cd(data_dir)
@@ -19,7 +19,7 @@ cd(data_dir)
 %% Colloecting subject info
 % ----TO DO--- Adjust for MAc or WIN 
 folder = pwd;
-parts= split(folder, '\');
+parts= split(folder, '/');
 parts=parts{end};
 parts= split(parts,'_');
 
@@ -181,105 +181,151 @@ for iF=1:nfiles;
         end
     end
 end
-distances.labels=pos.File1.label(3:4);
+distances.labels=(pos.File1.label(3:4))';
+
 
 %%% You are here in this function
 %% Plot the position of the mouse
-%parameters
-video_flag=0;
-%Initialize figure
-figure (20)
-%Actual position
-subplot(8,1,1:4);
-%plot the actual position 
-time_frames=[1:length(pos.data)];
-[aX,aY]=BC_Circle_plot(5.5,pos.data(5,1),pos.data(6,1), BC_color_genertor('Swamp_green'),plot_flag);
-hold on
-[bX,bY]=BC_Circle_plot(5.5,pos.data(7,1),pos.data(8,1), BC_color_genertor('Torment_blue'),plot_flag);
+%%---To do--- Adapt this cell to the new structures
+%Initilize output structures
 
-if plot_flag==1
-scatter(pos.data(5,1),pos.data(6,1) , 'o', 'MarkerFaceColor', 'm', 'MarkerEdgeColor', 'none')
-scatter(pos.data(7,1),pos.data(8,1) , 'o', 'MarkerFaceColor', 'r', 'MarkerEdgeColor', 'none')
-xlim([min(pos.data(1,:)) max(pos.data(1,:))]);
-ylim([min(pos.data(2,:)) max(pos.data(2,:))]);
-
-if video_flag==0;
-    scatter(pos.data(1,:), pos.data(2,:), 'o', 'MarkerFaceColor', 'b', 'MarkerEdgeColor', 'none', 'MarkerFaceAlpha', 0.01);
-else
-    %%Trying the video
-    for ii=1400:-1:900
-        scatter(pos.data(1,ii), pos.data(2,ii), 'o', 'MarkerFaceColor', 'b', 'MarkerEdgeColor', 'none', 'MarkerFaceAlpha', 0.02);
-        F(ii) = getframe(gcf);
-        drawnow
-    end
-    writerObj = VideoWriter('myVideo.avi');
-    writerObj.FrameRate = 10;
-    open(writerObj);
-    % write the frames to the video
-    for i=1:length(F)
-        % convert the image to a frame
-        frame = F(i) ;
-        writeVideo(writerObj, frame);
-    end
-    % close the writer object
-    close(writerObj);
-end
-end
-%%% Rest of the plot
-%plot X position of the mouse
-subplot(8,1,5);
-plot(time_frames,pos.data(1,:));
-xlim([0,time_frames(end)])
-%xlabel('Time(s)');
-ylabel('X pos (cm)');
-%plot Y position of the mouse
-subplot(8,1,6);
-plot(time_frames,pos.data(2,:), 'Color',BC_color_genertor('Oxford_blue'));
-xlim([0,time_frames(end)])
-%xlabel('Time(s)');
-ylabel('Y pos (cm)');
-%Plot the distances to object 1
-subplot(8,1,7);
-plot(time_frames, distances.data(1,:), 'm');
-yline(5, 'Color', 'r')
-xlim([0,time_frames(end)])
-%xlabel('Time(s)');
-ylabel('Distance to object A');
-%Plot the distnaces to object 2
-subplot(8,1,8);
-plot(time_frames,distances.data(2,:),'r');
-yline(5, 'Color', 'r')
-xlim([0,time_frames(end)])
-xlabel('Time(s)');
-ylabel('Distance to object B');
-
-hold off
-%% Lets assign the intervals where te mice is inisde the radious
 %Parameters
+video_flag=0;
+plot_flag=1;
 minFrames=5; % The minimum number of frames where the mouse is in radious
+n = 10; % Number of colors
+cmap = autumn(n); % You can replace 'parula' with any other colormap name 'parula', 'jet', 'hsv', 'hot', 'cool', 'spring', 'summer', 'autumn', 'winter', 'gray', 'bone', 'copper', 'pink', 'lines', and 'colorcube'.
 
-%Calculate the angle of the mouse head and if it is pointing towards the object
+for iF=1:nfiles
+    %Initialize figure
+    figure (20+iF)
+    %Actual position
+    subplot(8,1,1:4);
+    %plot the actual position
+    time_frames=[1:length(pos.("File"+iF).data)];
+    [aX,aY]=BC_Circle_plot(5.5,pos.("File"+iF).data(5,1),pos.("File"+iF).data(6,1), BC_color_genertor('Swamp_green'),plot_flag);
+    hold on
+    [bX,bY]=BC_Circle_plot(5.5,pos.("File"+iF).data(7,1),pos.("File"+iF).data(8,1), BC_color_genertor('Torment_blue'),plot_flag);
+    inA= inpolygon(pos.("File"+iF).data(1,:),pos.("File"+iF).data(2,:),aX,aY);
+    aidx=find(inA);
+    aInt=BC_object_interaction_intervals(aidx,minFrames);%Get periods where the mouse spends more than 5 frames (0.33 sec)
+    timeA=(sum(diff(aInt,1,2))/30);
+    inB= inpolygon(pos.("File"+iF).data(1,:),pos.("File"+iF).data(2,:),bX,bY);
+    bidx=find(inB);
+    bInt=BC_object_interaction_intervals(bidx,minFrames);
+    timeB=(sum(diff(bInt,1,2))/30);
+    fprintf('The mouse <strong>%s</strong> interacted <strong>%d</strong> times with the object 1 for a total of <strong>%.2f</strong> seconds and <strong>%d</strong> times with the object 2 for a total of <strong>%.2f</strong> seconds in the <strong>%d</strong> experiment \n ', info.subject ,size(aInt,1),timeA,size(bInt,1), timeB, iF)
 
-%Figure out intervals where the mouse nose was close to the object and the
-%head direction is pointing towards the closest object
-%Figure out whih data points are inside the radious
-inA= inpolygon(pos.data(1,:),pos.data(2,:),aX,aY);
-aidx=find(inA);
-aInt=BC_object_interaction_intervals(aidx,minFrames);%Get periods where the mouse spends more than 5 frames (0.33 sec)
-timeA=(sum(diff(aInt,1,2))/30);
-inB= inpolygon(pos.data(1,:),pos.data(2,:),bX,bY);
-bidx=find(inB);
-bInt=BC_object_interaction_intervals(bidx,minFrames);
-timeB=(sum(diff(bInt,1,2))/30);
-fprintf('The mouse <strong>%s</strong> interacted <strong>%d</strong> times with the object 1 for a total of <strong>%.2f</strong> seconds and <strong>%d</strong> times with the object 2 for a total of <strong>%.2f</strong> seconds \n ', info.subject ,size(aInt,1),timeA,size(bInt,1), timeB)
+    %Lets verify that these idx correspond to times the mouse was with the objects
+    
+    if plot_flag==1
+    for jj=1:1:size(aInt,1)
+        scatter(pos.("File"+iF).data(1,aInt(jj,1):aInt(jj,2)), pos.("File"+iF).data(2,aInt(jj,1):aInt(jj,2)), 'o', 'MarkerFaceColor', cmap(jj,:), 'MarkerEdgeColor', 'none', 'MarkerFaceAlpha', 0.5);
+    end
+    for jj=1:1:size(bInt,1)
+        scatter(pos.("File"+iF).data(1,bInt(jj,1):bInt(jj,2)), pos.("File"+iF).data(2,bInt(jj,1):bInt(jj,2)), 'o', 'MarkerFaceColor', cmap(jj,:), 'MarkerEdgeColor', 'none', 'MarkerFaceAlpha', 0.5);
+    end
 
-%Lets verify that these idx correspond to times the mouse was with the objects
-for jj=1:1:size(aInt,1)
-    scatter(pos.data(1,aInt(jj,1):aInt(jj,2)), pos.data(2,aInt(jj,1):aInt(jj,2)), 'o', 'MarkerFaceColor', new_colors(jj,:), 'MarkerEdgeColor', 'none', 'MarkerFaceAlpha', 0.5);
+    
+        scatter(pos.("File"+iF).data(5,1),pos.("File"+iF).data(6,1) , 'o', 'MarkerFaceColor', 'm', 'MarkerEdgeColor', 'none')
+        scatter(pos.("File"+iF).data(7,1),pos.("File"+iF).data(8,1) , 'o', 'MarkerFaceColor', 'r', 'MarkerEdgeColor', 'none')
+        xlim([min(pos.("File"+iF).data(1,:)) max(pos.("File"+iF).data(1,:))]);
+        ylim([min(pos.("File"+iF).data(2,:)) max(pos.("File"+iF).data(2,:))]);
+
+        if video_flag==0;
+            scatter(pos.("File"+iF).data(1,:), pos.("File"+iF).data(2,:), 'o', 'MarkerFaceColor', 'b', 'MarkerEdgeColor', 'none', 'MarkerFaceAlpha', 0.01);
+        else
+            %%Trying the video
+            for ii=1400:-1:900
+                scatter(pos.("File"+iF).data(1,ii), pos.("File"+iF).data(2,ii), 'o', 'MarkerFaceColor', 'b', 'MarkerEdgeColor', 'none', 'MarkerFaceAlpha', 0.02);
+                F(ii) = getframe(gcf);
+                drawnow
+            end
+            writerObj = VideoWriter('myVideo.avi');
+            writerObj.FrameRate = 10;
+            open(writerObj);
+            % write the frames to the video
+            for i=1:length(F)
+                % convert the image to a frame
+                frame = F(i) ;
+                writeVideo(writerObj, frame);
+            end
+            % close the writer object
+            close(writerObj);
+        end
+    end
+    %%% Rest of the plot
+    %plot X position of the mouse
+    subplot(8,1,5);
+    plot(time_frames,pos.("File"+iF).data(1,:));
+    xlim([0,time_frames(end)])
+    %xlabel('Time(s)');
+    ylabel('X pos (cm)');
+    %plot Y position of the mouse
+    subplot(8,1,6);
+    plot(time_frames,pos.("File"+iF).data(2,:), 'Color',BC_color_genertor('Oxford_blue'));
+    xlim([0,time_frames(end)])
+    %xlabel('Time(s)');
+    ylabel('Y pos (cm)');
+    %Plot the distances to object 1
+    subplot(8,1,7);
+    plot(time_frames, distances.("File"+iF)(1,:), 'm');
+    yline(5, 'Color', 'r')
+    xlim([0,time_frames(end)])
+    %xlabel('Time(s)');
+    ylabel('Distance to object A');
+    %Plot the distnaces to object 2
+    subplot(8,1,8);
+    plot(time_frames, distances.("File"+iF)(2,:),'r');
+    yline(5, 'Color', 'r')
+    xlim([0,time_frames(end)])
+    xlabel('Time (s)');
+    ylabel('Distance to object B');
+
+    hold off
+
+    %Extracting the data
+    out.(info.subject).(info.session).("Behavior"+iF).nObjAInteractions=length(aInt);
+    out.(info.subject).(info.session).("Behavior"+iF).nObjBInteractions=length(bInt);
+    out.(info.subject).(info.session).("Behavior"+iF).IntervalsObjAInteractions=aInt;
+    out.(info.subject).(info.session).("Behavior"+iF).IntervalsObjBInteractions=bInt;
+    out.(info.subject).(info.session).("Behavior"+iF).ObjATime= timeA;
+    out.(info.subject).(info.session).("Behavior"+iF).ObjBTime= timeB;
+
 end
-for jj=1:1:size(bInt,1)
-    scatter(pos.data(1,bInt(jj,1):bInt(jj,2)), pos.data(2,bInt(jj,1):bInt(jj,2)), 'o', 'MarkerFaceColor', new_colors(jj,:), 'MarkerEdgeColor', 'none', 'MarkerFaceAlpha', 0.5);
-end
+
+%% Plot to compare time and # of interactions
+
+
+
+%% Lets assign the intervals where te mice is inisde the radious
+% 
+% %disp(cmap);
+% %Calculate the angle of the mouse head and if it is pointing towards the object
+% 
+% %Figure out intervals where the mouse nose was close to the object and the
+% %head direction is pointing towards the closest object
+% %Figure out whih data points are inside the radious
+% 
+% for iF=1:nfiles
+%     inA= inpolygon(pos.("File"+iF).data(1,:),pos.("File"+iF).data(2,:),aX,aY);
+%     aidx=find(inA);
+%     aInt=BC_object_interaction_intervals(aidx,minFrames);%Get periods where the mouse spends more than 5 frames (0.33 sec)
+%     timeA=(sum(diff(aInt,1,2))/30);
+%     inB= inpolygon(pos.("File"+iF).data(1,:),pos.("File"+iF).data(2,:),bX,bY);
+%     bidx=find(inB);
+%     bInt=BC_object_interaction_intervals(bidx,minFrames);
+%     timeB=(sum(diff(bInt,1,2))/30);
+%     fprintf('The mouse <strong>%s</strong> interacted <strong>%d</strong> times with the object 1 for a total of <strong>%.2f</strong> seconds and <strong>%d</strong> times with the object 2 for a total of <strong>%.2f</strong> seconds in the <strong>%d</strong> experiment \n ', info.subject ,size(aInt,1),timeA,size(bInt,1), timeB, iF)
+% 
+%     %Lets verify that these idx correspond to times the mouse was with the objects
+%     for jj=1:1:size(aInt,1)
+%         scatter(pos.("File"+iF).data(1,aInt(jj,1):aInt(jj,2)), pos.("File"+iF).data(2,aInt(jj,1):aInt(jj,2)), 'o', 'MarkerFaceColor', cmap(jj,:), 'MarkerEdgeColor', 'none', 'MarkerFaceAlpha', 0.5);
+%     end
+%     for jj=1:1:size(bInt,1)
+%         scatter(pos.("File"+iF).data(1,bInt(jj,1):bInt(jj,2)), pos.("File"+iF).data(2,bInt(jj,1):bInt(jj,2)), 'o', 'MarkerFaceColor', cmap(jj,:), 'MarkerEdgeColor', 'none', 'MarkerFaceAlpha', 0.5);
+%     end
+% end
 %% Automate collection of data for more individuals 
 % Is 5 mc normally the case? how can I define the perimeter of my object ?
 % Would this have to be done based on subject?
