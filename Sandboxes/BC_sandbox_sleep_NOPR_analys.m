@@ -8,13 +8,13 @@
 %data_dir= '/Users/bryancontrerasmercado/Williams Lab Dropbox/Williams Lab Team Folder/Bryan_DropBox/CHRNA2_NOVEL_OBJECT/raw_data/NOPR/BC053_2023_11_16_D1_HAB_T2';
 %BC053 D2
 %data_dir= '/Users/bryancontrerasmercado/Williams Lab Dropbox/Williams Lab Team Folder/Bryan_DropBox/CHRNA2_NOVEL_OBJECT/raw_data/NOPR/BC053_2023_11_16_D1_HAB_T2';
-data_dir='/Users/bryancontrerasmercado/Williams Lab Dropbox/Williams Lab Team Folder/Bryan_DropBox/CHRNA2_NOVEL_OBJECT/raw_data/Behavior/BC1807_2023_07_07_D2_NOPR';
+% data_dir='/Users/bryancontrerasmercado/Williams Lab Dropbox/Williams Lab Team Folder/Bryan_DropBox/CHRNA2_NOVEL_OBJECT/raw_data/Behavior/BC1807_2023_07_07_D2_NOPR';
 %mac
 %data_dir= 'C:\Users\bcont\Williams Lab Dropbox\Williams Lab Team Folder\Bryan_DropBox\CHRNA2_NOVEL_OBJECT\raw_data\NOPR\BC053_2023_11_16_D1_HAB_T2';
 %data_dir= 'C:\Users\bcont\Williams Lab Dropbox\Williams Lab Team Folder\Bryan_DropBox\CHRNA2_NOVEL_OBJECT\raw_data\Behavior\BC1807_2023_07_07_D2_NOPR'
 %'windows
      
-cd(data_dir)
+% cd(data_dir)
 
 %% Rolling through the folders with dynamic loader
 sys=computer;
@@ -36,7 +36,7 @@ cd(data_dir)
 inhib_dir = dir('*BC*');
 
 %% Loop to load data from raw
-for iS=1:length(inhib_dir )
+for iS=6%:length(inhib_dir )
 
     %% Colloecting subject info
     
@@ -58,15 +58,15 @@ for iS=1:length(inhib_dir )
         emg_chan = 'CSC1.ncs';lfp_chan = 'CSC3.ncs';
     elseif info.subject=="BC054";
         emg_chan = 'CSC1.ncs';lfp_chan = 'CSC2.ncs';
-        elseif info.subject=="BC053";
+    elseif info.subject=="BC053";
         emg_chan = 'CSC1.ncs';lfp_chan = 'CSC2.ncs';
-        elseif info.subject=="BC051";
+    elseif info.subject=="BC051";
         emg_chan = 'CSC1.ncs';lfp_chan = 'CSC2.ncs';
-        elseif info.subject=="BC014";
+    elseif info.subject=="BC014";
         emg_chan = 'CSC1.ncs';lfp_chan = 'CSC2.ncs';
-        elseif info.subject=="BC013";
+    elseif info.subject=="BC013";
         emg_chan = 'CSC1.ncs';lfp_chan = 'CSC2.ncs';
-        elseif info.subject=="BC011";
+    elseif info.subject=="BC011";
         emg_chan = 'CSC1.ncs';lfp_chan = 'CSC2.ncs';
 
 
@@ -147,15 +147,23 @@ for iS=1:length(inhib_dir )
             wake_t = [0 3093 5015 5631 8824 9340 10605 10880 11531 11803 12450 13020 13618 13743 14188 14397];
         elseif strcmpi(info.subject,"BC011")
             wake_t = [0 1493 3455 4407 10405 13405 14654 14710];
+        elseif strcmpi(info.subject,"BC013")
+            wake_t = [0 4296 4735 5514 9823 10377 12838 13281];
+        elseif strcmpi(info.subject,"BC014")
+            wake_t = [0 4869 6952 9715 11557 11861 12753 13105 13301 13531];
         end
     elseif info.session== "D2"
         if strcmpi(info.subject,"BC1807")
-            wake_t = [0 4679 7182 9306 10023 11493 13839 14335];
+            wake_t = [0 4296 4735 5514 9823 10377 12838 13281];
+        elseif strcmpi(info.subject,"BC013")
+            wake_t = [0 688 1817 3130 4335 4783 6820 7511 10772 11917];
+        elseif strcmpi(info.subject,"BC014")
+            wake_t = [0 3730 ];
         end
     end
     %wake_t = [0 0];
     wake_idx = nearest_idx(wake_t, csc_s.tvec); %Converts time to sample idx
-    wake_idx = reshape(wake_idx,2, length(wake_idx)/2)';
+    wake_idx = reshape(wake_idx,2, length(wake_idx)/2)'; %reshape(columns, rows)
     %% score the sleep.
 
     [hypno, csc_out, emg_out] = dSub_Sleep_screener(csc_s, emg_s, wake_idx);  % can add in 'wake_idx' as the last input.
@@ -261,9 +269,7 @@ for iS=1:length(inhib_dir )
         video_flag=0;
         plot_flag=1;
         minFrames=5; % The minimum number of frames where the mouse is in radious
-        n = 10; % Number of colors
-        cmap = autumn(n); % You can replace 'parula' with any other colormap name 'parula', 'jet', 'hsv', 'hot', 'cool', 'spring', 'summer', 'autumn', 'winter', 'gray', 'bone', 'copper', 'pink', 'lines', and 'colorcube'.
-
+        
         for iF=1:nfiles
             %Initialize figure
             figure (20+iF)
@@ -287,6 +293,15 @@ for iS=1:length(inhib_dir )
             %Lets verify that these idx correspond to times the mouse was with the objects
 
             if plot_flag==1
+                if length(aInt) > length(bInt)
+                    n = length(aInt); % Number of colors
+
+                else
+                    n = length(bInt); % Number of colors
+
+                end
+                cmap = autumn(n); % You can replace 'parula' with any other colormap name 'parula', 'jet', 'hsv', 'hot', 'cool', 'spring', 'summer', 'autumn', 'winter', 'gray', 'bone', 'copper', 'pink', 'lines', and 'colorcube'.
+
                 for jj=1:1:size(aInt,1)
                     scatter(pos.("File"+iF).data(1,aInt(jj,1):aInt(jj,2)), pos.("File"+iF).data(2,aInt(jj,1):aInt(jj,2)), 'o', 'MarkerFaceColor', cmap(jj,:), 'MarkerEdgeColor', 'none', 'MarkerFaceAlpha', 0.5);
                 end
