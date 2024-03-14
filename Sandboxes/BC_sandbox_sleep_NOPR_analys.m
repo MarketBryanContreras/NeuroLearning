@@ -401,18 +401,18 @@ if save_output
     
 end
 %% Plot to compare time and # of interactions
-%% Collect and make table
-tbl = table(); 
+
+%% Collect and make table for D2 interactions
+
 stats = []; 
+
 subject = []; 
-trial_n = [];
-opto = [];
 cohort = []; 
-SG_modidx = []; 
-FG_modidx = []; 
-t_bp=[];
-fg_bp=[];
-sg_bp=[];
+pre_post = []; 
+no_obj_a_int = []; 
+no_obj_b_int=[];
+obj_a_time= [];
+obj_b_time= [];
 
 all_files=fieldnames(out);
 control_list= {'BC011' 'BC013'  'BC014'};
@@ -432,40 +432,98 @@ end
 
 
 for iSub = 1:length(all_files)
-    sess_list = fieldnames(out.archT_list{iSub})); 
- 
-    n_inhib = length(out_Archt_07_nov_23.(archt_list{iSub}).D4.t_bp_inhib); 
-    n_noinhib = length(out_Archt_07_nov_23.(archt_list{iSub}).D4.t_bp_noinhib);
+    current_subject = all_files{iSub};
     
+    subject= [subject repmat(iSub,1,2)];
     
-     subject= [subject repmat(iSub,1, n_inhib + n_noinhib)]; 
-     
-     cohort = [cohort repmat(1,1, n_inhib + n_noinhib)];
-     
-     trial_n = [trial_n, [1:n_inhib, 1:n_noinhib]]; 
-     
-     opto = [opto, logical([repmat(1,1, n_inhib), repmat(0,1, n_noinhib)])]; 
-     
-     SG_modidx = [SG_modidx [out_Archt_07_nov_23.(archt_list{iSub}).D4.modidx_SG_inhib, out_Archt_07_nov_23.(archt_list{iSub}).D4.modidx_SG_noinhib]];
-     
-     FG_modidx = [FG_modidx [out_Archt_07_nov_23.(archt_list{iSub}).D4.modidx_FG_inhib, out_Archt_07_nov_23.(archt_list{iSub}).D4.modidx_FG_noinhib]];
+    if any(strcmp(current_subject, control_list))
+        cohort = [cohort, repmat(1,1,2)];
+    end
+    if any(strcmp(current_subject, archT_list))
+        cohort = [cohort, repmat(2,1,2)];
+    end
 
-     t_bp = [t_bp [out_Archt_07_nov_23.(archt_list{iSub}).D4.t_bp_inhib, out_Archt_07_nov_23.(archt_list{iSub}).D4.t_bp_noinhib]];
-     
-     sg_bp = [sg_bp [out_Archt_07_nov_23.(archt_list{iSub}).D4.sg_bp_inhib, out_Archt_07_nov_23.(archt_list{iSub}).D4.sg_bp_noinhib]];
-     
-     fg_bp = [fg_bp [out_Archt_07_nov_23.(archt_list{iSub}).D4.fg_bp_inhib, out_Archt_07_nov_23.(archt_list{iSub}).D4.fg_bp_noinhib]];
+    pre_post = [pre_post 1 2];
+    no_obj_a_int= [no_obj_a_int out.(all_files{iSub}).D2.Behavior1.nObjAInteractions];
+    no_obj_a_int= [no_obj_a_int out.(all_files{iSub}).D2.Behavior2.nObjAInteractions];
 
-%      z_SGInhb_modidx=[z_SGInhb_modidx [out_Archt_07_nov_23.(archt_list{iSub}).D4.z_SGInhb_modidx]];
-%      
-%      z_FGInhb_modidx=[z_FGInhb_modidx [out_Archt_07_nov_23.(archt_list{iSub}).D4.z_FGInhb_modidx]];
-%      
-%      z_FGNoInhb_modidx=[z_FGNoInhb_modidx [out_Archt_07_nov_23.(archt_list{iSub}).D4.z_FGNoInhb_modidx]];
-     
-     if iSub==length(archt_list)
-     archt_tbl= table(subject', cohort', opto', trial_n',SG_modidx',FG_modidx',t_bp',sg_bp',fg_bp','VariableNames', {'Subject', 'Cohort', 'Opto', 'Trial', 'SG_modidx', 'FG_modidx','Theta_bp','SG_bp','FG_bp'});
-     end
+    no_obj_b_int= [no_obj_b_int out.(all_files{iSub}).D2.Behavior1.nObjBInteractions];
+    no_obj_b_int= [no_obj_b_int out.(all_files{iSub}).D2.Behavior2.nObjBInteractions];
+
+    obj_a_time= [obj_a_time out.(all_files{iSub}).D2.Behavior1.ObjATime];
+    obj_a_time= [obj_a_time out.(all_files{iSub}).D2.Behavior2.ObjATime];
+
+    obj_b_time= [obj_b_time out.(all_files{iSub}).D2.Behavior1.ObjBTime];
+    obj_b_time= [obj_b_time out.(all_files{iSub}).D2.Behavior2.ObjBTime];
+
 end
+
+%% collect all in one table
+D2Int= table(subject', cohort', pre_post', no_obj_a_int', no_obj_b_int', obj_a_time', obj_b_time','VariableNames', {'Subject', 'Cohort', 'Pre_post', 'No_obj_a_int', 'No_obj_b_int', 'ObjATime','ObjBTime'});
+
+%% Collect and make table for sleeping
+stats = []; 
+
+subject = []; 
+cohort = []; 
+pre_post = []; 
+no_obj_a_int = []; 
+no_obj_b_int=[];
+obj_a_time= [];
+obj_b_time= [];
+
+all_files=fieldnames(out);
+control_list= {'BC011' 'BC013'  'BC014'};
+archT_list= {'BC051' 'BC054' 'BC1807'  'BC053'};
+controlidx=[];
+archTidx=[];
+
+for idx = 1:numel(all_files)
+    current_field = all_files{idx};
+    if any(strcmp(current_field, control_list))
+        controlidx = [controlidx, idx];
+    end
+    if any(strcmp(current_field, archT_list))
+        archTidx = [archTidx, idx];
+    end
+end
+
+
+for iSub = 1:length(all_files)
+    current_subject = all_files{iSub};
+    
+    subject= [subject repmat(iSub,1,2)];
+    
+    if any(strcmp(current_subject, control_list))
+        cohort = [cohort, repmat(1,1,2)];
+    end
+    if any(strcmp(current_subject, archT_list))
+        cohort = [cohort, repmat(2,1,2)];
+    end
+
+    pre_post = [pre_post 1 2];
+    no_obj_a_int= [no_obj_a_int out.(all_files{iSub}).D2.Behavior1.nObjAInteractions];
+    no_obj_a_int= [no_obj_a_int out.(all_files{iSub}).D2.Behavior2.nObjAInteractions];
+
+    no_obj_b_int= [no_obj_b_int out.(all_files{iSub}).D2.Behavior1.nObjBInteractions];
+    no_obj_b_int= [no_obj_b_int out.(all_files{iSub}).D2.Behavior2.nObjBInteractions];
+
+    obj_a_time= [obj_a_time out.(all_files{iSub}).D2.Behavior1.ObjATime];
+    obj_a_time= [obj_a_time out.(all_files{iSub}).D2.Behavior2.ObjATime];
+
+    obj_b_time= [obj_b_time out.(all_files{iSub}).D2.Behavior1.ObjBTime];
+    obj_b_time= [obj_b_time out.(all_files{iSub}).D2.Behavior2.ObjBTime];
+
+end
+
+    
+%% Plotting
+figure (1)
+boxchart(D2Int.Pre_post,D2Int.ObjATime,'GroupByColor',D2Int.Cohort)
+figure (2)
+boxchart(D2Int.Pre_post,D2Int.ObjBTime,'GroupByColor',D2Int.Cohort)
+
+ 
 
 
 %% Lets assign the intervals where te mice is inisde the radious
