@@ -15,7 +15,10 @@
 %'windows
      
 % cd(data_dir)
-
+%% General parameters
+plot_flag = 00;
+video_flag=0;
+save_output=1;
 %% Rolling through the folders with dynamic loader
 sys=computer;
 if contains(sys,'PCWIN')
@@ -32,11 +35,13 @@ else disp("This system is not supported on the dynamic loader yet, pleae add it 
 end
 cd(data_dir)
 
-% get all sessions with 'D4_INHIBITION'
+% get all sessions with 'BC'
 inhib_dir = dir('*BC*');
 
+%% Initializing outputs
+    out=[];
 %% Loop to load data from raw
-for iS=14%:length(inhib_dir )
+for iS=1:length(inhib_dir)
 
     %% Colloecting subject info
     
@@ -48,11 +53,8 @@ for iS=14%:length(inhib_dir )
     info.subject=parts{1};
     info.date=[ parts{2} '_' parts{3} '_' parts{4}];
     info.session=parts{5};
-    %% General parameters
-    plot_flag = 01;
-
-   %% Initializing outputs
-    out=[];
+    
+   
     %% Individual parameters
     if info.subject=="BC1807";
         emg_chan = 'CSC1.ncs';lfp_chan = 'CSC3.ncs';
@@ -68,8 +70,6 @@ for iS=14%:length(inhib_dir )
         emg_chan = 'CSC1.ncs';lfp_chan = 'CSC2.ncs';
     elseif info.subject=="BC011";
         emg_chan = 'CSC1.ncs';lfp_chan = 'CSC2.ncs';
-
-
     end
     %% Loading some data
 
@@ -173,21 +173,21 @@ for iS=14%:length(inhib_dir )
             wake_t = [0 2518 4597 5331 6521 8947 9211 7153 9607 10094 12110 12942];
         end
     end
-    %wake_t = [0 0];
+    
     wake_idx = nearest_idx(wake_t, csc_s.tvec); %Converts time to sample idx
     wake_idx = reshape(wake_idx,2, length(wake_idx)/2)'; %reshape(columns, rows)
     %% score the sleep.
 
-    [hypno, csc_out, emg_out] = dSub_Sleep_screener(csc_s, emg_s, wake_idx);  % can add in 'wake_idx' as the last input.
-
+    [hypno, csc_out, emg_out] = dSub_Sleep_screener(plot_flag, csc_s, emg_s, wake_idx);  % can add in 'wake_idx' as the last input.
+    
     %% Getting the percentage of sleep sates
-    figure(222)
-    clf
-    [y,x]=histcounts(hypno.data,[0.5:1:3.5]);
+[y,x]=histcounts(hypno.data,[0.5:1:3.5]);
     y_per=(y/sum(y))*100; %Percentage of Wake, SWS and REM
     sleep_time_sec=(y./(csc_s.cfg.hdr{1,1}.SamplingFrequency))';
-
+    
     if plot_flag
+        figure(222)
+        clf
         subplot(1,2,1)
         b=bar([1:1:3],y_per);
         b.FaceColor = 'flat';
@@ -275,11 +275,8 @@ for iS=14%:length(inhib_dir )
         %%% You are here in this function
         %% Plot the position of the mouse
         %%---To do--- Adapt this cell to the new structures
-        %Initilize output structures
-
-        %Parameters
-        video_flag=0;
-        plot_flag=1;
+       
+        
         minFrames=5; % The minimum number of frames where the mouse is in radious
         
         for iF=1:nfiles
@@ -395,8 +392,78 @@ for iS=14%:length(inhib_dir )
     end
 end
 
+% Formating for saving output
+if save_output
+    cd(inter_dir)
+    save(["out-" + date + ".mat"],'out')
+    
+end
 %% Plot to compare time and # of interactions
+%% Collect and make table
+tbl = table(); 
+stats = []; 
+subject = []; 
+trial_n = [];
+opto = [];
+cohort = []; 
+SG_modidx = []; 
+FG_modidx = []; 
+t_bp=[];
+fg_bp=[];
+sg_bp=[];
 
+all_files=fieldnames(out);
+control_list= {'BC011' 'BC013'  'BC014'};
+archT_list= {'BC051' 'BC054' 'BC1807'  'BC053'};
+controlidx=[];
+archTidx=[];
+
+for idx = 1:numel(all_files)
+    current_field = all_files{idx};
+    if any(strcmp(current_field, control_list))
+        controlidx = [controlidx, idx];
+    end
+    if any(strcmp(current_field, archT_list))
+        archTidx = [archTidx, idx];
+    end
+end
+
+
+for iSub = 1:length(all_files)
+    sess_list = fieldnames(out.archT_list{iSub})); 
+ 
+    n_inhib = length(out_Archt_07_nov_23.(archt_list{iSub}).D4.t_bp_inhib); 
+    n_noinhib = length(out_Archt_07_nov_23.(archt_list{iSub}).D4.t_bp_noinhib);
+    
+    
+     subject= [subject repmat(iSub,1, n_inhib + n_noinhib)]; 
+     
+     cohort = [cohort repmat(1,1, n_inhib + n_noinhib)];
+     
+     trial_n = [trial_n, [1:n_inhib, 1:n_noinhib]]; 
+     
+     opto = [opto, logical([repmat(1,1, n_inhib), repmat(0,1, n_noinhib)])]; 
+     
+     SG_modidx = [SG_modidx [out_Archt_07_nov_23.(archt_list{iSub}).D4.modidx_SG_inhib, out_Archt_07_nov_23.(archt_list{iSub}).D4.modidx_SG_noinhib]];
+     
+     FG_modidx = [FG_modidx [out_Archt_07_nov_23.(archt_list{iSub}).D4.modidx_FG_inhib, out_Archt_07_nov_23.(archt_list{iSub}).D4.modidx_FG_noinhib]];
+
+     t_bp = [t_bp [out_Archt_07_nov_23.(archt_list{iSub}).D4.t_bp_inhib, out_Archt_07_nov_23.(archt_list{iSub}).D4.t_bp_noinhib]];
+     
+     sg_bp = [sg_bp [out_Archt_07_nov_23.(archt_list{iSub}).D4.sg_bp_inhib, out_Archt_07_nov_23.(archt_list{iSub}).D4.sg_bp_noinhib]];
+     
+     fg_bp = [fg_bp [out_Archt_07_nov_23.(archt_list{iSub}).D4.fg_bp_inhib, out_Archt_07_nov_23.(archt_list{iSub}).D4.fg_bp_noinhib]];
+
+%      z_SGInhb_modidx=[z_SGInhb_modidx [out_Archt_07_nov_23.(archt_list{iSub}).D4.z_SGInhb_modidx]];
+%      
+%      z_FGInhb_modidx=[z_FGInhb_modidx [out_Archt_07_nov_23.(archt_list{iSub}).D4.z_FGInhb_modidx]];
+%      
+%      z_FGNoInhb_modidx=[z_FGNoInhb_modidx [out_Archt_07_nov_23.(archt_list{iSub}).D4.z_FGNoInhb_modidx]];
+     
+     if iSub==length(archt_list)
+     archt_tbl= table(subject', cohort', opto', trial_n',SG_modidx',FG_modidx',t_bp',sg_bp',fg_bp','VariableNames', {'Subject', 'Cohort', 'Opto', 'Trial', 'SG_modidx', 'FG_modidx','Theta_bp','SG_bp','FG_bp'});
+     end
+end
 
 
 %% Lets assign the intervals where te mice is inisde the radious
