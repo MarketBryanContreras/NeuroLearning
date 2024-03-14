@@ -36,7 +36,7 @@ cd(data_dir)
 inhib_dir = dir('*BC*');
 
 %% Loop to load data from raw
-for iS=14%:length(inhib_dir )
+for iS=10%:length(inhib_dir )
 
     %% Colloecting subject info
     
