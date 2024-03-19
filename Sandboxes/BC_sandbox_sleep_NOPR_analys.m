@@ -400,72 +400,72 @@ if save_output
     save(["out-" + date + ".mat"],'out')
     
 end
-%% Plot to compare time and # of interactions
-%% Collect and make table
-tbl = table(); 
-stats = []; 
-subject = []; 
-trial_n = [];
-opto = [];
-cohort = []; 
-SG_modidx = []; 
-FG_modidx = []; 
-t_bp=[];
-fg_bp=[];
-sg_bp=[];
-
-all_files=fieldnames(out);
-control_list= {'BC011' 'BC013'  'BC014'};
-archT_list= {'BC051' 'BC054' 'BC1807'  'BC053'};
-controlidx=[];
-archTidx=[];
-
-for idx = 1:numel(all_files)
-    current_field = all_files{idx};
-    if any(strcmp(current_field, control_list))
-        controlidx = [controlidx, idx];
-    end
-    if any(strcmp(current_field, archT_list))
-        archTidx = [archTidx, idx];
-    end
-end
-
-
-for iSub = 1:length(all_files)
-    sess_list = fieldnames(out.archT_list{iSub})); 
- 
-    n_inhib = length(out_Archt_07_nov_23.(archt_list{iSub}).D4.t_bp_inhib); 
-    n_noinhib = length(out_Archt_07_nov_23.(archt_list{iSub}).D4.t_bp_noinhib);
-    
-    
-     subject= [subject repmat(iSub,1, n_inhib + n_noinhib)]; 
-     
-     cohort = [cohort repmat(1,1, n_inhib + n_noinhib)];
-     
-     trial_n = [trial_n, [1:n_inhib, 1:n_noinhib]]; 
-     
-     opto = [opto, logical([repmat(1,1, n_inhib), repmat(0,1, n_noinhib)])]; 
-     
-     SG_modidx = [SG_modidx [out_Archt_07_nov_23.(archt_list{iSub}).D4.modidx_SG_inhib, out_Archt_07_nov_23.(archt_list{iSub}).D4.modidx_SG_noinhib]];
-     
-     FG_modidx = [FG_modidx [out_Archt_07_nov_23.(archt_list{iSub}).D4.modidx_FG_inhib, out_Archt_07_nov_23.(archt_list{iSub}).D4.modidx_FG_noinhib]];
-
-     t_bp = [t_bp [out_Archt_07_nov_23.(archt_list{iSub}).D4.t_bp_inhib, out_Archt_07_nov_23.(archt_list{iSub}).D4.t_bp_noinhib]];
-     
-     sg_bp = [sg_bp [out_Archt_07_nov_23.(archt_list{iSub}).D4.sg_bp_inhib, out_Archt_07_nov_23.(archt_list{iSub}).D4.sg_bp_noinhib]];
-     
-     fg_bp = [fg_bp [out_Archt_07_nov_23.(archt_list{iSub}).D4.fg_bp_inhib, out_Archt_07_nov_23.(archt_list{iSub}).D4.fg_bp_noinhib]];
-
-%      z_SGInhb_modidx=[z_SGInhb_modidx [out_Archt_07_nov_23.(archt_list{iSub}).D4.z_SGInhb_modidx]];
-%      
-%      z_FGInhb_modidx=[z_FGInhb_modidx [out_Archt_07_nov_23.(archt_list{iSub}).D4.z_FGInhb_modidx]];
-%      
-%      z_FGNoInhb_modidx=[z_FGNoInhb_modidx [out_Archt_07_nov_23.(archt_list{iSub}).D4.z_FGNoInhb_modidx]];
-     
-     if iSub==length(archt_list)
-     archt_tbl= table(subject', cohort', opto', trial_n',SG_modidx',FG_modidx',t_bp',sg_bp',fg_bp','VariableNames', {'Subject', 'Cohort', 'Opto', 'Trial', 'SG_modidx', 'FG_modidx','Theta_bp','SG_bp','FG_bp'});
-     end
-end
+% %% Plot to compare time and # of interactions
+% %% Collect and make table
+% tbl = table(); 
+% stats = []; 
+% subject = []; 
+% trial_n = [];
+% opto = [];
+% cohort = []; 
+% SG_modidx = []; 
+% FG_modidx = []; 
+% t_bp=[];
+% fg_bp=[];
+% sg_bp=[];
+% 
+% all_files=fieldnames(out);
+% control_list= {'BC011' 'BC013'  'BC014'};
+% archT_list= {'BC051' 'BC054' 'BC1807'  'BC053'};
+% controlidx=[];
+% archTidx=[];
+% 
+% for idx = 1:numel(all_files)
+%     current_field = all_files{idx};
+%     if any(strcmp(current_field, control_list))
+%         controlidx = [controlidx, idx];
+%     end
+%     if any(strcmp(current_field, archT_list))
+%         archTidx = [archTidx, idx];
+%     end
+% end
+% 
+% 
+% for iSub = 1:length(all_files)
+%     sess_list = fieldnames(out.archT_list{iSub})); 
+% 
+%     n_inhib = length(out_Archt_07_nov_23.(archt_list{iSub}).D4.t_bp_inhib); 
+%     n_noinhib = length(out_Archt_07_nov_23.(archt_list{iSub}).D4.t_bp_noinhib);
+% 
+% 
+%      subject= [subject repmat(iSub,1, n_inhib + n_noinhib)]; 
+% 
+%      cohort = [cohort repmat(1,1, n_inhib + n_noinhib)];
+% 
+%      trial_n = [trial_n, [1:n_inhib, 1:n_noinhib]]; 
+% 
+%      opto = [opto, logical([repmat(1,1, n_inhib), repmat(0,1, n_noinhib)])]; 
+% 
+%      SG_modidx = [SG_modidx [out_Archt_07_nov_23.(archt_list{iSub}).D4.modidx_SG_inhib, out_Archt_07_nov_23.(archt_list{iSub}).D4.modidx_SG_noinhib]];
+% 
+%      FG_modidx = [FG_modidx [out_Archt_07_nov_23.(archt_list{iSub}).D4.modidx_FG_inhib, out_Archt_07_nov_23.(archt_list{iSub}).D4.modidx_FG_noinhib]];
+% 
+%      t_bp = [t_bp [out_Archt_07_nov_23.(archt_list{iSub}).D4.t_bp_inhib, out_Archt_07_nov_23.(archt_list{iSub}).D4.t_bp_noinhib]];
+% 
+%      sg_bp = [sg_bp [out_Archt_07_nov_23.(archt_list{iSub}).D4.sg_bp_inhib, out_Archt_07_nov_23.(archt_list{iSub}).D4.sg_bp_noinhib]];
+% 
+%      fg_bp = [fg_bp [out_Archt_07_nov_23.(archt_list{iSub}).D4.fg_bp_inhib, out_Archt_07_nov_23.(archt_list{iSub}).D4.fg_bp_noinhib]];
+% 
+% %      z_SGInhb_modidx=[z_SGInhb_modidx [out_Archt_07_nov_23.(archt_list{iSub}).D4.z_SGInhb_modidx]];
+% %      
+% %      z_FGInhb_modidx=[z_FGInhb_modidx [out_Archt_07_nov_23.(archt_list{iSub}).D4.z_FGInhb_modidx]];
+% %      
+% %      z_FGNoInhb_modidx=[z_FGNoInhb_modidx [out_Archt_07_nov_23.(archt_list{iSub}).D4.z_FGNoInhb_modidx]];
+% 
+%      if iSub==length(archt_list)
+%      archt_tbl= table(subject', cohort', opto', trial_n',SG_modidx',FG_modidx',t_bp',sg_bp',fg_bp','VariableNames', {'Subject', 'Cohort', 'Opto', 'Trial', 'SG_modidx', 'FG_modidx','Theta_bp','SG_bp','FG_bp'});
+%      end
+% end
 
 
 %% Lets assign the intervals where te mice is inisde the radious
