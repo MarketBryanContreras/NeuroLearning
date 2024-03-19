@@ -163,6 +163,8 @@ for iS=2%:length(inhib_dir)
     elseif info.session== "D2"
         if strcmpi(info.subject,"BC1807")
             wake_t = [0 4735 7179 9298 10043 11642 13919 14403];
+        elseif strcmpi(info.subject,"BC011")
+            wake_t = [0 9199 10295  11070];
         elseif strcmpi(info.subject,"BC013")
             wake_t = [0 688 1817 3130 4335 4783 6820 7511 10772 11917];
         elseif strcmpi(info.subject,"BC014")
@@ -231,7 +233,7 @@ for iS=2%:length(inhib_dir)
         % Load the DLC data
         distances=[];
 
-        pos = MS_DLC2TSD_divide(cd, [], [4.5 4.5]); %Need to ask Eric how to solve for the size of the cage. For now we will assume its 4.5
+        pos = MS_DLC2TSD_divide(cd, [], [9.3 9.3]); %Need to ask Eric how to solve for the size of the cage. For now we will assume its 4.5
         files=fieldnames(pos);
         files_idx=(find((contains((fieldnames(pos)),'File'))));
         nfiles=length(files(files_idx));
@@ -278,19 +280,19 @@ for iS=2%:length(inhib_dir)
         %% Plot the position of the mouse
         %%---To do--- Adapt this cell to the new structures
        
-        
+        radious=2.5
         minFrames=5; % The minimum number of frames where the mouse is in radious
         
         for iF=1:nfiles
             %Initialize figure
             figure (20+iF)
             %Actual position
-            subplot(8,1,1:4);
+            %subplot(8,1,1:4);
             %plot the actual position
             time_frames=[1:length(pos.("File"+iF).data)];
-            [aX,aY]=BC_Circle_plot(5.5,pos.("File"+iF).data(5,1),pos.("File"+iF).data(6,1), BC_color_genertor('Swamp_green'),plot_flag);
+            [aX,aY]=BC_Circle_plot(radious,pos.("File"+iF).data(5,1),pos.("File"+iF).data(6,1), BC_color_genertor('Swamp_green'),plot_flag);
             hold on
-            [bX,bY]=BC_Circle_plot(5.5,pos.("File"+iF).data(7,1),pos.("File"+iF).data(8,1), BC_color_genertor('Torment_blue'),plot_flag);
+            [bX,bY]=BC_Circle_plot(radious,pos.("File"+iF).data(7,1),pos.("File"+iF).data(8,1), BC_color_genertor('Torment_blue'),plot_flag);
             inA= inpolygon(pos.("File"+iF).data(1,:),pos.("File"+iF).data(2,:),aX,aY);
             aidx=find(inA);
             aInt=BC_object_interaction_intervals(aidx,minFrames);%Get periods where the mouse spends more than 5 frames (0.33 sec)

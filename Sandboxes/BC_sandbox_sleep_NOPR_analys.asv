@@ -163,6 +163,8 @@ for iS=2%:length(inhib_dir)
     elseif info.session== "D2"
         if strcmpi(info.subject,"BC1807")
             wake_t = [0 4735 7179 9298 10043 11642 13919 14403];
+        elseif strcmpi(info.subject,"BC011")
+            wake_t = [0 9199 10295  11070];
         elseif strcmpi(info.subject,"BC013")
             wake_t = [0 688 1817 3130 4335 4783 6820 7511 10772 11917];
         elseif strcmpi(info.subject,"BC014")
@@ -231,7 +233,7 @@ for iS=2%:length(inhib_dir)
         % Load the DLC data
         distances=[];
 
-        pos = MS_DLC2TSD_divide(cd, [], [4.5 4.5]); %Need to ask Eric how to solve for the size of the cage. For now we will assume its 4.5
+        pos = MS_DLC2TSD_divide(cd, [], [9.3 9.3]); %Need to ask Eric how to solve for the size of the cage. For now we will assume its 4.5
         files=fieldnames(pos);
         files_idx=(find((contains((fieldnames(pos)),'File'))));
         nfiles=length(files(files_idx));
@@ -458,7 +460,7 @@ for iSub = 1:length(all_files)
     obj_b_time= [obj_b_time out.(all_files{iSub}).D2.Behavior2.ObjBTime];
 
 end
->>>>>>> 2061168d3cfa97c01f3b60f6cd521d7005dc1162
+
 
 %% collect all in one table
 D2Int= table(subject', cohort', pre_post', no_obj_a_int', no_obj_b_int', obj_a_time', obj_b_time','VariableNames', {'Subject', 'Cohort', 'Pre_post', 'No_obj_a_int', 'No_obj_b_int', 'ObjATime','ObjBTime'});
