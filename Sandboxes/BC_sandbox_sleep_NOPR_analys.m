@@ -518,13 +518,52 @@ end
 
     
 %% Plotting
-figure (1)
-boxchart(D2Int.Pre_post,D2Int.ObjATime,'GroupByColor',D2Int.Cohort)
+%Comparison of interactions with object A
+figure(1)
+clf
+h = boxchart(D2Int.Pre_post, D2Int.ObjATime, 'GroupByColor', D2Int.Cohort);
+ylabel('Time (s)'); xlabel(''); title('Time spent with object A (moved)');
+legend({'Control', 'ArchT'});
+
+% Set box colors
+h(2).BoxFaceColor = BC_color_genertor('ArchT_green');
+h(1).BoxFaceColor = BC_color_genertor('oxford_blue');
+
+% % Set x-tick positions and labels
+xticks([1 2]); % Set x-tick positions for "Pre" and "Post"
+xticklabels({'Pre', 'Post'}); % Set x-tick labels
+
+hold on
+xline(1.5, 'k--'); % Line to separate "Pre" and "Post"
+legend({'Control', 'ArchT', ''});
+set(gca,'fontsize', 16) 
+
+%Comparison of interactions with object B
 figure (2)
-boxchart(D2Int.Pre_post,D2Int.ObjBTime,'GroupByColor',D2Int.Cohort)
+clf
+h = boxchart(D2Int.Pre_post,D2Int.ObjBTime,'GroupByColor',D2Int.Cohort)
+ylabel('Time (s)'); xlabel(''); title('Time spent with object B');
+legend({'Control', 'ArchT'});
 
- 
+% Set box colors
+h(2).BoxFaceColor = BC_color_genertor('ArchT_green');
+h(1).BoxFaceColor = BC_color_genertor('oxford_blue');
 
+% % Set x-tick positions and labels
+xticks([1 2]); % Set x-tick positions for "Pre" and "Post"
+xticklabels({'Pre', 'Post'}); % Set x-tick labels
+
+hold on
+xline(1.5, 'k--'); % Line to separate "Pre" and "Post"
+legend({'Control', 'ArchT', ''});
+set(gca,'fontsize', 16) 
+
+
+%% Plotting
+figure(1)
+boxchart(D2Int.Pre_post, D2Int.ObjATime, 'GroupByColor', D2Int.Cohort, 'ColorGroup', {'red', 'blue'});
+ylabel('Time (s)'); xlabel(''); title('Time spent with object A');
+legend({'Control', 'ArchT'});
 
 %% Lets assign the intervals where te mice is inisde the radious
 %
