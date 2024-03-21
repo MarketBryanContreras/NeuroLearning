@@ -14,6 +14,7 @@ function interaction_int=BC_object_interaction_intervals(idx_in, min_frames)
 %  First version BC 25-Jan-2024 
 %% 
 differences=diff([0,idx_in]);
+%The smoothing below may cause that some point are out of the specified radious
 differences(differences<=29)=1; %smoothing for frames when the mouse returned no longer than 29 frames( 1 seg) 
 count=0;
 final_intervals=[];

@@ -16,9 +16,9 @@
      
 % cd(data_dir)
 %% General parameters
-plot_flag = 01;
+plot_flag = 00;
 video_flag=00;
-save_output=00;
+save_output=01;
 %% Rolling through the folders with dynamic loader
 sys=computer;
 if contains(sys,'PCWIN')
@@ -42,7 +42,7 @@ inhib_dir = dir('*BC*');
     out=[];
 %% Loop to load data from raw
 
-for iS=2%:length(inhib_dir)
+for iS=1:length(inhib_dir)
 
 
     %% Colloecting subject info
@@ -280,19 +280,21 @@ for iS=2%:length(inhib_dir)
         %% Plot the position of the mouse
         %%---To do--- Adapt this cell to the new structures
        
-        radious=2.5
+        radious=5;
         minFrames=5; % The minimum number of frames where the mouse is in radious
         
         for iF=1:nfiles
             %Initialize figure
+            if plot_flag
             figure (20+iF)
+            end
             %Actual position
             %subplot(8,1,1:4);
             %plot the actual position
             time_frames=[1:length(pos.("File"+iF).data)];
-            [aX,aY]=BC_Circle_plot(radious,pos.("File"+iF).data(5,1),pos.("File"+iF).data(6,1), BC_color_genertor('Swamp_green'),plot_flag);
+            [aX,aY]=BC_Circle_plot(plot_flag,radious,pos.("File"+iF).data(5,1),pos.("File"+iF).data(6,1), BC_color_genertor('Swamp_green'));
             hold on
-            [bX,bY]=BC_Circle_plot(radious,pos.("File"+iF).data(7,1),pos.("File"+iF).data(8,1), BC_color_genertor('Torment_blue'),plot_flag);
+            [bX,bY]=BC_Circle_plot(plot_flag,radious,pos.("File"+iF).data(7,1),pos.("File"+iF).data(8,1), BC_color_genertor('Torment_blue'));
             inA= inpolygon(pos.("File"+iF).data(1,:),pos.("File"+iF).data(2,:),aX,aY);
             aidx=find(inA);
             aInt=BC_object_interaction_intervals(aidx,minFrames);%Get periods where the mouse spends more than 5 frames (0.33 sec)
@@ -322,14 +324,14 @@ for iS=2%:length(inhib_dir)
                     scatter(pos.("File"+iF).data(1,bInt(jj,1):bInt(jj,2)), pos.("File"+iF).data(2,bInt(jj,1):bInt(jj,2)), 'o', 'MarkerFaceColor', cmap(jj,:), 'MarkerEdgeColor', 'none', 'MarkerFaceAlpha', 0.5);
                 end
 
-
+                %Position of the two objects
                 scatter(pos.("File"+iF).data(5,1),pos.("File"+iF).data(6,1) , 'o', 'MarkerFaceColor', 'm', 'MarkerEdgeColor', 'none')
                 scatter(pos.("File"+iF).data(7,1),pos.("File"+iF).data(8,1) , 'o', 'MarkerFaceColor', 'r', 'MarkerEdgeColor', 'none')
                 xlim([min(pos.("File"+iF).data(1,:)) max(pos.("File"+iF).data(1,:))]);
                 ylim([min(pos.("File"+iF).data(2,:)) max(pos.("File"+iF).data(2,:))]);
 
                 if video_flag==0;
-                    scatter(pos.("File"+iF).data(1,:), pos.("File"+iF).data(2,:), 'o', 'MarkerFaceColor', 'b', 'MarkerEdgeColor', 'none', 'MarkerFaceAlpha', 0.01);
+                    scatter(pos.("File"+iF).data(1,:), pos.("File"+iF).data(2,:), 'o', 'MarkerFaceColor', 'b', 'MarkerEdgeColor', 'none', 'MarkerFaceAlpha', 0.01);%Position of the mouse during the whole experiment in blue
                 else
                     %%Trying the video
                     for ii=1400:-1:900
@@ -350,35 +352,35 @@ for iS=2%:length(inhib_dir)
                     close(writerObj);
                 end
             end
-            %%% Rest of the plot
-            %plot X position of the mouse
-            subplot(8,1,5);
-            plot(time_frames,pos.("File"+iF).data(1,:));
-            xlim([0,time_frames(end)])
-            %xlabel('Time(s)');
-            ylabel('X pos (cm)');
-            %plot Y position of the mouse
-            subplot(8,1,6);
-            plot(time_frames,pos.("File"+iF).data(2,:), 'Color',BC_color_genertor('Oxford_blue'));
-            xlim([0,time_frames(end)])
-            %xlabel('Time(s)');
-            ylabel('Y pos (cm)');
-            %Plot the distances to object 1
-            subplot(8,1,7);
-            plot(time_frames, distances.("File"+iF)(1,:), 'm');
-            yline(5, 'Color', 'r')
-            xlim([0,time_frames(end)])
-            %xlabel('Time(s)');
-            ylabel('Distance to object A');
-            %Plot the distnaces to object 2
-            subplot(8,1,8);
-            plot(time_frames, distances.("File"+iF)(2,:),'r');
-            yline(5, 'Color', 'r')
-            xlim([0,time_frames(end)])
-            xlabel('Time (s)');
-            ylabel('Distance to object B');
-
-            hold off
+            % %%% Rest of the plot
+            % %plot X position of the mouse
+            % subplot(8,1,5);
+            % plot(time_frames,pos.("File"+iF).data(1,:));
+            % xlim([0,time_frames(end)])
+            % %xlabel('Time(s)');
+            % ylabel('X pos (cm)');
+            % %plot Y position of the mouse
+            % subplot(8,1,6);
+            % plot(time_frames,pos.("File"+iF).data(2,:), 'Color',BC_color_genertor('Oxford_blue'));
+            % xlim([0,time_frames(end)])
+            % %xlabel('Time(s)');
+            % ylabel('Y pos (cm)');
+            % %Plot the distances to object 1
+            % subplot(8,1,7);
+            % plot(time_frames, distances.("File"+iF)(1,:), 'm');
+            % yline(5, 'Color', 'r')
+            % xlim([0,time_frames(end)])
+            % %xlabel('Time(s)');
+            % ylabel('Distance to object A');
+            % %Plot the distnaces to object 2
+            % subplot(8,1,8);
+            % plot(time_frames, distances.("File"+iF)(2,:),'r');
+            % yline(5, 'Color', 'r')
+            % xlim([0,time_frames(end)])
+            % xlabel('Time (s)');
+            % ylabel('Distance to object B');
+            % 
+            % hold off
 
             %Extracting the data
             out.(info.subject).(info.session).("Behavior"+iF).nObjAInteractions=length(aInt);
@@ -402,172 +404,7 @@ if save_output
     save(["out-" + date + ".mat"],'out')   
 end
 
-%% Plot to compare time and # of interactions
-cd(inter_dir);
-load ("out-14-Mar-2024.mat");
-% Collect and make table for D2 interactions
 
-stats = []; 
-
-subject = []; 
-cohort = []; 
-pre_post = []; 
-no_obj_a_int = []; 
-no_obj_b_int=[];
-obj_a_time= [];
-obj_b_time= [];
-
-all_files=fieldnames(out);
-control_list= {'BC011' 'BC013'  'BC014'};
-archT_list= {'BC051' 'BC054' 'BC1807'  'BC053'};
-controlidx=[];
-archTidx=[];
-
-for idx = 1:numel(all_files)
-    current_field = all_files{idx};
-    if any(strcmp(current_field, control_list))
-        controlidx = [controlidx, idx];
-    end
-    if any(strcmp(current_field, archT_list))
-        archTidx = [archTidx, idx];
-    end
-end
-
-
-for iSub = 1:length(all_files)
-    current_subject = all_files{iSub};
-    
-    subject= [subject repmat(iSub,1,2)];
-    
-    if any(strcmp(current_subject, control_list))
-        cohort = [cohort, repmat(1,1,2)];
-    end
-    if any(strcmp(current_subject, archT_list))
-        cohort = [cohort, repmat(2,1,2)];
-    end
-
-    pre_post = [pre_post 1 2];
-    no_obj_a_int= [no_obj_a_int out.(all_files{iSub}).D2.Behavior1.nObjAInteractions];
-    no_obj_a_int= [no_obj_a_int out.(all_files{iSub}).D2.Behavior2.nObjAInteractions];
-
-    no_obj_b_int= [no_obj_b_int out.(all_files{iSub}).D2.Behavior1.nObjBInteractions];
-    no_obj_b_int= [no_obj_b_int out.(all_files{iSub}).D2.Behavior2.nObjBInteractions];
-
-    obj_a_time= [obj_a_time out.(all_files{iSub}).D2.Behavior1.ObjATime];
-    obj_a_time= [obj_a_time out.(all_files{iSub}).D2.Behavior2.ObjATime];
-
-    obj_b_time= [obj_b_time out.(all_files{iSub}).D2.Behavior1.ObjBTime];
-    obj_b_time= [obj_b_time out.(all_files{iSub}).D2.Behavior2.ObjBTime];
-
-end
-
-
-%% collect all in one table
-D2Int= table(subject', cohort', pre_post', no_obj_a_int', no_obj_b_int', obj_a_time', obj_b_time','VariableNames', {'Subject', 'Cohort', 'Pre_post', 'No_obj_a_int', 'No_obj_b_int', 'ObjATime','ObjBTime'});
-
-%% Collect and make table for sleeping
-stats = []; 
-
-subject = []; 
-cohort = []; 
-pre_post = []; 
-no_obj_a_int = []; 
-no_obj_b_int=[];
-obj_a_time= [];
-obj_b_time= [];
-
-all_files=fieldnames(out);
-control_list= {'BC011' 'BC013'  'BC014'};
-archT_list= {'BC051' 'BC054' 'BC1807'  'BC053'};
-controlidx=[];
-archTidx=[];
-
-for idx = 1:numel(all_files)
-    current_field = all_files{idx};
-    if any(strcmp(current_field, control_list))
-        controlidx = [controlidx, idx];
-    end
-    if any(strcmp(current_field, archT_list))
-        archTidx = [archTidx, idx];
-    end
-end
-
-
-for iSub = 1:length(all_files)
-    current_subject = all_files{iSub};
-    
-    subject= [subject repmat(iSub,1,2)];
-    
-    if any(strcmp(current_subject, control_list))
-        cohort = [cohort, repmat(1,1,2)];
-    end
-    if any(strcmp(current_subject, archT_list))
-        cohort = [cohort, repmat(2,1,2)];
-    end
-
-    pre_post = [pre_post 1 2];
-    no_obj_a_int= [no_obj_a_int out.(all_files{iSub}).D2.Behavior1.nObjAInteractions];
-    no_obj_a_int= [no_obj_a_int out.(all_files{iSub}).D2.Behavior2.nObjAInteractions];
-
-    no_obj_b_int= [no_obj_b_int out.(all_files{iSub}).D2.Behavior1.nObjBInteractions];
-    no_obj_b_int= [no_obj_b_int out.(all_files{iSub}).D2.Behavior2.nObjBInteractions];
-
-    obj_a_time= [obj_a_time out.(all_files{iSub}).D2.Behavior1.ObjATime];
-    obj_a_time= [obj_a_time out.(all_files{iSub}).D2.Behavior2.ObjATime];
-
-    obj_b_time= [obj_b_time out.(all_files{iSub}).D2.Behavior1.ObjBTime];
-    obj_b_time= [obj_b_time out.(all_files{iSub}).D2.Behavior2.ObjBTime];
-
-end
-
-    
-%% Plotting
-%Comparison of interactions with object A
-figure(1)
-clf
-h = boxchart(D2Int.Pre_post, D2Int.ObjATime, 'GroupByColor', D2Int.Cohort);
-ylabel('Time (s)'); xlabel(''); title('Time spent with object A (moved)');
-legend({'Control', 'ArchT'});
-
-% Set box colors
-h(2).BoxFaceColor = BC_color_genertor('ArchT_green');
-h(1).BoxFaceColor = BC_color_genertor('oxford_blue');
-
-% % Set x-tick positions and labels
-xticks([1 2]); % Set x-tick positions for "Pre" and "Post"
-xticklabels({'Pre', 'Post'}); % Set x-tick labels
-
-hold on
-xline(1.5, 'k--'); % Line to separate "Pre" and "Post"
-legend({'Control', 'ArchT', ''});
-set(gca,'fontsize', 16) 
-
-%Comparison of interactions with object B
-figure (2)
-clf
-h = boxchart(D2Int.Pre_post,D2Int.ObjBTime,'GroupByColor',D2Int.Cohort)
-ylabel('Time (s)'); xlabel(''); title('Time spent with object B');
-legend({'Control', 'ArchT'});
-
-% Set box colors
-h(2).BoxFaceColor = BC_color_genertor('ArchT_green');
-h(1).BoxFaceColor = BC_color_genertor('oxford_blue');
-
-% % Set x-tick positions and labels
-xticks([1 2]); % Set x-tick positions for "Pre" and "Post"
-xticklabels({'Pre', 'Post'}); % Set x-tick labels
-
-hold on
-xline(1.5, 'k--'); % Line to separate "Pre" and "Post"
-legend({'Control', 'ArchT', ''});
-set(gca,'fontsize', 16) 
-
-
-%% Plotting
-figure(1)
-boxchart(D2Int.Pre_post, D2Int.ObjATime, 'GroupByColor', D2Int.Cohort, 'ColorGroup', {'red', 'blue'});
-ylabel('Time (s)'); xlabel(''); title('Time spent with object A');
-legend({'Control', 'ArchT'});
 
 %% Lets assign the intervals where te mice is inisde the radious
 %
