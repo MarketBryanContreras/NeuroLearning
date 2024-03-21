@@ -257,26 +257,17 @@ steD1C2rem= std(d1_c2_time_rem)/sqrt(size(d1_c2_time_rem,1));
 steD2C2awk= std(d2_c2_time_awk)/sqrt(size(d2_c2_time_awk,1));
 steD2C2sws= std(d2_c2_time_sws)/sqrt(size(d2_c2_time_sws,1));
 steD2C2rem= std(d2_c2_time_rem)/sqrt(size(d2_c2_time_rem,1));
-/
 
 
 xx= [1,2,3,4];
 yy=[meanD1C1awk,meanD2C1awk,meanD1C2awk,meanD2C2awk;
     meanD1C1sws,meanD2C1sws,meanD1C2sws,meanD2C2sws;
     meanD1C1rem,meanD2C1rem,meanD1C2rem,meanD2C2rem];
-ste=[steD1C1awk,steD2C1awk,steD1C2awk,steD2C2awk;
-    steD1C1sws,steD2C1sws,steD1C2sws,steD2C2sws;
-    steD1C1rem,steD2C1rem,steD1C2rem,steD2C2rem];
+
 
 
 subplot(2,8,9:11.5)
 bb= bar(xx, yy,'FaceColor','flat', 'EdgeColor','none');
-hold on
-% Hold the plot for adding error bars
-hold on
-
-% Plot error bars
-%----To Do-----Solve for error bars
 maxy=max(max(yy));
 maxy=maxy+maxy*0.4;
 ylim([0 maxy])
@@ -291,50 +282,6 @@ sleep_colors= [...
     0.4416    0.7490    0.4322];
 colororder(sleep_colors);
 set(gca,'fontsize', 16)
-
-
-%% Possible solution to error bars
-% c = categorical({'CH','VC','GC','OC','BC','SC'});
-% c = reordercats(c,{'CH','VC','GC','OC','BC','SC'});
-% y = [707, 599; 464 444; 522 475; 566 346; 1329 1384; 459 498];
-% std_dev = [321 271; 233 91; 202 132; 0 173; 410  850; 179 122];
-% title('Title'); xlabel('x-label'); ylabel('y-label');
-% figure 
-% hold on
-% bar(c,y)
-% errorbar(y,std_dev,'.')
-% 
-% %Solution from stack flow
-% close all
-% clear all
-% clc
-% y = [707, 599; 464 444; 522 475; 566 346; 1329 1384; 459 498];
-% std_dev = [321 271; 233 91; 202 132; 0 173; 410  850; 179 122];
-% num = 6; %number of different subcategories
-% c = 1:num;
-% %%Figure
-% figH = figure;
-% axes1 = axes;
-% title('Title'); xlabel('x-label'); ylabel('y-label');
-% hold on
-% %%Bar(s)
-% %You can not color differently the same bar.
-% for i = 1:num
-%     bar(c(i)-0.15,y(i,1),0.2);
-%     bar(c(i)+0.15,y(i,2),0.2);
-% end
-% %%Errorbar
-% errH1 = errorbar(c-0.15,y(:,1),std_dev(:,1),'.','Color','b');
-% errH2 = errorbar(c+0.15,y(:,2),std_dev(:,2),'.','Color','r');
-% errH1.LineWidth = 1.5;
-% errH2.LineWidth = 1.5;
-% errH1.Color = [1 0.5 0];
-% errH2.Color = [1 0.3 1];
-% %%Set x-ticks
-% set(axes1,'Xlim',[0.5 5.5]);
-% set(axes1,'XTick',[1 1.5 2 2.5 3 3.5 4 4.5 5 5.5 6],'XTickLabel',...
-%     {'CH',' ','VC',' ','GC',' ','OC',' ','BC',' ','SC'});
-%   end
 %% Try to put the data in a single box chart
 % % Combine data for both objects
 % combinedData = [D2Int.ObjATime, D2Int.ObjBTime];
