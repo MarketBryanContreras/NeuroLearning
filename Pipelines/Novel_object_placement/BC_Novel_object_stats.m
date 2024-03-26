@@ -117,13 +117,13 @@ for iSub = 1:length(all_files)
 end
 
 %% Putting it in a table
-sleep= table(subject', cohort', day', time_awk', time_sws', time_rem', pcnt_awk', pcnt_sws', pcnt_rem', 'VariableNames', {'Subject', 'Cohort', 'Day', 'time_awk', 'time_sws', 'time_rem', ' pcnt_awk','pcnt_sws', ' pcnt_rem'})
+sleep= table(subject', cohort', day', time_awk', time_sws', time_rem', pcnt_awk', pcnt_sws', pcnt_rem', 'VariableNames', {'Subject', 'Cohort', 'Day', 'time_awk', 'time_sws', 'time_rem', 'pcnt_awk','pcnt_sws', 'pcnt_rem'});
 %% Stats
 
 %% Plotting
 figure (1)
 %Comparison of time with object A
-subplot(2,8,5:6)
+sp1=subplot(2,8,5:6)
 
 h = boxchart(D2Int.Pre_post, D2Int.ObjATime, 'GroupByColor', D2Int.Cohort);
 ylabel('Time (s)'); xlabel(''); title('OBJECT A (moved)');
@@ -139,10 +139,12 @@ xticklabels({'Pre', 'Post'}); % Set x-tick labels
 hold on
 xline(1.5, 'k--'); % Line to separate "Pre" and "Post"
 %legend({'Control', 'ArchT', ''});
-set(gca,'fontsize', 16) 
+set(gca,'fontsize', 16)
+set(gca, 'TickDir', 'out');  % Move ticks outside the plot
+set(gca,'box','off');
 
 %Comparison of time with object B
-subplot(2,8,7:8)
+sp2=subplot(2,8,7:8)
 
 h = boxchart(D2Int.Pre_post,D2Int.ObjBTime,'GroupByColor',D2Int.Cohort)
 %ylabel('Time (s)'); 
@@ -156,15 +158,18 @@ h(1).BoxFaceColor = BC_color_genertor('oxford_blue');
 % % Set x-tick positions and labels
 xticks([1 2]); % Set x-tick positions for "Pre" and "Post"
 xticklabels({'Pre', 'Post'}); % Set x-tick labels
+yticklabels({''});
 
 hold on
 xline(1.5, 'k--'); % Line to separate "Pre" and "Post"
 legend({'Control', 'ArchT', ''});
-set(gca,'fontsize', 16) 
+set(gca,'fontsize', 16)
+set(gca, 'TickDir', 'out');  % Move ticks outside the plot
+set(gca,'box','off');
 
 
 %Comparison of no. of interactions with object A
-subplot(2,8,13:14)
+sp3=subplot(2,8,13:14)
 
 h = boxchart(D2Int.Pre_post, D2Int.No_obj_a_int, 'GroupByColor', D2Int.Cohort);
 ylabel('No. of interactions '); xlabel('');
@@ -177,13 +182,17 @@ h(1).BoxFaceColor = BC_color_genertor('oxford_blue');
 xticks([1 2]); % Set x-tick positions for "Pre" and "Post"
 xticklabels({'Pre', 'Post'}); % Set x-tick labels
 
+
+
 hold on
 xline(1.5, 'k--'); % Line to separate "Pre" and "Post"
 %legend({'Control', 'ArchT', ''});
-set(gca,'fontsize', 16) 
+set(gca,'fontsize', 16)
+set(gca, 'TickDir', 'out');  % Move ticks outside the plot
+set(gca,'box','off');
 
 %Comparison of no. of interactions with object B
-subplot(2,8,15:16)
+sp4=subplot(2,8,15:16)
 
 h = boxchart(D2Int.Pre_post, D2Int.No_obj_b_int, 'GroupByColor', D2Int.Cohort);
 %ylabel('No. of interactions');
@@ -196,11 +205,17 @@ h(1).BoxFaceColor = BC_color_genertor('oxford_blue');
 % % Set x-tick positions and labels
 xticks([1 2]); % Set x-tick positions for "Pre" and "Post"
 xticklabels({'Pre', 'Post'}); % Set x-tick labels
-
+yticklabels({''});
 hold on
 xline(1.5, 'k--'); % Line to separate "Pre" and "Post"
 %legend({'Control', 'ArchT', ''});
-set(gca,'fontsize', 16) 
+set(gca,'fontsize', 16)
+set(gca, 'TickDir', 'out');  % Move ticks outside the plot
+set(gca,'box','off');
+
+linkaxes([sp1 sp2],'y')
+linkaxes([sp3 sp4],'y')
+
 
 % Compariosn of time pcnt spent in each sleep phase
 day1_cohort_1=sleep(sleep.Day==1 & sleep.Cohort==1, :);
@@ -208,6 +223,7 @@ day2_cohort_1=sleep(sleep.Day==2 & sleep.Cohort==1, :);
 day1_cohort_2=sleep(sleep.Day==1 & sleep.Cohort==2, :);
 day2_cohort_2=sleep(sleep.Day==2 & sleep.Cohort==2, :);
 
+%Extracting sleep times by cohort
 d1_c1_time_awk=day1_cohort_1.time_awk;
 d1_c2_time_awk=day1_cohort_2.time_awk;
 d2_c1_time_awk=day2_cohort_1.time_awk;
@@ -223,7 +239,28 @@ d1_c2_time_rem=day1_cohort_2.time_rem;
 d2_c1_time_rem=day2_cohort_1.time_rem;
 d2_c2_time_rem=day2_cohort_2.time_rem;
 
+%Extracting sleep percentages by cohort
 
+d1_c1_pcnt=[day1_cohort_1(:,4:6)];
+d1_c2_pcnt=[day1_cohort_2(:,4:6)];
+d2_c1_pcnt=[day2_cohort_1(:,4:6)];
+d2_c2_pcnt=[day2_cohort_2(:,4:6)];
+
+d1_c1_sum=table2array(sum(d1_c1_pcnt));
+d1_c1_pcnt=d1_c1_sum/sum(d1_c1_sum);
+
+d1_c2_sum=table2array(sum(d1_c2_pcnt));
+d1_c2_pcnt=d1_c2_sum/sum(d1_c2_sum);
+
+d2_c1_sum=table2array(sum(d2_c1_pcnt));
+d2_c1_pcnt=d2_c1_sum/sum(d2_c1_sum);
+
+d2_c2_sum=table2array(sum(d2_c2_pcnt));
+d2_c2_pcnt=d2_c2_sum/sum(d2_c2_sum);
+
+
+
+        
 
 meanD1C1awk= mean(d1_c1_time_awk);
 meanD1C1sws= mean(d1_c1_time_sws);
@@ -241,7 +278,7 @@ meanD2C2awk= mean(d2_c2_time_awk);
 meanD2C2sws= mean(d2_c2_time_sws);
 meanD2C2rem= mean(d2_c2_time_rem);
 
-/
+
 steD1C1awk= std(d1_c1_time_awk)/sqrt(size(d1_c1_time_awk,1));
 steD1C1sws= std(d1_c1_time_sws)/sqrt(size(d1_c1_time_sws,1));
 steD1C1rem= std(d1_c1_time_rem);sqrt(size(d1_c1_time_rem,1));
@@ -257,7 +294,7 @@ steD1C2rem= std(d1_c2_time_rem)/sqrt(size(d1_c2_time_rem,1));
 steD2C2awk= std(d2_c2_time_awk)/sqrt(size(d2_c2_time_awk,1));
 steD2C2sws= std(d2_c2_time_sws)/sqrt(size(d2_c2_time_sws,1));
 steD2C2rem= std(d2_c2_time_rem)/sqrt(size(d2_c2_time_rem,1));
-/
+
 
 
 xx= [1,2,3,4];
@@ -267,32 +304,88 @@ yy=[meanD1C1awk,meanD2C1awk,meanD1C2awk,meanD2C2awk;
 ste=[steD1C1awk,steD2C1awk,steD1C2awk,steD2C2awk;
     steD1C1sws,steD2C1sws,steD1C2sws,steD2C2sws;
     steD1C1rem,steD2C1rem,steD1C2rem,steD2C2rem];
-
-
-subplot(2,8,9:11.5)
-bb= bar(xx, yy,'FaceColor','flat', 'EdgeColor','none');
-hold on
-% Hold the plot for adding error bars
-hold on
-
-% Plot error bars
-%----To Do-----Solve for error bars
 maxy=max(max(yy));
 maxy=maxy+maxy*0.4;
+
+subplot(2,8,[9:11])
+
+num=4;
+c=1:num;
+control_x=[0.5 2.5 2.5 0.5];
+control_y=[0 0 maxy maxy];
+fill(control_x, control_y, BC_color_genertor('Oxford_blue'), 'FaceAlpha', 0.25 , 'LineStyle',"none")
+hold on
+
+archt_x=[2.5 5.0 5.0 2.5];
+archt_y=[0 0 maxy maxy];
+fill(archt_x, archt_y, BC_color_genertor('Archt_green'), 'FaceAlpha', 0.25 , 'LineStyle',"none")
+
+for ii = 1:num
+    bar(c(ii)-0.25,yy(1,ii),0.2,'EdgeColor','none');
+    bar(c(ii),yy(2,ii),0.2,'EdgeColor','none');
+    bar(c(ii)+0.25,yy(3,ii),0.2,'EdgeColor','none');
+end
+% Hold the plot for adding error bars
+
+
+% Plot error bars
+errH1 = errorbar(c-0.25,yy(1,:),ste(1,:),'.');
+errH2 = errorbar(c,yy(2,:),ste(2,:),'.');
+errH3 = errorbar(c+0.25,yy(3,:),ste(3,:),'.');
+errH1.LineWidth = 1.25;
+errH2.LineWidth = 1.25;
+errH3.LineWidth = 1.25;
+
+errH1.Color = [0 0 0];
+errH2.Color = [0 0 0];
+errH3.Color = [0 0 0];
+
+
 ylim([0 maxy])
-legend({'Awake', 'SWS', 'REM'});
-xticklabels({'D1', 'D2', 'D1', 'D2'}); % Set x-tick labels
-xline(2.5,'k--')
-legend({'Awake', 'SWS', 'REM', ''});
-title('Time spent on corresponding sleep phase')
+xlim([0.5 4.5])
+
+xline(2.5,'k--');
+legend({'Control','ArchT','Awake', 'SWS', 'REM', ''});
+title('Time spent on corresponding sleep phase');
+ylabel('Time (s)');
 sleep_colors= [...
     0.3467    0.5360    0.6907;
     0.9153    0.2816    0.2878;
     0.4416    0.7490    0.4322];
 colororder(sleep_colors);
 set(gca,'fontsize', 16)
+ax = gca;
+ax.XTick = [1,2,3,4];
+xticklabels({'D1', 'D2', 'D1', 'D2'}); % Set x-tick labels
+set(gca, 'TickDir', 'out');  % Move ticks outside the plot
+set(gca,'box','off');
+
+%Percentages D1 C1
+subplot(4,8,1:2)
+donutchart(d1_c1_pcnt, {'','',''});
+
+%Percentages D1 C2
+subplot(4,8,9:10)
+donutchart(d1_c2_pcnt, {'','',''});
+
+%Percentages D2 C1
+subplot(4,8,3:4)
+donutchart(d2_c1_pcnt, {'','',''});
+
+%Percentages D2 C2
+subplot(4,8,11:12)
+donutchart(d2_c2_pcnt, {'','',''});
+
+annotation('textbox', [0.1, 0.76, 0.1, 0.1], 'String', 'Control', 'FitBoxToText', 'on', 'EdgeColor', 'none', 'FontSize', 22, 'FontWeight', 'bold');
+annotation('textbox', [0.102, 0.54, 0.1, 0.1], 'String', 'ArhT', 'FitBoxToText', 'on', 'EdgeColor', 'none', 'FontSize', 22, 'FontWeight', 'bold');
+
+annotation('textbox', [0.195, 0.87 , 0.1, 0.1], 'String', 'Day 1', 'FitBoxToText', 'on', 'EdgeColor', 'none', 'FontSize', 22, 'FontWeight', 'bold');
+annotation('textbox', [0.405, 0.87 , 0.1, 0.1], 'String', 'Day 2', 'FitBoxToText', 'on', 'EdgeColor', 'none', 'FontSize', 22, 'FontWeight', 'bold');
 
 
+
+fig = gcf;                   % Get current figure handle
+fig.Color = [1 1 1];   
 %% Possible solution to error bars
 % c = categorical({'CH','VC','GC','OC','BC','SC'});
 % c = reordercats(c,{'CH','VC','GC','OC','BC','SC'});
