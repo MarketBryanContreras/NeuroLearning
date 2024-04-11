@@ -72,6 +72,19 @@ for iSub = 1:length(all_files)
 end
 %% collect all in one table
 D2Int= table(subject', cohort', pre_post', no_obj_a_int', no_obj_b_int', obj_a_time', obj_b_time','VariableNames', {'Subject', 'Cohort', 'Pre_post', 'No_obj_a_int', 'No_obj_b_int', 'ObjATime','ObjBTime'});
+%% Calculating the percent of total investigation time  and discrimination index
+%Investigation time percentage
+post= D2Int(D2Int.post==2)
+novel_invg_time=
+total_invg_time=
+pcnt_invg_time=
+
+
+
+%Discrimination index
+
+
+%No. ob interaction post/ no. of interaction pre 
 %% Stats
 %Cheking if the archT pre-post has a significance on object A
 archTd2Int = D2Int(D2Int.Cohort==2, :);
