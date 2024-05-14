@@ -8,25 +8,17 @@ end
     %assign your running area
     max_tresh=75;
     min_tresh=20;
-    x_running_index= find(x_data>=min_tresh & x_data<=max_tresh);
-    x_dif=diff(x_running_index);
-    z=find(x_dif>1);
-    y=z+1;
+    x_running_index= find(x_data>=min_tresh & x_data<=max_tresh); %Find the data within your treshold
+    x_dif=diff(x_running_index); 
+    z=find(x_dif>1);%Gen idx of the gaps, calulated by the differential
+    y=z+1; %Z has the values of the gaps beginnings
     jumps_end=x_running_index(z);
     jumps_end=[jumps_end,x_running_index(end)];
     jumps_start=x_running_index(y);
     jumps_start=[x_running_index(1), jumps_start];
-    % f_jumps=[jumps_start,jumps_end];
-    % sort(f_jumps);
-    % %plot thhe data
-    % plot(x_data)
-    % hold on
-    % scatter(jumps_end,x_data(jumps_end),'filled')
-    % scatter(jumps_start,x_data(jumps_start),'filled')
-    %Convert this indices to time epochs
-    jump_start_time=pos.tvec(jumps_start);
-    jump_end_time=pos.tvec(jumps_end);
-    iv_running=iv(jump_start_time, jump_end_time); % This is the interval where the mouse is running
+    jump_start_time=pos.tvec(jumps_start);%Get the time of the start of the jumps from the tvec
+    jump_end_time=pos.tvec(jumps_end);%Get the time of the end of the jumps from the tvec
+    iv_running=iv(jump_start_time, jump_end_time); % Created the interval where the mouse is running from the ends and beginning
     % ----To do----
     %1.Remove those intervals where the mouse is to close to the
     %previous one
@@ -34,8 +26,7 @@ end
     %2.Check for velocity
     %---
     
-    % Substarct the iv where the mosue is inhibited from those where it is
-    % running
+    % Substarct the iv where the mosue is inhibited from those where it is running
     cfg01=[];
     cfg01.verbose=0;
     iv_noInhb=DifferenceIV(cfg01,iv_running,iv_inhb);
@@ -51,7 +42,7 @@ end
         speed_data=pos.data(5,:);
         col = speed_data;  % This is the color, it varies with x in this case.
         ax1=subplot(2,1,1);
-        surface([x;x],[y;y],[z;z],[col;col],...
+        surface([x;x],[y;y],[z;z],[col;col],... % This create a surface in the shape of a linear plot, this way it allows to mdify the color of the line accoridn to the speed of the mouse
             'facecol','no',...
             'edgecol','interp',...
             'linew',2);
@@ -64,10 +55,7 @@ end
         
         ax1=subplot(2,1,1);
         
-        %xlabel('Time (s)');
-        %ylabel('Position in the x axis of the maze (cm)');
-        %h03=LTplotIvBars(iv_running,x_data,Oxford_blue,0.3)
-        %corrected_time=csc.tvec-min(csc.tvec); % creates n array of time corrected for the time that neuralynx started recording
+        %Plot of position and inhibitions
         ax2=subplot(2,1,2);
         plot(pos.tvec,x_data, 'Color', BC_color_genertor('Oxford_blue'));
         h01=LTplotIvBars(iv_inhb,x_data,BC_color_genertor('Archt_green'),0.8);
@@ -84,16 +72,18 @@ end
         legend boxoff ;
         set(gca, 'TickDir', 'out');
         
+
+        %% (*)Aesthetics (*)
         %Give common xlabel, ylabel, and title
         han=axes(fig,'visible','off');
         han.Title.Visible='on';
         han.XLabel.Visible='on';
         han.YLabel.Visible='on';
         han.YLabel.Position=[-0.0300 0.5000 0];
-        ylabel(han,'Position in the x axis of the maze (cm)','FontSize', 16);
+        ylabel(han,'Position in the x axis (cm)','FontSize', 16);
         han.XLabel.Position=[0.5000 -0.060 0];
         xlabel(han,'Time(s)','FontSize', 16);
-        title(han,'Example of displacement of mouse in the x axis during inhibition session','FontSize', 20);
+        title(han,'Example of mouse displacement during linear track','FontSize', 20);
         fig = gcf;                   % Get current figure handle
         fig.Color = [1 1 1];
         fig.Color = [1 1 1];         % Set background color to white

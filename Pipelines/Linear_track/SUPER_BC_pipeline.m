@@ -23,7 +23,7 @@ cd(data_dir)
 plot_flag = 1; % switch to 0 if you want to supress verification figures.
 time_maze_start = 30;
 min_trial_dur = 0.5;
-mouse_group=2; %1 for ArchT and 2 for eYFP. This just modify color of the plots
+mouse_group=1; %1 for ArchT and 2 for eYFP. This just modify color of the plots
 
 %% Generating color pallet for the mouse group
 if mouse_group==1
@@ -110,15 +110,16 @@ for iS =1%:length(inhib_dir)
     
     %% Trial split
     
-    [iv_inhb,iv_noInhb, iv_running] = BC_LT_trialfun(pos, iv_inhb, plot_flag);
+    [iv_inhb,iv_noInhb, iv_running] = BC_LT_trialfun(pos, iv_inhb, plot_flag); %This generates the graph of inhibition and velocity while it also retuns the inhibition, no inhibition and runnings epochs 
     
     % control for movement
     pos_spd = pos;
     pos_spd.data = [];
+    %Get the x and y position data into a structure
     pos_spd.data(1,:) = pos.data(3,:);
     pos_spd.data(2,:) = pos.data(4,:);
     pos_spd.label = [];
-    pos_spd.label = {'x', 'y'};
+    pos_spd.label = {'x', 'y'}; 
 
     spd = getLinSpd([],pos_spd);
     cfg = []; cfg.method = 'raw'; cfg.operation = '>'; cfg.threshold =5.0 ;% speed limit in cm/sec
