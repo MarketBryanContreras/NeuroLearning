@@ -16,7 +16,7 @@
      
 % cd(data_dir)
 %% General parameters
-plot_flag = 00;
+plot_flag = 01;
 video_flag=00;
 save_output=01;
 %% Rolling through the folders with dynamic loader
@@ -42,7 +42,7 @@ inhib_dir = dir('*BC*');
     out=[];
 %% Loop to load data from raw
 
-for iS=1:length(inhib_dir)
+for iS=1%:length(inhib_dir)
 
 
     %% Colloecting subject info
@@ -91,12 +91,13 @@ for iS=1:length(inhib_dir)
     %% Restrict the data only to the sleep phase
 
     %Extractinc the time stamps of the recording
-    start_OF = evts.t{find(contains(evts.label, 'Starting Recording'))}(1);
-    start_sleep = evts.t{find(contains(evts.label, 'Starting Recording'))}(2);
+    start_OF = evts.t{find(contains(evts.label, 'Starting Recording'))}(1); %Choose the time stamp of the first "Starting recording" which corresponds to the start of the OF
+    start_sleep = evts.t{find(contains(evts.label, 'Starting Recording'))}(2); %Choose the time stamp of the *second* "Starting recording" which corresponds to the start of the sleep recording
 
-    end_OF = evts.t{find(contains(evts.label, 'Stopping Recording'))}(1);
-    end_sleep = evts.t{find(contains(evts.label, 'Stopping Recording'))}(2);
+    end_OF = evts.t{find(contains(evts.label, 'Stopping Recording'))}(1);%Choose the time stamp of the first "Stopping Recording" which corresponds to the end of the OF
+    end_sleep = evts.t{find(contains(evts.label, 'Stopping Recording'))}(2);%Choose the time stamp of the second "Stopping Recording" which corresponds to the end of the sleep recording
 
+    %Addit the thir recodinf seesion in case it is a recording from day 2
     if info.session=="D2"
         start_NOPR = evts.t{find(contains(evts.label, 'Starting Recording'))}(3);
         end_NOPR = evts.t{find(contains(evts.label, 'Stopping Recording'))}(3);
@@ -144,7 +145,7 @@ for iS=1:length(inhib_dir)
     % specify known wake times or periods to ignore. Note; The perios are in
     % the interval format, so you want to write when do they start and when do
     % they end in pairs
-    if info.session== "D1"
+    if info.session== "D1" %Awake times for mice during the day one
         if strcmpi(info.subject,"BC1807")
             wake_t = [0 3292 3657 5083 8332 10042 12118 13092];
         elseif strcmpi(info.subject,"BC053") %Specify the wake period according to subject and session
@@ -160,7 +161,7 @@ for iS=1:length(inhib_dir)
         elseif strcmpi(info.subject,"BC054") 
             wake_t = [0 1423 2710 3859 4097 5355 6072 7153 9607 10098 11770 13206 13683 14402];
         end
-    elseif info.session== "D2"
+    elseif info.session== "D2" %Awake times for mice during the day two
         if strcmpi(info.subject,"BC1807")
             wake_t = [0 4735 7179 9298 10043 11642 13919 14403];
         elseif strcmpi(info.subject,"BC011")
@@ -185,10 +186,10 @@ for iS=1:length(inhib_dir)
     [hypno, csc_out, emg_out] = dSub_Sleep_screener(plot_flag, csc_s, emg_s, wake_idx);  % can add in 'wake_idx' as the last input.
     
     %% Getting the percentage of sleep sates
-[y,x]=histcounts(hypno.data,[0.5:1:3.5]);
+    [y,x]=histcounts(hypno.data,[0.5:1:3.5]); %Y=count, x=rnage values
     y_per=(y/sum(y))*100; %Percentage of Wake, SWS and REM
     sleep_time_sec=(y./(csc_s.cfg.hdr{1,1}.SamplingFrequency))';
-    
+
     if plot_flag
         figure(222)
         clf
