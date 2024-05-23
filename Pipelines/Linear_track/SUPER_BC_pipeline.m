@@ -373,7 +373,7 @@ end
           % cross freq coupling
                 [~, F, ~,P] = spectrogram(this_csc.data,hanning(win_s),win_s/2,1:0.1:160,this_csc.cfg.hdr{1}.SamplingFrequency); % spectrogram -- will take a while to compute!
        
-                [r_run(:,:,ii),~] = corrcoef(10*log10(P')); % correlation matrix (across frequencies) of spectrogram
+                [r_run(:,:,ii),~] = corrcoef(10*log10(P')); % correlation matrix (across frequencies) of spectrogram's power
                 
         end
     end
@@ -462,7 +462,7 @@ end
 
     end
     
-    %% plot the CoModulation matrix
+    %% Plot the CoModulation matrix
     
     % plots are duplicates for some reason. WIP
     
@@ -479,40 +479,40 @@ end
 %%
         figure(202)
         clf
-                subplot(1,3,1); cla; 
+        subplot(1,2,1); cla;
+        surf(phi_f,amp_f,CoMoI')
+        hold on
         imagesc(phi_f, amp_f, CoMoI');
-        set(gca, 'ydir', 'normal')
-        caxis([0 10^-3])
-        title('Silencing')
-                xlabel('Phase Freq (Hz)'); ylabel('Amp Freq (Hz)'); 
-                colorbar('Location', 'southoutside')
+        zlim([-0.5e-3 2e-3])
+        % 
+        % set(gca, 'ydir', 'normal') %axis('xy')
+        % clim([0 10^-3])
+        % title('Silencing')
+        % xlabel('Phase Freq (Hz)'); ylabel('Amp Freq (Hz)');
+        % colorbar('Location', 'southoutside')
 
-        subplot(1,3,2); cla; 
-        imagesc(phi_f, amp_f, CoMoNI');
-        set(gca, 'ydir', 'normal')
-        caxis([0 10^-3])
-        title('No Silencing')
-        xlabel('Phase Freq (Hz)'); ylabel('Amp Freq (Hz)'); 
-                        colorbar('Location', 'southoutside')
+        subplot(1,2,2); cla; 
+        %imagesc(phi_f, amp_f, CoMoNI');
+        surf(CoMoNI)
+        % set(gca, 'ydir', 'normal')
+        % caxis([0 10^-3])
+        % title('No Silencing')
+        % xlabel('Phase Freq (Hz)'); ylabel('Amp Freq (Hz)'); 
+        %                 colorbar('Location', 'southoutside')
 
-        subplot(1,3,3); cla; 
-        imagesc(phi_f, amp_f, CoMoR');
-        set(gca, 'ydir', 'normal')
-        caxis([0 10^-3])
-        title('Running')
-                xlabel('Phase Freq (Hz)'); ylabel('Amp Freq (Hz)'); 
-                colorbar('Location', 'southoutside')
+        % subplot(1,3,3); cla; 
+        % imagesc(phi_f, amp_f, CoMoR');
+        % set(gca, 'ydir', 'normal')
+        % caxis([0 10^-3])
+        % title('Running')
+        %         xlabel('Phase Freq (Hz)'); ylabel('Amp Freq (Hz)'); 
+        %         colorbar('Location', 'southoutside')
 
                 SetFigure([], gcf)
                 maximize
         
     end
-    
-    
-        
-        
-        
-        
+       
     %% Wavelet
     if plot_flag
         figure(109)
