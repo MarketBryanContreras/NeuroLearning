@@ -251,17 +251,58 @@ for iS=1%:length(inhib_dir.name)
     FGremmodidx=MS_ModIdx(FGAwakeBins);
 
     % Storing the Mod idx in a matrix
-    this_mouse_modidx=[SGawakemodidx FGawakemodidx; SGswsmodidx FGswsmodidx: SGremmodidx FGremmodidx];
+    this_mouse_modidx=[SGawakemodidx FGawakemodidx; SGswsmodidx FGswsmodidx; SGremmodidx FGremmodidx];
     %sleep_mod_idx(:,:,iS)=this_mouse_modidx;
 
-    cfg_como.A_step = .5;
+    cfg_como.A_step = 2; %I am using 2 for time-processing reasons
     cfg_como.P_step = .5;
     cfg_como.phi_bins = 18;
 
-    [CoMoAwk, phi_f, amp_f] = MS_phase_freq(cfg_como, CSC_Awk, [4 12], [30 100]);
-    [CoMoSws, phi_f, amp_f] = MS_phase_freq(cfg_como, CSC_Sws, [4 12], [30 100]);
-    [CoMoRem, phi_f, amp_f] = MS_phase_freq(cfg_como, CSC_Rem, [4 12], [30 100]);
+    This_CoMo=[];
+    [This_CoMo.CoMoAwk, phi_f, amp_f] = MS_phase_freq(cfg_como, CSC_Awk, [4 12], [30 100]);
+    [This_CoMo.CoMoSws, phi_f, amp_f] = MS_phase_freq(cfg_como, CSC_Sws, [4 12], [30 100]);
+    [This_CoMo.CoMoAwk, phi_f, amp_f] = MS_phase_freq(cfg_como, CSC_Rem, [4 12], [30 100]);
+
     
+    if plot_flag
+        figure(203)
+        clf
+        subplot(1,3,1); cla;
+        %surf(phi_f,amp_f,CoMoAwk')
+        %zlim([-0.5e-3 2e-3])
+        %hold on
+        imagesc(phi_f, amp_f, CoMoAwk');
+        set(gca, 'ydir', 'normal') %axis('xy')
+        clim([0 10^-3.4])
+        title('Awake')
+        xlabel('Phase Freq (Hz)'); ylabel('Amp Freq (Hz)');
+        colorbar('Location', 'southoutside')
+
+        subplot(1,3,2); cla;
+        %surf(phi_f,amp_f,CoMoAwk')
+        %zlim([-0.5e-3 2e-3])
+        %hold on
+        imagesc(phi_f, amp_f, CoMoSws');
+        set(gca, 'ydir', 'normal') %axis('xy')
+        %clim([0 10^-3.4])
+        title('SWS')
+        xlabel('Phase Freq (Hz)'); ylabel('Amp Freq (Hz)');
+        colorbar('Location', 'southoutside')
+
+        subplot(1,3,3); cla;
+        imagesc(phi_f, amp_f, CoMoRem');
+        set(gca, 'ydir', 'normal') %axis('xy')
+        %clim([0 10^-3.4])
+        title('REM')
+        xlabel('Phase Freq (Hz)'); ylabel('Amp Freq (Hz)');
+        colorbar('Location', 'southoutside')
+        SetFigure([], gcf)
+        maximize
+        
+    end
+    
+
+
     %% Ploting the mod idx over the sleep phases for comparison
     if plot_flag
         clf
@@ -284,9 +325,8 @@ for iS=1%:length(inhib_dir.name)
        
     end
 
-
-    FG_pow = BC_power(FG_csc);
-    FG_phi = angle(hilbert(FG_csc.data));
+    % FG_pow = BC_power(FG_csc);
+    % FG_phi = angle(hilbert(FG_csc.data));
         %% Getting the percentage of sleep sates
     [y,x]=histcounts(hypno.data,[0.5:1:3.5]); %Y=count, x=rnage values
     y_per=(y/sum(y))*100; %Percentage of Wake, SWS and REM
@@ -329,6 +369,7 @@ for iS=1%:length(inhib_dir.name)
     out.(info.subject).(info.session).sleep.percetages=y_per;
     out.(info.subject).(info.session).sleep.times_sec=sleep_time_sec;
     out.(info.subject).(info.session).sleep.mod_idx=this_mouse_modidx;
+    out.(info.subject).(info.session).sleep.CoMo=This_CoMo;
     out.(info.subject).sleep_labels=hypno.labels;
 
 
