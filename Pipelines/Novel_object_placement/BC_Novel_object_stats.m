@@ -14,7 +14,7 @@ else disp("This system is not supported on the dynamic loader yet, pleae add it 
 end
 %% Plot to compare time and # of interactions
 cd(inter_dir);
-load ("out-20-Mar-2024.mat");
+load ("out-24-May-2024.mat");
 % Collect and make table for D2 interactions
 
 
