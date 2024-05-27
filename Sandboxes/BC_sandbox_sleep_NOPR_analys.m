@@ -16,7 +16,7 @@
      
 % cd(data_dir)
 %% General parameters
-plot_flag = 01;
+plot_flag = 00;
 video_flag=00;
 save_output=01;
 %% Rolling through the folders with dynamic loader
@@ -44,7 +44,7 @@ inhib_dir = dir('*BC*');
 
 %% Loop to load data from raw
 
-for iS=1%:length(inhib_dir.name)
+for iS=1:length(inhib_dir)
 
 
     %% Colloecting subject info
