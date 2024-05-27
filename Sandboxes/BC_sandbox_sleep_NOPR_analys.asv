@@ -261,7 +261,7 @@ for iS=1%:length(inhib_dir.name)
     This_CoMo=[];
     [This_CoMo.CoMoAwk, phi_f, amp_f] = MS_phase_freq(cfg_como, CSC_Awk, [4 12], [30 100]);
     [This_CoMo.CoMoSws, phi_f, amp_f] = MS_phase_freq(cfg_como, CSC_Sws, [4 12], [30 100]);
-    [This_CoMo.CoMoAwk, phi_f, amp_f] = MS_phase_freq(cfg_como, CSC_Rem, [4 12], [30 100]);
+    [This_CoMo.CoMoRem, phi_f, amp_f] = MS_phase_freq(cfg_como, CSC_Rem, [4 12], [30 100]);
 
     
     if plot_flag
