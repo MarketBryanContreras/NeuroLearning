@@ -139,7 +139,6 @@ for iS=1:length(inhib_dir)
 
         % fix the annoying wide limits on the x axis
         xlim([csc_s.tvec(1) csc_s.tvec(end)])
-
     end
 
     %% sleep state
@@ -259,9 +258,9 @@ for iS=1:length(inhib_dir)
     cfg_como.phi_bins = 18;
 
     This_CoMo=[];
-    [This_CoMo.CoMoAwk, phi_f, amp_f] = MS_phase_freq(cfg_como, CSC_Awk, [4 12], [30 100]);
+    [This_CoMo.CoMoAwk, This_CoMo.phi_f, This_CoMo.amp_f] = MS_phase_freq(cfg_como, CSC_Awk, [4 12], [30 100]);
     [This_CoMo.CoMoSws, phi_f, amp_f] = MS_phase_freq(cfg_como, CSC_Sws, [4 12], [30 100]);
-    [This_CoMo.CoMoRem, phi_f, amp_f] = MS_phase_freq(cfg_como, CSC_Rem, [4 12], [30 100]);
+    [This_CoMo.CoMoRem, ~, ~] = MS_phase_freq(cfg_como, CSC_Rem, [4 12], [30 100]);
 
     
     if plot_flag

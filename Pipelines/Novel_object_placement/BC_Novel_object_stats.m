@@ -14,10 +14,9 @@ else disp("This system is not supported on the dynamic loader yet, pleae add it 
 end
 %% Plot to compare time and # of interactions
 cd(inter_dir);
-load ("out-24-May-2024.mat");
-% Collect and make table for D2 interactions
-
-
+load ("out-28-May-2024.mat"); %Selecte the data to be loaded
+%% Collect and make table for D2 interactions
+%Initialize columns
 subject = []; 
 cohort = []; 
 pre_post = []; 
@@ -27,12 +26,12 @@ obj_a_time= [];
 obj_b_time= [];
 stats=[];
 
-all_files=fieldnames(out);
+all_files=fieldnames(out);%All the nems of the files or subjects
 control_list= {'BC011' 'BC013'  'BC014'};
 archT_list= {'BC051' 'BC054' 'BC1807'  'BC053'};
 controlidx=[];
 archTidx=[];
-
+%Creates a list of the idx of either the control or the experimental 
 for idx = 1:numel(all_files)
     current_field = all_files{idx};
     if any(strcmp(current_field, control_list))
@@ -42,8 +41,8 @@ for idx = 1:numel(all_files)
         archTidx = [archTidx, idx];
     end
 end
-
-
+%Run until here to initialize any part of the analysis
+%% Interaction analysis
 for iSub = 1:length(all_files)
     current_subject = all_files{iSub};
     
@@ -231,7 +230,7 @@ stats.t_bp = fitlme(tbl,'Theta_bp ~ 1+ Opto + (1|Cohort) + (1|Subject) + (1|Tria
 stats.sg_bp = fitlme(tbl,'SG_bp ~ 1+ Opto + (1|Cohort) + (1|Subject) + (1|Trial)');
 stats.fg_bp = fitlme(tbl,'FG_bp ~ 1+ Opto + (1|Cohort) + (1|Subject) + (1|Trial)');
 
-%% Collect data for the time on sleep 
+%% Collect data for the time on sleep, percentages and the modulation index
 %Initialize columns
  
 cohort = [];
@@ -242,6 +241,14 @@ time_rem=[];
 pcnt_awk=[];
 pcnt_sws=[];
 pcnt_rem=[];
+FG_awk_modIdx=[];
+SG_awk_modIdx=[];
+FG_sws_modIdx=[];
+SG_sws_modIdx=[];
+FG_rem_modIdx=[];
+SG_rem_modIdx=[];
+
+
 
 
 for iSub = 1:length(all_files)
@@ -273,12 +280,60 @@ for iSub = 1:length(all_files)
     pcnt_rem= [pcnt_rem out.(all_files{iSub}).D1.sleep.percetages(3)];
     pcnt_rem= [pcnt_rem out.(all_files{iSub}).D2.sleep.percetages(3)];
 
+    SG_awk_modIdx= [SG_awk_modIdx out.(all_files{iSub}).D1.sleep.mod_idx(1,1)];
+    SG_awk_modIdx= [SG_awk_modIdx out.(all_files{iSub}).D2.sleep.mod_idx(1,1)];
+
+    FG_awk_modIdx= [FG_awk_modIdx out.(all_files{iSub}).D1.sleep.mod_idx(1,2)];
+    FG_awk_modIdx= [FG_awk_modIdx out.(all_files{iSub}).D2.sleep.mod_idx(1,2)];
+
+    SG_sws_modIdx= [SG_sws_modIdx out.(all_files{iSub}).D1.sleep.mod_idx(2,1)];
+    SG_sws_modIdx= [SG_sws_modIdx out.(all_files{iSub}).D2.sleep.mod_idx(2,1)];
+
+    FG_sws_modIdx= [FG_sws_modIdx out.(all_files{iSub}).D1.sleep.mod_idx(2,2)];
+    FG_sws_modIdx= [FG_sws_modIdx out.(all_files{iSub}).D2.sleep.mod_idx(2,2)];
+
+    SG_rem_modIdx= [SG_rem_modIdx out.(all_files{iSub}).D1.sleep.mod_idx(3,1)];
+    SG_rem_modIdx= [SG_rem_modIdx out.(all_files{iSub}).D2.sleep.mod_idx(3,1)];
+
+    FG_rem_modIdx= [FG_rem_modIdx out.(all_files{iSub}).D1.sleep.mod_idx(3,2)];
+    FG_rem_modIdx= [FG_rem_modIdx out.(all_files{iSub}).D2.sleep.mod_idx(3,2)];
+
 end
 
-%% Putting it in a table
-sleep= table(subject', cohort', day', time_awk', time_sws', time_rem', pcnt_awk', pcnt_sws', pcnt_rem', 'VariableNames', {'Subject', 'Cohort', 'Day', 'time_awk', 'time_sws', 'time_rem', 'pcnt_awk','pcnt_sws', 'pcnt_rem'});
+%% Putting sllep data it in a table
+sleep= table(subject', cohort', day', time_awk', time_sws', time_rem', pcnt_awk', pcnt_sws', pcnt_rem', SG_awk_modIdx',FG_awk_modIdx',SG_sws_modIdx', FG_sws_modIdx',SG_rem_modIdx', FG_rem_modIdx','VariableNames', {'Subject', 'Cohort', 'Day', 'time_awk', 'time_sws', 'time_rem', 'pcnt_awk','pcnt_sws', 'pcnt_rem','SG_awk_modIdx','FG_awk_modIdx','SG_sws_modIdx', 'FG_sws_modIdx','SG_rem_modIdx', 'FG_rem_modIdx'});
 %% Stats
+%Stats for the modulation index 
+stats=[];
+stats.SG_awk = fitlme(sleep, ...
+    'SG_awk_modIdx ~ 1 + Day*Cohort + (1|Subject)', ...
+    'FitMethod', 'REML');
+disp(stats.SG_awk);
 
+stats.FG_awk = fitlme(sleep, ...
+    'FG_awk_modIdx ~ 1 + Day*Cohort + (1|Subject)', ...
+    'FitMethod', 'REML');
+disp(stats.FG_awk);
+
+stats.SG_sws = fitlme(sleep, ...
+    'SG_sws_modIdx ~ 1 + Day*Cohort + (1|Subject)', ...
+    'FitMethod', 'REML');
+disp(stats.SG_sws);
+
+stats.FG_sws = fitlme(sleep, ...
+    'FG_sws_modIdx ~ 1 + Day*Cohort + (1|Subject)', ...
+    'FitMethod', 'REML');
+disp(stats.FG_sws);
+
+stats.SG_rem = fitlme(sleep, ...
+    'SG_rem_modIdx ~ 1 + Day*Cohort + (1|Subject)', ...
+    'FitMethod', 'REML');
+disp(stats.SG_rem);
+
+stats.FG_rem = fitlme(sleep, ...
+    'FG_rem_modIdx ~ 1 + Day*Cohort + (1|Subject)', ...
+    'FitMethod', 'REML');
+disp(stats.FG_rem);
 %% Plotting
 figure (1)
 %Comparison of time with object A
@@ -375,7 +430,7 @@ set(gca,'box','off');
 linkaxes([sp1 sp2],'y')
 linkaxes([sp3 sp4],'y')
 
-
+%% Sleep data plotting
 % Compariosn of time pcnt spent in each sleep phase
 day1_cohort_1=sleep(sleep.Day==1 & sleep.Cohort==1, :);
 day2_cohort_1=sleep(sleep.Day==2 & sleep.Cohort==1, :);
@@ -544,7 +599,76 @@ annotation('textbox', [0.405, 0.87 , 0.1, 0.1], 'String', 'Day 2', 'FitBoxToText
 
 
 fig = gcf;                   % Get current figure handle
-fig.Color = [1 1 1];   
+fig.Color = [1 1 1];  
+%% Figure for the Mod idx
+sleep_phases = {'Awake', 'SWS', 'REM'};
+cohorts = {'Control', 'ArchT'};
+days = {'D1', 'D2'};
+%Extracting SG Mod idx by cohort
+d1_c1_SG_awk_modIdx=day1_cohort_1.SG_awk_modIdx;
+d1_c2_SG_awk_modIdx=day1_cohort_2.SG_awk_modIdx;
+d1_c1_SG_sws_modIdx=day1_cohort_1.SG_sws_modIdx;
+d1_c2_SG_sws_modIdx=day1_cohort_2.SG_sws_modIdx;
+d1_c1_SG_rem_modIdx=day1_cohort_1.SG_rem_modIdx;
+d1_c2_SG_rem_modIdx=day1_cohort_2.SG_rem_modIdx;
+
+d2_c1_SG_awk_modIdx=day2_cohort_1.SG_awk_modIdx;
+d2_c2_SG_awk_modIdx=day2_cohort_2.SG_awk_modIdx;
+d2_c1_SG_sws_modIdx=day2_cohort_1.SG_sws_modIdx;
+d2_c2_SG_sws_modIdx=day2_cohort_2.SG_sws_modIdx;
+d2_c1_SG_rem_modIdx=day2_cohort_1.SG_rem_modIdx;
+d2_c2_SG_rem_modIdx=day2_cohort_2.SG_rem_modIdx;
+
+%Extracting FG Mod idx by cohort
+d1_c1_FG_awk_modIdx=day1_cohort_1.FG_awk_modIdx;
+d1_c2_FG_awk_modIdx=day1_cohort_2.FG_awk_modIdx;
+d1_c1_FG_sws_modIdx=day1_cohort_1.FG_sws_modIdx;
+d1_c2_FG_sws_modIdx=day1_cohort_2.FG_sws_modIdx;
+d1_c1_FG_rem_modIdx=day1_cohort_1.FG_rem_modIdx;
+d1_c2_FG_rem_modIdx=day1_cohort_2.FG_rem_modIdx;
+
+d2_c1_FG_awk_modIdx=day2_cohort_1.FG_awk_modIdx;
+d2_c2_FG_awk_modIdx=day2_cohort_2.FG_awk_modIdx;
+d2_c1_FG_sws_modIdx=day2_cohort_1.FG_sws_modIdx;
+d2_c2_FG_sws_modIdx=day2_cohort_2.FG_sws_modIdx;
+d2_c1_FG_rem_modIdx=day2_cohort_1.FG_rem_modIdx;
+d2_c2_FG_rem_modIdx=day2_cohort_2.FG_rem_modIdx;
+
+%% Plottting first figure for SG ModIDX
+
+% Combine data into one array for easier plotting
+SGData = [sleep.SG_awk_modIdx sleep.SG_sws_modIdx sleep.SG_rem_modIdx];
+FGData= [sleep.FG_awk_modIdx sleep.FG_sws_modIdx sleep.FG_rem_modIdx];
+groupCohorts = [sleep.Cohort];
+groupDays = [sleep.Day];
+sg=figure(91);
+clf;
+for iSP=1:3
+    subplot(3,1,iSP)
+    boxplot(SGData(:, iSP), {groupCohorts, groupDays}, 'FactorSeparator', 1, ...
+        'Labels', {'Control-D1', 'Control-D2', 'ArchT-D1', 'ArchT-D2'}, 'LabelOrientation', 'inline');
+    title([sleep_phases{1,iSP}]);
+    ylabel('Mod Idx (AU)');set(gca, 'FontWeight','bold');set(gca, 'FontSize',16);
+
+end
+
+ttl=annotation('textbox',[.35 0.9 0.1 0.1],'String','Slow Gamma PAC', 'FontSize', 16, 'FontWeight', 'bold', 'LineStyle','none')
+sg.Position=[ 2000 0 400 1200]
+%% Plottting first figure for FG ModIDX
+fg=figure(92);
+clf;
+for iSP=1:3
+    subplot(3,1,iSP)
+    boxplot(FGData(:, iSP), {groupCohorts, groupDays}, 'FactorSeparator', 1, ...
+        'Labels', {'Control-D1', 'Control-D2', 'ArchT-D1', 'ArchT-D2'}, 'LabelOrientation', 'inline');
+    title([sleep_phases{1,iSP}]);
+    ylabel('Mod Idx (AU)');set(gca, 'FontWeight','bold');set(gca, 'FontSize',16);
+
+end
+ttl=annotation('textbox',[.35 0.9 0.1 0.1],'String','Fast Gamma PAC', 'FontSize', 16, 'FontWeight', 'bold', 'LineStyle','none')
+fg.Position=[ 2400 0 400 1200]
+
+
 %% Possible solution to error bars
 % c = categorical({'CH','VC','GC','OC','BC','SC'});
 % c = reordercats(c,{'CH','VC','GC','OC','BC','SC'});
@@ -617,7 +741,7 @@ fig.Color = [1 1 1];
 % xline(1.5, 'k--'); % Line to separate "Pre" and "Post"
 % set(gca,'fontsize', 16);
 
-%% % Collect and make table for sleeping
+%%  Collect and make table for sleeping
 % stats = []; 
 % 
 % subject = []; 
@@ -678,3 +802,147 @@ fig.Color = [1 1 1];
 % boxchart(D2Int.Pre_post, D2Int.ObjATime, 'GroupByColor', D2Int.Cohort, 'ColorGroup', {'red', 'blue'});
 % ylabel('Time (s)'); xlabel(''); title('Time spent with object A');
 % legend({'Control', 'ArchT'});
+
+%% Comodulation analysis
+% Initializing the structure containing the comodulograms
+CoMoGen=[];
+ArchTList={};
+CtrList={};
+%Creates a list of the control and experimental subjects that are present in the dataset
+for iSub = 1:length(all_files)
+    current_subject = all_files{iSub};
+    
+    if any(strcmp(current_subject, control_list))
+        ArchTList = [ArchTList; current_subject];
+    elseif any(strcmp(current_subject, archT_list))
+        CtrList = [CtrList; current_subject];
+    end
+end
+%This creates the CoMo structures dividing into control and D1 and D2 for
+%the sleep analysis
+for iArchT =1:length(ArchTList);
+    
+    %The four lines below are for out-24-may-2024 due to an error in the
+    %output
+    % CoMoGen.ArchT.D1.rem(:,:,iArchT)= out.(ArchTList{iArchT}).D1.sleep.CoMo.CoMoSws;
+    % CoMoGen.ArchT.D1.awk(:,:,iArchT)= out.(ArchTList{iArchT}).D1.sleep.CoMo.CoMoAwk;
+    % CoMoGen.ArchT.D2.rem(:,:,iArchT)= out.(ArchTList{iArchT}).D2.sleep.CoMo.CoMoSws;
+    % CoMoGen.ArchT.D2.awk(:,:,iArchT)= out.(ArchTList{iArchT}).D2.sleep.CoMo.CoMoAwk;
+
+    %These other lines are for any other utput 
+    CoMoGen.ArchT.D1.awk(:,:,iArchT)= out.(ArchTList{iArchT}).D1.sleep.CoMo.CoMoAwk;
+    CoMoGen.ArchT.D1.sws(:,:,iArchT)= out.(ArchTList{iArchT}).D1.sleep.CoMo.CoMoSws;
+    CoMoGen.ArchT.D1.rem(:,:,iArchT)= out.(ArchTList{iArchT}).D1.sleep.CoMo.CoMoRem;
+    CoMoGen.ArchT.D2.awk(:,:,iArchT)= out.(ArchTList{iArchT}).D2.sleep.CoMo.CoMoAwk;
+    CoMoGen.ArchT.D2.sws(:,:,iArchT)= out.(ArchTList{iArchT}).D2.sleep.CoMo.CoMoSws;
+    CoMoGen.ArchT.D2.rem(:,:,iArchT)= out.(ArchTList{iArchT}).D2.sleep.CoMo.CoMoRem;
+end
+for iCtr =1:length(CtrList);
+    %The four lines below are for out-24-may-2024 due to an error in the
+    %output
+    % CoMoGen.Ctr.D1.rem(:,:,iArchT)= out.(CtrList{iArchT}).D1.sleep.CoMo.CoMoSws;
+    % CoMoGen.Ctr.D1.awk(:,:,iArchT)= out.(CtrList{iArchT}).D1.sleep.CoMo.CoMoAwk;
+    % CoMoGen.Ctr.D2.rem(:,:,iArchT)= out.(CtrList{iArchT}).D2.sleep.CoMo.CoMoSws;
+    % CoMoGen.Ctr.D2.awk(:,:,iArchT)= out.(CtrList{iArchT}).D2.sleep.CoMo.CoMoAwk;
+
+    %These other lines are for any other utput
+    CoMoGen.Ctr.D1.awk(:,:,iArchT)= out.(CtrList{iArchT}).D1.sleep.CoMo.CoMoAwk;
+    CoMoGen.Ctr.D1.sws(:,:,iArchT)= out.(CtrList{iArchT}).D1.sleep.CoMo.CoMoSws;
+    CoMoGen.Ctr.D1.rem(:,:,iArchT)= out.(CtrList{iArchT}).D1.sleep.CoMo.CoMoRem;
+    CoMoGen.Ctr.D2.awk(:,:,iArchT)= out.(CtrList{iArchT}).D2.sleep.CoMo.CoMoAwk;
+    CoMoGen.Ctr.D2.sws(:,:,iArchT)= out.(CtrList{iArchT}).D2.sleep.CoMo.CoMoSws;
+    CoMoGen.Ctr.D2.rem(:,:,iArchT)= out.(CtrList{iArchT}).D2.sleep.CoMo.CoMoRem;
+end
+%Calculates the avg of the CoMo for all the subjects
+ArchTCoMoAvg=[];
+CtrCoMoAvg=[];
+sleepPhsList= fieldnames(CoMoGen.ArchT.D1);
+for iSP= 1:length(sleepPhsList);
+    ArchTCoMoAvg.D1.(sleepPhsList{iSP})=nanmean(CoMoGen.ArchT.D1.(sleepPhsList{iSP}),3);
+    ArchTCoMoAvg.D2.(sleepPhsList{iSP})=nanmean(CoMoGen.ArchT.D2.(sleepPhsList{iSP}),3);
+end
+for iSP= 1:length(sleepPhsList);
+    CtrCoMoAvg.D1.(sleepPhsList{iSP})=nanmean(CoMoGen.Ctr.D1.(sleepPhsList{iSP}),3);
+    CtrCoMoAvg.D2.(sleepPhsList{iSP})=nanmean(CoMoGen.Ctr.D2.(sleepPhsList{iSP}),3);
+end
+%% Plotting the Comodulograms averages
+%ArchT
+fg=figure(1001);
+clf;
+phi_f=[4 12];
+amp_f=[30 100];
+phi_step=0.5;
+amp_step=2;
+phi_f=phi_f(1):phi_step:phi_f(2);
+amp_f=amp_f(1):amp_step:amp_f(2);
+canva=0;
+%Loop over the days
+for iD=1:2;
+    %Loop over the sleep phases
+    for iSP=1:length(sleepPhsList)
+        canva=canva+1;
+        ThisCoMo=ArchTCoMoAvg.("D"+iD).(sleepPhsList{iSP});
+        pnls(canva)=subplot(2,length(sleepPhsList),canva);cla;
+        imagesc(phi_f, amp_f, ThisCoMo');
+        set(gca, 'ydir', 'normal')
+        title(sleep_phases{iSP});
+        xlabel('Phase Freq (Hz)'); ylabel('Amp Freq (Hz)');
+        colorbar('Location', 'southoutside');
+    end
+end
+
+ttl=annotation('textbox',[.45 0.9 0.1 0.1],'String','Average PAC ArchT ', 'FontSize', 16, 'FontWeight', 'bold', 'LineStyle','none')
+D1_lbl=annotation('textbox',[.05 0.72 0.1 0.1],'String','D1', 'FontSize', 16, 'FontWeight', 'bold', 'LineStyle','none')
+D2_lbl=annotation('textbox',[.05 0.25 0.1 0.1],'String','D2', 'FontSize', 16, 'FontWeight', 'bold', 'LineStyle','none')
+fg.Position=[ 100 100 1000 700]
+
+set(pnls(1),'CLim',[0 2.5*10^-4]);
+set(pnls(4),'CLim',[0 2.5*10^-4]);
+set(pnls(2),'CLim',[0 3*10^-4]);
+set(pnls(5),'CLim',[0 3*10^-4]);
+set(pnls(3),'CLim',[0 9*10^-4]);
+set(pnls(6),'CLim',[0 9*10^-4]);
+
+%Initial configuration used
+% set(pnls(1),'CLim',[0 4*10^-4]);
+% set(pnls(4),'CLim',[0 4*10^-4]);
+% set(pnls(2),'CLim',[0 2.5*10^-3]);
+% set(pnls(5),'CLim',[0 2.5*10^-3]);
+% set(pnls(3),'CLim',[0 11*10^-4]);
+% set(pnls(6),'CLim',[0 11*10^-4]);
+
+%Control
+fg=figure(1002)
+clf;
+phi_f=[4 12];
+amp_f=[30 100];
+phi_step=0.5;
+amp_step=2;
+phi_f=phi_f(1):phi_step:phi_f(2);
+amp_f=amp_f(1):amp_step:amp_f(2);
+canva=0;
+%Loop over the days
+for iD=1:2;
+    %Loop over the sleep phases
+    for iSP=1:length(sleepPhsList)
+        canva=canva+1;
+        ThisCoMo=CtrCoMoAvg.("D"+iD).(sleepPhsList{iSP});
+        pnls(canva)=subplot(2,length(sleepPhsList),canva);cla;
+        imagesc(phi_f, amp_f, ThisCoMo');
+        set(gca, 'ydir', 'normal')
+        title(sleep_phases{iSP});
+        xlabel('Phase Freq (Hz)'); ylabel('Amp Freq (Hz)');
+        colorbar('Location', 'southoutside');
+    end
+end
+
+ttl=annotation('textbox',[.45 0.9 0.1 0.1],'String','Average PAC control', 'FontSize', 16, 'FontWeight', 'bold', 'LineStyle','none')
+D1_lbl=annotation('textbox',[.05 0.72 0.1 0.1],'String','D1', 'FontSize', 16, 'FontWeight', 'bold', 'LineStyle','none')
+D2_lbl=annotation('textbox',[.05 0.25 0.1 0.1],'String','D2', 'FontSize', 16, 'FontWeight', 'bold', 'LineStyle','none')
+fg.Position=[ 100 100 1000 700]
+set(pnls(1),'CLim',[0 2.5*10^-4]);
+set(pnls(4),'CLim',[0 2.5*10^-4]);
+set(pnls(2),'CLim',[0 3*10^-4]);
+set(pnls(5),'CLim',[0 3*10^-4]);
+set(pnls(3),'CLim',[0 9*10^-4]);
+set(pnls(6),'CLim',[0 9*10^-4]);
