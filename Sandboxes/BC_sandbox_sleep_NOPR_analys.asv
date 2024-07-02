@@ -210,14 +210,15 @@ for iS=1:length(inhib_dir)
     cfg_filt_fg.order = 4;                                                  %type filter order
     cfg_filt_fg.display_filter = 0;                                         % use this to see the fvtool
     FG_csc = FilterLFP(cfg_filt_fg, csc_out);                                   % filter the raw LFP using
-    %% Obtaining the Mod IDX for the sleep periods
+    %% Obtaining theta phase and gamma power for the periods power
     % Restrict the filtered csc to the IV of SWS and REM
     theta_awake= restrict(theta_csc,iv_awake);
-    
+    %theta_awake_phi=angle(hilbert(theta_awake.data(1,:)));
     theta_sws= restrict(theta_csc,iv_sws);
-    
+    %theta_sws_phi=angle(hilbert(theta_sws.data(1,:)));
     theta_rem= restrict(theta_csc,iv_rem);
-    
+    %theta_rem_phi=angle(hilbert(theta_rem.data(1,:)));
+
 
     SG_awake= restrict(SG_csc,iv_awake);
     SG_sws= restrict(SG_csc,iv_sws);
@@ -251,7 +252,7 @@ for iS=1:length(inhib_dir)
     % Storing the Mod idx in a matrix
     this_mouse_modidx=[SGawakemodidx FGawakemodidx; SGswsmodidx FGswsmodidx; SGremmodidx FGremmodidx];
     %sleep_mod_idx(:,:,iS)=this_mouse_modidx;
-%% Computing the CoMo analysis fo  this mouse
+
     cfg_como.A_step = 2; %I am using 2 for time-processing reasons
     cfg_como.P_step = .5; %0.5
     cfg_como.phi_bins = 18; %18
