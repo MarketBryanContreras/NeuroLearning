@@ -85,7 +85,7 @@ for iS =1%:length(inhib_dir)
         pattern = 'TTL Input on AcqSystem1_0 board 0 port 1 value (0x0040).';
     end
     
-    [csc, evts, pos] = BC_load_NLX(cfg_csc);
+    [csc, evts, pos] = BC_load_NLX(cfg_csc);%Load ,csc, events and position
     
     fs = csc.cfg.hdr{1}.SamplingFrequency;
     sSampCsc= time_maze_start*fs;                                          %This is the idx of the samplimg at sec 30
@@ -104,15 +104,15 @@ for iS =1%:length(inhib_dir)
     pos=restrict(pos,restrictIvPos);
     pos.tvec= pos.tvec-pos.tvec(1);
     
-    
+    %This creates the intervals where the mouse received light
     iv_inhb = MS_get_evts_off(evts, pattern);
     
     
-    %% Trial split
+    %% Get period of time where the mouse is running and there is inhibition
     
-    [iv_inhb,iv_noInhb, iv_running] = BC_LT_trialfun(pos, iv_inhb, plot_flag); %This generates the graph of inhibition and velocity while it also retuns the inhibition, no inhibition and runnings epochs 
+    [iv_inhb.t,iv_noInhb,iv_running] = BC_LT_trialfun(pos, iv_inhb, plot_flag); %This generates the graph of inhibition and velocity while it also retuns the inhibition, no inhibition and runnings epochs 
     
-    % control for movement
+    % Calculate speed
     pos_spd = pos;
     pos_spd.data = [];
     %Get the x and y position data into a structure
@@ -125,18 +125,17 @@ for iS =1%:length(inhib_dir)
     cfg = []; cfg.method = 'raw'; cfg.operation = '>'; cfg.threshold =5.0 ;% speed limit in cm/sec
     iv_fast = TSDtoIV(cfg,spd);                                            % only keep intervals with speed above thresh
  
-    % Restrict data so it includes fast intervals only
-       iv_running = IntersectIV([], iv_fast, iv_running); 
+    % Restrict data so it includes intervals avobe threshold only
+    iv_running = IntersectIV([], iv_fast, iv_running); 
     %% Filter
     % filter the LFP in the theta band
     cfg_filt_t = [];
     cfg_filt_t.type = 'cheby1';                                            %'fdesign'; %the type of filter I want to use via filterlfp
-    cfg_filt_t.f  = [5 12];                                                % freq range to match Mizuseki et al. 2011
+    cfg_filt_t.f  = [4 12];                                                % freq range to match Mizuseki et al. 2011
     cfg_filt_t.order = 3;                                                  %type filter order
     cfg_filt_t.display_filter = 0;                                         % use this to see the fvtool
     theta_csc = FilterLFP(cfg_filt_t, csc);                                % filter the raw LFP using
-    theta_pow = BC_power(theta_csc);
-    theta_phi = angle(hilbert(theta_csc.data));
+    theta_amp_phi = BC_power_phase(theta_csc);
     
     % Filter the LFP in the slow gamma band
     cfg_filt_t = [];
@@ -145,8 +144,7 @@ for iS =1%:length(inhib_dir)
     cfg_filt_t.order = 4;                                                  %type filter order
     cfg_filt_t.display_filter = 0;                                         % use this to see the fvtool
     SG_csc = FilterLFP(cfg_filt_t, csc);                                   % filter the raw LFP using
-    SG_pow = BC_power(SG_csc);
-    SG_phi = angle(hilbert(SG_csc.data));
+    SG_amp_phi = BC_power_phase(SG_csc);
     
     % Filter the LFP in the fast gamma band
     cfg_filt_t = [];
@@ -155,9 +153,7 @@ for iS =1%:length(inhib_dir)
     cfg_filt_t.order = 4; %type filter order
     cfg_filt_t.display_filter = 0; % use this to see the fvtool
     FG_csc = FilterLFP(cfg_filt_t, csc); % filter the raw LFP using
-    FG_pow = BC_power(FG_csc);
-    FG_phi = angle(hilbert(FG_csc.data));
-    
+    FG_amp_phi = BC_power_phase(FG_csc);
   
     %% Restricting data to intervals of inhb, noInhb
     %inhb
@@ -165,18 +161,22 @@ for iS =1%:length(inhib_dir)
     theta_inhb=restrict(theta_csc, iv_inhb);
     SG_inhb = restrict(SG_csc, iv_inhb);
     FG_inhb = restrict(FG_csc, iv_inhb);
+    pos_inhb= restrict(pos, iv_inhb);
     
     %no-inhb
     csc_noinhb = restrict(csc, iv_noInhb);
     theta_noinhb = restrict(theta_csc, iv_noInhb);
     SG_noinhb = restrict(SG_csc, iv_noInhb);
     FG_noinhb = restrict(FG_csc, iv_noInhb);
+    pos_noinhb= restrict(pos, iv_noInhb);
+
     
     %running
     csc_running = restrict(csc, iv_running);
     theta_running = restrict(theta_csc, iv_running);
     SG_running = restrict(SG_csc, iv_running);
     FG_running = restrict(FG_csc, iv_running);
+    pos_running= restrict(pos, iv_running);
     
     %% Get phase mod over trial
 
@@ -202,23 +202,23 @@ for iS =1%:length(inhib_dir)
 %Z scores for SG
     z_SGInhb_modidx = (SGInhb_modidx - SGshift_mean) / SGshift_std;
     z_SGNoInhb_modidx = (SGNoInhb_modidx - SGshift_mean) / SGshift_std;
-%Prototype of a bar graph for the mod idx comparison between light and no light
-if plot_flag
-    figure(19)
-    bSG=bar(["No Light" "Light"],[0.3*10^-4  ;0.35*10^-4 ],'FaceColor','flat');
-    % Set the face color of each bar individually
-    for k = 1:2 % Loop through the number of columns in data
-        bSG.CData(k,:) = gcolors(k,:);
-    end
-    ylabel('Modulation Index');
-    set(gca,'fontsize', 14);
-    bSG.EdgeColor = 'none';
-    set(gca, 'TickDir', 'out');  % Move ticks outside the plot
-    set(gca,'box','off');
-    fig = gcf;                   % Get current figure handle
-    fig.Color = [1 1 1];         % Set background color to white
-    fig.Position = [100, 100, 600, 800];  % [x, y, width, height]
-end
+% %Prototype of a bar graph for the mod idx comparison between light and no light
+% if plot_flag
+%     figure(19)
+%     bSG=bar(["No Light" "Light"],[0.3*10^-4  ;0.35*10^-4 ],'FaceColor','flat');
+%     % Set the face color of each bar individually
+%     for k = 1:2 % Loop through the number of columns in data
+%         bSG.CData(k,:) = gcolors(k,:);
+%     end
+%     ylabel('Modulation Index');
+%     set(gca,'fontsize', 14);
+%     bSG.EdgeColor = 'none';
+%     set(gca, 'TickDir', 'out');  % Move ticks outside the plot
+%     set(gca,'box','off');
+%     fig = gcf;                   % Get current figure handle
+%     fig.Color = [1 1 1];         % Set background color to white
+%     fig.Position = [100, 100, 600, 800];  % [x, y, width, height]
+% end
 
     %FG
     FGphiAmpNormInhb=BC_phase_amp_norm_bins(theta_inhb,FG_inhb);
@@ -253,6 +253,17 @@ end
             r_inhib = []; 
             r_noinhib = []; 
             r_run = []; 
+            spd_ihb=[]; 
+            tta_amp_ihb= [];
+            tta_pwr_ihb= [];
+            tta_phi_ihb= [];
+            sg_amp_ihb= [];
+            sg_pwr_ihb= [];
+            sg_phi_ihb= [];
+            fg_amp_ihb= [];
+            fg_pwr_ihb= [];
+            fg_phi_ihb= []; 
+            epoch_ihb= [];
 
     for ii = length(iv_inhb.tstart):-1:1
         if (iv_inhb.tend(ii) - iv_inhb.tstart(ii)) < min_trial_dur
@@ -261,7 +272,18 @@ end
             fg_bp_inhib(ii) = NaN;
             modidx_SG_inhib(ii)= NaN;
             modidx_FG_inhib(ii)= NaN;
-            r_inhib = NaN(length(1:0.1:160), length(1:0.1:160)); 
+            r_inhib = NaN(length(1:0.1:160), length(1:0.1:160));
+            spd_ihb=[spd_ihb NaN];
+            tta_amp_ihb= [tta_amp_ihb NaN];
+            tta_pwr_ihb= [tta_pwr_ihb NaN];
+            tta_phi_ihb= [tta_phi_ihb NaN];
+            sg_amp_ihb= [sg_amp_ihb NaN];
+            sg_pwr_ihb= [sg_pwr_ihb NaN];
+            sg_phi_ihb= [sg_phi_ihb NaN];
+            fg_amp_ihb= [fg_amp_ihb NaN];
+            fg_pwr_ihb= [fg_pwr_ihb NaN];
+            fg_phi_ihb= [fg_phi_ihb NaN]; 
+            epoch_ihb= [epoch_ihb ii];
         else
             this_csc = restrict(csc, iv_inhb.tstart(ii), iv_inhb.tend(ii));
             
@@ -276,6 +298,40 @@ end
             sg_bp_inhib(ii) = sg_bp/ ref_bp;
             fg_bp_inhib(ii) = fg_bp/ ref_bp;
             
+            %Create a table with epoch#, condition, amplitude, velocity
+            this_theta_amp=restrict(theta_amp_phi, iv_inhb.tstart(ii), iv_inhb.tend(ii));
+            this_Sg_amp=restrict(SG_amp_phi, iv_inhb.tstart(ii), iv_inhb.tend(ii));
+            this_Fg_amp=restrict(FG_amp_phi, iv_inhb.tstart(ii), iv_inhb.tend(ii));
+            this_pos= restrict(pos, iv_inhb.tstart(ii), iv_inhb.tend(ii));
+            this_speed=this_pos;
+            this_speed.data=[];this_speed.data=this_pos.data(5,:);this_speed.label={'speed'};this_speed.units={'cm/s'};
+            extraction_idx=nearest_idx(this_speed.tvec, this_theta_amp.tvec); %Get the idx of the amplitude more similar to those of the speed
+            %Prunning the amplitude to only the time points shared with the velocity vector
+            this_theta_amp.data=this_theta_amp.data(1:3,extraction_idx);
+            this_Sg_amp.data=this_Sg_amp.data(1:3,extraction_idx);
+            this_Fg_amp.data=this_Fg_amp.data(1:3,extraction_idx);
+            %Combining everyhing into a single structure
+            epoch_spd_amp_phi=[];epoch_spd_amp_phi.type='tsd';epoch_spd_amp_phi.tvec=this_speed.tvec;epoch_spd_amp_phi.cfg=this_theta_amp.cfg;
+            epoch_spd_amp_phi.data(1,:)=this_speed.data;
+            epoch_spd_amp_phi.data(2:4,:)=this_theta_amp.data;
+            epoch_spd_amp_phi.data(5:7,:)=this_Sg_amp.data;
+            epoch_spd_amp_phi.data(8:10,:)=this_Fg_amp.data;
+            epoch_spd_amp_phi.data(11,:)=repmat(ii,1,length(this_speed.tvec));
+            epoch_spd_amp_phi.label={'spd', 'tta_amp','tta_pwr','tta_phi','sg_amp','sg_pwr','sg_phi','fg_amp','fg_pwr','fg_phi', '#epoch'};
+            %Extracting the data from the structure and combining vector for all the epcohs
+            spd_ihb=[spd_ihb epoch_spd_amp_phi.data(1,:)];
+            tta_amp_ihb= [tta_amp_ihb epoch_spd_amp_phi.data(2,:)];
+            tta_pwr_ihb= [tta_pwr_ihb epoch_spd_amp_phi.data(3,:)];
+            tta_phi_ihb= [tta_phi_ihb epoch_spd_amp_phi.data(4,:)];
+            sg_amp_ihb= [sg_amp_ihb epoch_spd_amp_phi.data(5,:)];
+            sg_pwr_ihb= [sg_pwr_ihb epoch_spd_amp_phi.data(6,:)];
+            sg_phi_ihb= [sg_phi_ihb epoch_spd_amp_phi.data(7,:)];
+            fg_amp_ihb= [fg_amp_ihb epoch_spd_amp_phi.data(8,:)];
+            fg_pwr_ihb= [fg_pwr_ihb epoch_spd_amp_phi.data(9,:)];
+            fg_phi_ihb= [fg_phi_ihb epoch_spd_amp_phi.data(10,:)]; 
+            epoch_ihb= [epoch_ihb epoch_spd_amp_phi.data(11,:)];
+
+
             % Phase mod SG and FG
             this_th = restrict(theta_csc, iv_inhb.tstart(ii), iv_inhb.tend(ii));
             this_sg = restrict(SG_csc, iv_inhb.tstart(ii), iv_inhb.tend(ii));
@@ -292,8 +348,23 @@ end
             [r_inhib(:,:,ii),~] = corrcoef(10*log10(P')); % correlation matrix (across frequ`encies) of spectrogram
         end
     end
-
+    %putting the speed-pwr into a table so its easier to extract later
+    spdPwrTbl_inhb=table( spd_ihb',tta_amp_ihb',tta_pwr_ihb', tta_phi_ihb',sg_amp_ihb',sg_pwr_ihb',sg_phi_ihb',fg_amp_ihb',fg_pwr_ihb',fg_phi_ihb',epoch_ihb', 'VariableNames',{'spd','tta_amp','tta_pwr', 'tta_phi','sg_amp','sg_pwr','sg_phi','fg_amp','fg_pwr','fg_phi','epoch'});
+            
+           
+          
     % NO inhibition
+            spd_noIhb=[]; 
+            tta_amp_noIhb= [];
+            tta_pwr_noIhb= [];
+            tta_phi_noIhb= [];
+            sg_amp_noIhb= [];
+            sg_pwr_noIhb= [];
+            sg_phi_noIhb= [];
+            fg_amp_noIhb= [];
+            fg_pwr_noIhb= [];
+            fg_phi_noIhb= []; 
+            epoch_noIhb= [];
     for ii = length(iv_noInhb.tstart):-1:1
         if (iv_noInhb.tend(ii) - iv_noInhb.tstart(ii)) < min_trial_dur
             t_bp_noinhib(ii)= NaN;
@@ -302,6 +373,17 @@ end
             modidx_SG_noinhib(ii)= NaN;
             modidx_FG_noinhib(ii)= NaN;
             r_noinhib = NaN(length(1:0.1:160), length(1:0.1:160));
+            spd_noIhb=[spd_noIhb NaN];
+            tta_amp_noIhb= [tta_amp_noIhb NaN];
+            tta_pwr_noIhb= [tta_pwr_noIhb NaN];
+            tta_phi_noIhb= [tta_phi_noIhb NaN];
+            sg_amp_noIhb= [sg_amp_noIhb NaN];
+            sg_pwr_noIhb= [sg_pwr_noIhb NaN];
+            sg_phi_noIhb= [sg_phi_noIhb NaN];
+            fg_amp_noIhb= [fg_amp_noIhb NaN];
+            fg_pwr_noIhb= [fg_pwr_noIhb NaN];
+            fg_phi_noIhb= [fg_phi_noIhb NaN]; 
+            epoch_noIhb= [epoch_noIhb ii];
         else
             
             this_csc = restrict(csc, iv_noInhb.tstart(ii), iv_noInhb.tend(ii));
@@ -316,7 +398,41 @@ end
             t_bp_noinhib(ii)= t_bp/ ref_bp;
             sg_bp_noinhib(ii) = sg_bp/ ref_bp;
             fg_bp_noinhib(ii) = fg_bp/ ref_bp;
+            %Instantaneus speed_pwr_analaysis
+            %Create a table with epoch#, condition, amplitude, velocity
+            this_theta_amp=restrict(theta_amp_phi, iv_noInhb.tstart(ii), iv_noInhb.tend(ii));
+            this_Sg_amp=restrict(SG_amp_phi, iv_noInhb.tstart(ii), iv_noInhb.tend(ii));
+            this_Fg_amp=restrict(FG_amp_phi, iv_noInhb.tstart(ii), iv_noInhb.tend(ii));
+            this_pos= restrict(pos, iv_noInhb.tstart(ii), iv_noInhb.tend(ii));
+            this_speed=this_pos;
+            this_speed.data=[];this_speed.data=this_pos.data(5,:);this_speed.label={'speed'};this_speed.units={'cm/s'};
+            extraction_idx=nearest_idx(this_speed.tvec, this_theta_amp.tvec); %Get the idx of the amplitude more similar to those of the speed
+            %Prunning the amplitude to only the time points shared with the velocity vector
+            this_theta_amp.data=this_theta_amp.data(1:3,extraction_idx);
+            this_Sg_amp.data=this_Sg_amp.data(1:3,extraction_idx);
+            this_Fg_amp.data=this_Fg_amp.data(1:3,extraction_idx);
             
+            %Combining everyhing into a single structure
+            
+            epoch_spd_amp_phi=[];epoch_spd_amp_phi.type='tsd';epoch_spd_amp_phi.tvec=this_speed.tvec;epoch_spd_amp_phi.cfg=this_theta_amp.cfg;
+            epoch_spd_amp_phi.data(1,:)=this_speed.data;
+            epoch_spd_amp_phi.data(2:4,:)=this_theta_amp.data;
+            epoch_spd_amp_phi.data(5:7,:)=this_Sg_amp.data;
+            epoch_spd_amp_phi.data(8:10,:)=this_Fg_amp.data;
+            epoch_spd_amp_phi.data(11,:)=repmat(ii,1,length(this_speed.tvec));
+            epoch_spd_amp_phi.label={'spd', 'tta_amp','tta_pwr','tta_phi','sg_amp','sg_pwr','sg_phi','fg_amp','fg_pwr','fg_phi', '#epoch'};
+            %Extracting the data from the structure and combining vector for all the epcohs
+            spd_noIhb=[spd_noIhb epoch_spd_amp_phi.data(1,:)];
+            tta_amp_noIhb= [tta_amp_noIhb epoch_spd_amp_phi.data(2,:)];
+            tta_pwr_noIhb= [tta_pwr_noIhb epoch_spd_amp_phi.data(3,:)];
+            tta_phi_noIhb= [tta_phi_noIhb epoch_spd_amp_phi.data(4,:)];
+            sg_amp_noIhb= [sg_amp_noIhb epoch_spd_amp_phi.data(5,:)];
+            sg_pwr_noIhb= [sg_pwr_noIhb epoch_spd_amp_phi.data(6,:)];
+            sg_phi_noIhb= [sg_phi_noIhb epoch_spd_amp_phi.data(7,:)];
+            fg_amp_noIhb= [fg_amp_noIhb epoch_spd_amp_phi.data(8,:)];
+            fg_pwr_noIhb= [fg_pwr_noIhb epoch_spd_amp_phi.data(9,:)];
+            fg_phi_noIhb= [fg_phi_noIhb epoch_spd_amp_phi.data(10,:)]; 
+            epoch_noIhb= [epoch_noIhb epoch_spd_amp_phi.data(11,:)];
             % Phase mod SG and FG
             this_th = restrict(theta_csc, iv_noInhb.tstart(ii), iv_noInhb.tend(ii));
             this_sg = restrict(SG_csc, iv_noInhb.tstart(ii), iv_noInhb.tend(ii));
@@ -334,8 +450,21 @@ end
                         
         end
     end
- 
+ %putting the speed-pwr into a table so its easier to extract later
+    spdPwrTbl_noInhb=table( spd_noIhb',tta_amp_noIhb',tta_pwr_noIhb', tta_phi_noIhb',sg_amp_noIhb',sg_pwr_noIhb',sg_phi_noIhb',fg_amp_noIhb',fg_pwr_noIhb',fg_phi_noIhb',epoch_noIhb', 'VariableNames',{'spd','tta_amp','tta_pwr', 'tta_phi','sg_amp','sg_pwr','sg_phi','fg_amp','fg_pwr','fg_phi','epoch'});
+            
     % Running
+    spd_running=[];
+    tta_amp_running= [];
+    tta_pwr_running= [];
+    tta_phi_running= [];
+    sg_amp_running= [];
+    sg_pwr_running= [];
+    sg_phi_running= [];
+    fg_amp_running= [];
+    fg_pwr_running= [];
+    fg_phi_running= [];
+    epoch_running= [];
     for ii = length(iv_running.tstart):-1:1
         if (iv_running.tend(ii) - iv_running.tstart(ii)) < min_trial_dur
             t_bp_run(ii)= NaN;
@@ -344,6 +473,17 @@ end
 
             modidx_SG_run(ii)= NaN;
             modidx_FG_run(ii)= NaN;
+             spd_noIhb=[spd_noIhb NaN];
+            tta_amp_running= [tta_amp_running NaN];
+            tta_pwr_running= [tta_pwr_running NaN];
+            tta_phi_running= [tta_phi_running NaN];
+            sg_amp_running= [sg_amp_running NaN];
+            sg_pwr_running= [sg_pwr_running NaN];
+            sg_phi_running= [sg_phi_running NaN];
+            fg_amp_running= [fg_amp_running NaN];
+            fg_pwr_running= [fg_pwr_running NaN];
+            fg_phi_running= [fg_phi_running NaN]; 
+            epoch_running= [epoch_running ii];
 
         else
             
@@ -359,7 +499,41 @@ end
             t_bp_run(ii)= t_bp/ ref_bp;
             sg_bp_run(ii) = sg_bp/ ref_bp;
             fg_bp_run(ii) = fg_bp/ ref_bp;
+            %Instantaneus speed_pwr_analaysis
+            %Create a table with epoch#, condition, amplitude, velocity
+            this_theta_amp=restrict(theta_amp_phi, iv_running.tstart(ii), iv_running.tend(ii));
+            this_Sg_amp=restrict(SG_amp_phi, iv_running.tstart(ii), iv_running.tend(ii));
+            this_Fg_amp=restrict(FG_amp_phi, iv_running.tstart(ii), iv_running.tend(ii));
+            this_pos= restrict(pos, iv_running.tstart(ii), iv_running.tend(ii));
+            this_speed=this_pos;
+            this_speed.data=[];this_speed.data=this_pos.data(5,:);this_speed.label={'speed'};this_speed.units={'cm/s'};
+            extraction_idx=nearest_idx(this_speed.tvec, this_theta_amp.tvec); %Get the idx of the amplitude more similar to those of the speed
+            %Prunning the amplitude to only the time points shared with the velocity vector
+            this_theta_amp.data=this_theta_amp.data(1:3,extraction_idx);
+            this_Sg_amp.data=this_Sg_amp.data(1:3,extraction_idx);
+            this_Fg_amp.data=this_Fg_amp.data(1:3,extraction_idx);
             
+            %Combining everything into a single structure
+            
+            epoch_spd_amp_phi=[];epoch_spd_amp_phi.type='tsd';epoch_spd_amp_phi.tvec=this_speed.tvec;epoch_spd_amp_phi.cfg=this_theta_amp.cfg;
+            epoch_spd_amp_phi.data(1,:)=this_speed.data;
+            epoch_spd_amp_phi.data(2:4,:)=this_theta_amp.data;
+            epoch_spd_amp_phi.data(5:7,:)=this_Sg_amp.data;
+            epoch_spd_amp_phi.data(8:10,:)=this_Fg_amp.data;
+            epoch_spd_amp_phi.data(11,:)=repmat(ii,1,length(this_speed.tvec));
+            epoch_spd_amp_phi.label={'spd', 'tta_amp','tta_pwr','tta_phi','sg_amp','sg_pwr','sg_phi','fg_amp','fg_pwr','fg_phi', '#epoch'};
+            %Extracting the data from the structure and combining vector for all the epcohs
+            spd_running=[spd_running epoch_spd_amp_phi.data(1,:)];
+            tta_amp_running= [tta_amp_running epoch_spd_amp_phi.data(2,:)];
+            tta_pwr_running= [tta_pwr_running epoch_spd_amp_phi.data(3,:)];
+            tta_phi_running= [tta_phi_running epoch_spd_amp_phi.data(4,:)];
+            sg_amp_running= [sg_amp_running epoch_spd_amp_phi.data(5,:)];
+            sg_pwr_running= [sg_pwr_running epoch_spd_amp_phi.data(6,:)];
+            sg_phi_running= [sg_phi_running epoch_spd_amp_phi.data(7,:)];
+            fg_amp_running= [fg_amp_running epoch_spd_amp_phi.data(8,:)];
+            fg_pwr_running= [fg_pwr_running epoch_spd_amp_phi.data(9,:)];
+            fg_phi_running= [fg_phi_running epoch_spd_amp_phi.data(10,:)]; 
+            epoch_running= [epoch_running epoch_spd_amp_phi.data(11,:)];
             % Phase mod SG and FG
             this_th = restrict(theta_csc,iv_running.tstart(ii), iv_running.tend(ii));
             this_sg = restrict(SG_csc, iv_running.tstart(ii), iv_running.tend(ii));
@@ -377,7 +551,9 @@ end
                 
         end
     end
-   
+ %putting the speed-pwr into a table so its easier to extract later
+    spdPwrTbl_running=table( spd_running',tta_amp_running',tta_pwr_running', tta_phi_running',sg_amp_running',sg_pwr_running',sg_phi_running',fg_amp_running',fg_pwr_running',fg_phi_running',epoch_running', 'VariableNames',{'spd','tta_amp','tta_pwr', 'tta_phi','sg_amp','sg_pwr','sg_phi','fg_amp','fg_pwr','fg_phi','epoch'});
+          
     %% plot power and cross freq coupling
     
     if plot_flag
@@ -476,7 +652,6 @@ end
         [CoMoNI, phi_f, amp_f] = MS_phase_freq(cfg_como, csc_noinhb, [4 12], [30 100]);
         [CoMoR, phi_f, amp_f] = MS_phase_freq(cfg_como, csc_running, [4 12], [30 100]);
         
-%%
         figure(202)
         clf
         subplot(1,2,1); cla;
@@ -528,11 +703,11 @@ end
         iv_inhb_min=BC_iv2min(iv_inhb);
         iv_noInhb_min=BC_iv2min(iv_noInhb);
         
-        h01=LTplotIvBarsScalogram(iv_inhb_min,BC_color_genertor('Archt_green'),0.2)
+        h01=LTplotIvBarsScalogram(iv_inhb_min,BC_color_genertor('Archt_green'),0.4)
         h02=LTplotIvBarsScalogram(iv_noInhb_min,BC_color_genertor('Web_orange'),0.2)
         
         %Aesthetics
-        leg=legend([h01;h02],{'Silencing','Running no silencing'});
+        leg=legend([h01;h02],{'Light','Running No Light'});
         legendFontSize = 12;         % Adjust the font size as needed
         leg.Position=[0.732 0.935 0.09047 0.0487];
         set(leg, 'FontSize', legendFontSize);
@@ -703,6 +878,7 @@ end
     out.(info.subject).(info.sess).modidx_FG_inhib = modidx_FG_inhib;
     out.(info.subject).(info.sess).z_SGInhb_modidx=z_SGInhb_modidx;
     out.(info.subject).(info.sess).z_FGInhb_modidx=z_FGInhb_modidx;
+    out.(info.subject).(info.sess).speedPwrTbl_inhb=spdPwrTbl_inhb;
     %noinb
     out.(info.subject).(info.sess).t_bp_noinhib = t_bp_noinhib; 
     out.(info.subject).(info.sess).sg_bp_noinhib = sg_bp_noinhib;
@@ -711,12 +887,14 @@ end
     out.(info.subject).(info.sess).modidx_FG_noinhib = modidx_FG_noinhib;
     out.(info.subject).(info.sess).z_SGNoInhb_modidx=z_SGNoInhb_modidx;
     out.(info.subject).(info.sess).z_FGNoInhb_modidx=z_FGNoInhb_modidx;
+    out.(info.subject).(info.sess).speedPwrTbl_noInhb=spdPwrTbl_noInhb
     %running
     out.(info.subject).(info.sess).t_bp_noinhib = t_bp_noinhib; 
     out.(info.subject).(info.sess).sg_bp_noinhib = sg_bp_noinhib;
     out.(info.subject).(info.sess).fg_bp_noinhib = fg_bp_noinhib;
     out.(info.subject).(info.sess).modidx_SG_noinhib = modidx_SG_noinhib;
     out.(info.subject).(info.sess).modidx_FG_noinhib = modidx_FG_noinhib;
+    out.(info.subject).(info.sess).speedPwrTbl_running=spdPwrTbl_running;
 
 end
 % Formating for saving output

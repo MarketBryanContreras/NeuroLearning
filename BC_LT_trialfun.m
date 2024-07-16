@@ -23,8 +23,17 @@ end
     %1.Remove those intervals where the mouse is to close to the
     %previous one
     %
+    
     %2.Check for velocity
-    %---
+    % spd=[];
+    % spd = pos;
+    % spd.data=[];
+    % spd.data=pos.data(5,:);
+    % spd.lbel={'spd'};
+    % cfg = []; cfg.method = 'raw'; cfg.operation = '>'; cfg.threshold =5.0 ;% speed limit in cm/sec
+    % iv_fast = TSDtoIV(cfg,spd);                                            % only keep intervals with speed above thresh
+    % %Include intervals avobe threshold only
+    % iv_running = IntersectIV([], iv_fast, iv_running); 
     
     % Substarct the iv where the mosue is inhibited from those where it is running
     cfg01=[];

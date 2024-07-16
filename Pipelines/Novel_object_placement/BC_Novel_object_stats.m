@@ -12,10 +12,10 @@ elseif contains(sys,'MAC')
     inter_dir = [getenv('HOME')  filesep 'Williams Lab Dropbox' filesep 'Williams Lab Team Folder' filesep 'Bryan_DropBox' filesep 'CHRNA2_NOVEL_OBJECT' filesep 'inter'];
 else disp("This system is not supported on the dynamic loader yet, pleae add it or contact BC for it")
 end
-%% Plot to compare time and # of interactions
+%% Load data
 cd(inter_dir);
 load ("out-13-Jun-2024.mat"); %Selecte the data to be loaded
-out=rmfield(out,"BC051");
+% out=rmfield(out,"BC051");
 %% Collect and make table for D2 interactions
 %Initialize columns
 subject = []; 
@@ -213,6 +213,10 @@ set(findobj(gca,'Type','Line'),'Color',[0.2 0.2 0.2]);
 set(gca, 'TickDir', 'out');  % Move ticks outside the plot
 box off;                     % Turn off the box around the plot
 
+% ctrl_val=(metrics.pcnt_inv_time(metrics.cohort==1));
+% exp_val=(metrics.pcnt_inv_time(metrics.cohort==2));
+% [h,p]=ttest2(ctrl_val,exp_val)
+
 subplot(1,6,2)
 boxplot(metrics.pcnt_inv_int,  metrics.cohort,'Labels', {'Control', 'ArchT'})
 xtickangle(45);
@@ -231,6 +235,10 @@ set(findobj(gca,'Type','Line'),'Color',[0.2 0.2 0.2]);
 set(gca, 'TickDir', 'out');  % Move ticks outside the plot
 box off;                     % Turn off the box around the plot
 
+ctrl_val=(metrics.pcnt_inv_int(metrics.cohort==1));
+exp_val=(metrics.pcnt_inv_int(metrics.cohort==2));
+[h,p]=ttest2(ctrl_val,exp_val)
+
 subplot(1,6,3)
 boxplot(metrics.disc_indx_time,  metrics.cohort,'Labels', {'Control', 'ArchT'})
 xtickangle(45);
@@ -248,6 +256,10 @@ set(findobj(gca,'Type','Line'),'Color',[0.2 0.2 0.2]);
 set(gca, 'TickDir', 'out');  % Move ticks outside the plot
 box off;                     % Turn off the box around the plot
 
+% ctrl_val=(mmetrics.disc_indx_time(metrics.cohort==1))
+% exp_val=(metrics.disc_indx_time(metrics.cohort==2))
+%[h,p]=ttest2(ctrl_val,exp_val)
+
 subplot(1,6,4)
 boxplot(metrics.disc_indx_int,  metrics.cohort,'Labels', {'Control', 'ArchT'})
 xtickangle(45);
@@ -264,6 +276,10 @@ set(findobj(gca,'Type','Line'),'Color',[0.2 0.2 0.2]);
 % Adjust plot aesthetics
 set(gca, 'TickDir', 'out');  % Move ticks outside the plot
 box off;                     % Turn off the box around the plot
+
+% ctrl_val=(metrics.disc_indx_int(metrics.cohort==1))
+% exp_val=(metrics.disc_indx_int(metrics.cohort==2))
+% [h,p]=ttest2(ctrl_val,exp_val)
 
 
 subplot(1,6,5)
@@ -283,6 +299,10 @@ set(findobj(gca,'Type','Line'),'Color',[0.2 0.2 0.2]);
 set(gca, 'TickDir', 'out');  % Move ticks outside the plot
 box off;                     % Turn off the box around the plot
 
+% ctrl_val=(metrics.pcnt_objA_int_post(metrics.cohort==1))
+% exp_val=(metrics.pcnt_objA_int_post(metrics.cohort==2))
+% [h,p]=ttest2(ctrl_val,exp_val)
+
 subplot(1,6,6)
 boxplot(metrics.pcnt_objB_int_post,  metrics.cohort,'Labels', {'Control', 'ArchT'})
 xtickangle(45);
@@ -300,7 +320,9 @@ set(findobj(gca,'Type','Line'),'Color',[0.2 0.2 0.2]);
 set(gca, 'TickDir', 'out');  % Move ticks outside the plot
 box off;          
 
-
+% ctrl_val=(metrics.pcnt_objB_int_post(metrics.cohort==1))
+% exp_val=(metrics.pcnt_objB_int_post(metrics.cohort==2))
+% [h,p]=ttest2(ctrl_val,exp_val)
 
 % Adjust figure properties
  %sgtitle('\bf Metrics');           % Add a general title above the entire figure
@@ -433,36 +455,36 @@ end
 sleep= table(subject', cohort', day', time_awk', time_sws', time_rem', pcnt_awk', pcnt_sws', pcnt_rem', SG_awk_modIdx',FG_awk_modIdx',SG_sws_modIdx', FG_sws_modIdx',SG_rem_modIdx', FG_rem_modIdx', Tta_awk_pwr', Tta_sws_pwr',Tta_rem_pwr',SG_awk_pwr',SG_sws_pwr',SG_rem_pwr', FG_awk_pwr', FG_sws_pwr',FG_rem_pwr','VariableNames', {'Subject', 'Cohort', 'Day', 'time_awk', 'time_sws', 'time_rem', 'pcnt_awk','pcnt_sws', 'pcnt_rem','SG_awk_modIdx','FG_awk_modIdx','SG_sws_modIdx', 'FG_sws_modIdx','SG_rem_modIdx', 'FG_rem_modIdx', 'Tta_awk_pwr', 'Tta_sws_pwr','Tta_rem_pwr','SG_awk_pwr','SG_sws_pwr','SG_rem_pwr', 'FG_awk_pwr', 'FG_sws_pwr','FG_rem_pwr'});
 %% Stats for the modulation index
 %Stats for the modulation index 
-stats=[];
-stats.SG_awk = fitlme(sleep, ...
-    'SG_awk_modIdx ~ 1 + Day*Cohort + (1|Subject)', ...
-    'FitMethod', 'REML');
-disp(stats.SG_awk);
-
-stats.FG_awk = fitlme(sleep, ...
-    'FG_awk_modIdx ~ 1 + Day*Cohort + (1|Subject)', ...
-    'FitMethod', 'REML');
-disp(stats.FG_awk);
-
-stats.SG_sws = fitlme(sleep, ...
-    'SG_sws_modIdx ~ 1 + Day*Cohort + (1|Subject)', ...
-    'FitMethod', 'REML');
-disp(stats.SG_sws);
-
-stats.FG_sws = fitlme(sleep, ...
-    'FG_sws_modIdx ~ 1 + Day*Cohort + (1|Subject)', ...
-    'FitMethod', 'REML');
-disp(stats.FG_sws);
-
-stats.SG_rem = fitlme(sleep, ...
-    'SG_rem_modIdx ~ 1 + Day*Cohort + (1|Subject)', ...
-    'FitMethod', 'REML');
-disp(stats.SG_rem);
-
-stats.FG_rem = fitlme(sleep, ...
-    'FG_rem_modIdx ~ 1 + Day*Cohort + (1|Subject)', ...
-    'FitMethod', 'REML');
-disp(stats.FG_rem);
+% stats=[];
+% stats.SG_awk = fitlme(sleep, ...
+%     'SG_awk_modIdx ~ 1 + Day*Cohort + (1|Subject)', ...
+%     'FitMethod', 'REML');
+% disp(stats.SG_awk);
+% 
+% stats.FG_awk = fitlme(sleep, ...
+%     'FG_awk_modIdx ~ 1 + Day*Cohort + (1|Subject)', ...
+%     'FitMethod', 'REML');
+% disp(stats.FG_awk);
+% 
+% stats.SG_sws = fitlme(sleep, ...
+%     'SG_sws_modIdx ~ 1 + Day*Cohort + (1|Subject)', ...
+%     'FitMethod', 'REML');
+% disp(stats.SG_sws);
+% 
+% stats.FG_sws = fitlme(sleep, ...
+%     'FG_sws_modIdx ~ 1 + Day*Cohort + (1|Subject)', ...
+%     'FitMethod', 'REML');
+% disp(stats.FG_sws);
+% 
+% stats.SG_rem = fitlme(sleep, ...
+%     'SG_rem_modIdx ~ 1 + Day*Cohort + (1|Subject)', ...
+%     'FitMethod', 'REML');
+% disp(stats.SG_rem);
+% 
+% stats.FG_rem = fitlme(sleep, ...
+%     'FG_rem_modIdx ~ 1 + Day*Cohort + (1|Subject)', ...
+%     'FitMethod', 'REML');
+% disp(stats.FG_rem);
 
 
 %% Sleep data plotting dashboard
@@ -636,7 +658,7 @@ annotation('textbox', [0.405, 0.87 , 0.1, 0.1], 'String', 'Day 2', 'FitBoxToText
 fig = gcf;                   % Get current figure handle
 fig.Color = [1 1 1];  
 %% [Not necesaary for plotting]Extracting SG Mod idx by cohort for the figure
-% sleep_phases = {'Awake', 'SWS', 'REM'};
+ sleep_phases = {'Awake', 'SWS', 'REM'};
 % cohorts = {'Control', 'ArchT'};
 % days = {'D1', 'D2'};
 % %Extracting SG Mod idx by cohort
@@ -670,6 +692,7 @@ fig.Color = [1 1 1];
 % d2_c2_FG_rem_modIdx=day2_cohort_2.FG_rem_modIdx;
 
 %% Plottting first figure for SG ModIDX
+ sleep_phases = {'Awake', 'SWS', 'REM'};
 
 % Combine data into one array for easier plotting
 SGData = [sleep.SG_awk_modIdx sleep.SG_sws_modIdx sleep.SG_rem_modIdx];
@@ -679,16 +702,74 @@ groupDays = [sleep.Day];
 sg=figure(91);
 clf;
 for iSP=1:3
-    subplot(3,1,iSP)
+    %subplot(3,1,iSP)
     boxplot(SGData(:, iSP), {groupCohorts, groupDays}, 'FactorSeparator', 1, ...
         'Labels', {'Control-D1', 'Control-D2', 'ArchT-D1', 'ArchT-D2'}, 'LabelOrientation', 'inline');
     title([sleep_phases{1,iSP}]);
     ylabel('Mod Idx (AU)');set(gca, 'FontWeight','bold');set(gca, 'FontSize',16);
 
 end
-
 ttl=annotation('textbox',[.35 0.9 0.1 0.1],'String','Slow Gamma PAC', 'FontSize', 16, 'FontWeight', 'bold', 'LineStyle','none')
 sg.Position=[ 2000 0 400 1200]
+
+% Figure of FG modIdx only REM
+boxplot(FGData(:, 3), {groupCohorts, groupDays}, 'FactorSeparator', 1, ...
+        'Labels', {'Control-D1', 'Control-D2', 'ArchT-D1', 'ArchT-D2'});
+    title(' Fast Gamma during REM ');
+    ylabel('Mod Idx (AU)');set(gca, 'FontWeight','bold');set(gca, 'FontSize',18);
+
+boxes = findobj(gca, 'Tag', 'Box');
+xtickangle(45)
+% Customize line and whisker colors
+set(findobj(gca,'Type','Line'),'Color',[0.2 0.2 0.2]);
+% Adjust plot aesthetics
+set(gca, 'TickDir', 'out');  % Move ticks outside the plot
+box off;
+
+% Define colors
+colors = [
+     BC_color_genertor('Archt_green');
+     BC_color_genertor('Oxford_blue');
+     BC_color_genertor('Swamp_green');
+    BC_color_genertor('Powder_blue'); ];
+
+% Apply colors to each box
+for i = 1:length(boxes)
+    patch(get(boxes(i), 'XData'), get(boxes(i), 'YData'), colors(i, :),'FaceAlpha', .8);
+end
+ fig = gcf;                   % Get current figure handle
+ fig.Color = [1 1 1];         % Set background color to white
+ 
+ % Figure of SG modIdx only REM
+boxplot(SGData(:, 3), {groupCohorts, groupDays}, 'FactorSeparator', 1, ...
+        'Labels', {'Control-D1', 'Control-D2', 'ArchT-D1', 'ArchT-D2'});
+    title(' Fast Gamma during REM ');
+    ylabel('Mod Idx (AU)');set(gca, 'FontWeight','bold');set(gca, 'FontSize',18);
+
+boxes = findobj(gca, 'Tag', 'Box');
+xtickangle(45)
+% Customize line and whisker colors
+set(findobj(gca,'Type','Line'),'Color',[0.2 0.2 0.2]);
+% Adjust plot aesthetics
+set(gca, 'TickDir', 'out');  % Move ticks outside the plot
+box off;
+
+% Define colors
+colors = [
+     BC_color_genertor('Archt_green');
+     BC_color_genertor('Oxford_blue');
+     BC_color_genertor('Swamp_green');
+    BC_color_genertor('Powder_blue'); ];
+
+% Apply colors to each box
+for i = 1:length(boxes)
+    patch(get(boxes(i), 'XData'), get(boxes(i), 'YData'), colors(i, :),'FaceAlpha', .8);
+end
+ fig = gcf;                   % Get current figure handle
+ fig.Color = [1 1 1];         % Set background color to white
+
+
+
 %% Plottting first figure for FG ModIDX
 
 fg=figure(92);
@@ -765,13 +846,44 @@ for iSP=1:3
     boxplot(Tta_pwr_Data(:, iSP), {groupCohorts, groupDays}, 'FactorSeparator', 1, ...
         'Labels', {'Control-D1', 'Control-D2', 'ArchT-D1', 'ArchT-D2'}, 'LabelOrientation', 'inline');
     title([sleep_phases{1,iSP}]);
-    ylabel('Mod Idx (AU)');set(gca, 'FontWeight','bold');set(gca, 'FontSize',16);set(gca, 'Box','off')
+    ylabel('Power (mW)');set(gca, 'FontWeight','bold');set(gca, 'FontSize',16);set(gca, 'Box','off')
 end
 
 
 
 ttl=annotation('textbox',[.35 0.9 0.1 0.1],'String','Theta Band Power', 'FontSize', 16, 'FontWeight', 'bold', 'LineStyle','none')
 sg.Position=[ 2000 0 400 1200]
+
+% Figure of Theta pwr only REM
+sg=figure(101);
+boxplot(Tta_pwr_Data(:, 3), {groupCohorts, groupDays}, 'FactorSeparator', 1, ...
+        'Labels', {'Control-D1', 'Control-D2', 'ArchT-D1', 'ArchT-D2'});
+    title('Theta Power during REM');
+    ylabel('Power (mW)');set(gca, 'FontWeight','bold');set(gca, 'FontSize',18);
+
+boxes = findobj(gca, 'Tag', 'Box');
+xtickangle(45)
+% Customize line and whisker colors
+
+set(findobj(gca,'Type','Line'),'Color',[0.2 0.2 0.2]);
+% Adjust plot aesthetics
+set(gca, 'TickDir', 'out');  % Move ticks outside the plot
+box off;
+
+% Define colors
+colors = [
+     BC_color_genertor('Archt_green');
+     BC_color_genertor('Oxford_blue');
+     BC_color_genertor('Swamp_green');
+    BC_color_genertor('Powder_blue'); ];
+
+% Apply colors to each box
+for i = 1:length(boxes)
+    patch(get(boxes(i), 'XData'), get(boxes(i), 'YData'), colors(i, :),'FaceAlpha', .8);
+end
+ fig = gcf;                   % Get current figure handle
+ fig.Color = [1 1 1];         % Set background color to white
+ sg.Position=[ 2500 100 900 1000]
 %% Plottting figure for SG PWR
 sg=figure(102);
 clf;
@@ -780,11 +892,42 @@ for iSP=1:3
     bp=boxplot(SG_pwr_Data(:, iSP), {groupCohorts, groupDays}, 'FactorSeparator', 1, ...
         'Labels', {'Control-D1', 'Control-D2', 'ArchT-D1', 'ArchT-D2'}, 'LabelOrientation','inline');
     title([sleep_phases{1,iSP}]);
-    ylabel('Mod Idx (AU)');set(gca, 'FontWeight','bold');set(gca, 'FontSize',16);set(gca, 'Box','off')
+    ylabel('Power (mW)');set(gca, 'FontWeight','bold');set(gca, 'FontSize',16);set(gca, 'Box','off')
 end
 
 ttl=annotation('textbox',[.35 0.9 0.1 0.1],'String','SG Band Power', 'FontSize', 16, 'FontWeight', 'bold', 'LineStyle','none')
 sg.Position=[ 2000 0 400 1200]
+
+% Figure of SG pwr only REM
+sg=figure(102);
+boxplot(SG_pwr_Data(:, 3), {groupCohorts, groupDays}, 'FactorSeparator', 1, ...
+        'Labels', {'Control-D1', 'Control-D2', 'ArchT-D1', 'ArchT-D2'});
+    title('Slow Gamma Power during REM');
+    ylabel('Power (mW)');set(gca, 'FontWeight','bold');set(gca, 'FontSize',18);
+
+boxes = findobj(gca, 'Tag', 'Box');
+xtickangle(45)
+% Customize line and whisker colors
+
+set(findobj(gca,'Type','Line'),'Color',[0.2 0.2 0.2]);
+% Adjust plot aesthetics
+set(gca, 'TickDir', 'out');  % Move ticks outside the plot
+box off;
+
+% Define colors
+colors = [
+     BC_color_genertor('Archt_green');
+     BC_color_genertor('Oxford_blue');
+     BC_color_genertor('Swamp_green');
+    BC_color_genertor('Powder_blue'); ];
+
+% Apply colors to each box
+for i = 1:length(boxes)
+    patch(get(boxes(i), 'XData'), get(boxes(i), 'YData'), colors(i, :),'FaceAlpha', .8);
+end
+ fig = gcf;                   % Get current figure handle
+ fig.Color = [1 1 1];         % Set background color to white
+ sg.Position=[ 2500 100 900 1000]
 %% Plottting figure for FG PWR
 sg=figure(103);
 clf;
@@ -793,11 +936,42 @@ for iSP=1:3
     bp=boxplot(FG_pwr_Data(:, iSP), {groupCohorts, groupDays}, 'FactorSeparator', 1, ...
         'Labels', {'Control-D1', 'Control-D2', 'ArchT-D1', 'ArchT-D2'}, 'LabelOrientation','inline');
     title([sleep_phases{1,iSP}]);
-    ylabel('Mod Idx (AU)');set(gca, 'FontWeight','bold');set(gca, 'FontSize',16);set(gca, 'Box','off')
+    ylabel('Power (mW)');set(gca, 'FontWeight','bold');set(gca, 'FontSize',16);set(gca, 'Box','off')
 end
 
 ttl=annotation('textbox',[.35 0.9 0.1 0.1],'String','FG Band Power', 'FontSize', 16, 'FontWeight', 'bold', 'LineStyle','none')
 sg.Position=[ 2000 0 400 1200]
+
+% Figure of FG pwr only REM
+sg=figure(102);
+boxplot(FG_pwr_Data(:, 3), {groupCohorts, groupDays}, 'FactorSeparator', 1, ...
+        'Labels', {'Control-D1', 'Control-D2', 'ArchT-D1', 'ArchT-D2'});
+    title('Fast Gamma Power during REM');
+    ylabel('Power (mW)');set(gca, 'FontWeight','bold');set(gca, 'FontSize',18);
+
+boxes = findobj(gca, 'Tag', 'Box');
+xtickangle(45)
+% Customize line and whisker colors
+
+set(findobj(gca,'Type','Line'),'Color',[0.2 0.2 0.2]);
+% Adjust plot aesthetics
+set(gca, 'TickDir', 'out');  % Move ticks outside the plot
+box off;
+
+% Define colors
+colors = [
+     BC_color_genertor('Archt_green');
+     BC_color_genertor('Oxford_blue');
+     BC_color_genertor('Swamp_green');
+    BC_color_genertor('Powder_blue'); ];
+
+% Apply colors to each box
+for i = 1:length(boxes)
+    patch(get(boxes(i), 'XData'), get(boxes(i), 'YData'), colors(i, :),'FaceAlpha', .8);
+end
+ fig = gcf;                   % Get current figure handle
+ fig.Color = [1 1 1];         % Set background color to white
+ sg.Position=[ 2500 100 900 1000]
 
 %% Stats for the power
 stats_pwr=[];
@@ -847,6 +1021,126 @@ stats_pwr.FG_rem = fitlme(sleep, ...
     'FG_rem_pwr ~ 1 + Day*Cohort + (1|Subject)', ...
     'FitMethod', 'REML');
 disp(stats_pwr.FG_rem);
+%% Calculating the Percentage of change in power for a more fair comaparison
+%Pull the data from sleep into two different tables, 1 for D1 and another
+%for D2
+
+%Adjust according to the intervals with pwr
+int1=1:2;
+int2=(find(contains(fieldnames(sleep),'pwr')))',
+colInt= [int1, int2];
+Pwr_d1= sleep(sleep.Day==1,int2);
+Pwr_d2= sleep(sleep.Day==2,int2);
+meta=sleep(sleep.Day==1,int1);
+%Divide the coressponding columns of D2/D1 and multiply by 100
+pcntChange=(Pwr_d1./Pwr_d2).*100;
+pcntChange= [meta, pcntChange];
+%Plot comparison between cohorts
+boxchart(pcntChange.cohort,pcntChange.Tta_awk_pwr)
+figure(111)
+clf;
+row=1;
+fldnm=pcntChange.Properties.VariableNames;
+
+
+
+% Figure of percentage change only in rem
+pcnt_rem_Data= [pcntChange.Tta_rem_pwr];
+groupCohorts=[pcntChange.Cohort];
+sg=figure(102);
+boxplot(pcnt_rem_Data, {groupCohorts}, 'FactorSeparator', 1, ...
+        'Labels', {'Control',  'ArchT'});
+    title('Percentage change D1/D2 Theta Power');
+    ylabel('Percentage (%)');set(gca, 'FontWeight','bold');set(gca, 'FontSize',18);
+
+boxes = findobj(gca, 'Tag', 'Box');
+xtickangle(45)
+% Customize line and whisker colors
+
+set(findobj(gca,'Type','Line'),'Color',[0.2 0.2 0.2]);
+% Adjust plot aesthetics
+set(gca, 'TickDir', 'out');  % Move ticks outside the plot
+box off;
+
+% Define colors
+colors = [
+     BC_color_genertor('Archt_green');
+     BC_color_genertor('Oxford_blue');
+     ];
+
+% Apply colors to each box
+for i = 1:length(boxes)
+    patch(get(boxes(i), 'XData'), get(boxes(i), 'YData'), colors(i, :),'FaceAlpha', .8);
+end
+ fig = gcf;                   % Get current figure handle
+ fig.Color = [1 1 1];         % Set background color to white
+ sg.Position=[ 2500 100 900 1000]
+ 
+% Figure of SG percentage change only in rem
+pcnt_rem_Data= [pcntChange.SG_rem_pwr];
+groupCohorts=[pcntChange.Cohort];
+sg=figure(103);
+boxplot(pcnt_rem_Data, {groupCohorts}, 'FactorSeparator', 1, ...
+        'Labels', {'Control',  'ArchT'});
+    title('Percentage change D1/D2 SG Power');
+    ylabel('Percentage (%)');set(gca, 'FontWeight','bold');set(gca, 'FontSize',18);
+
+boxes = findobj(gca, 'Tag', 'Box');
+xtickangle(45)
+% Customize line and whisker colors
+
+set(findobj(gca,'Type','Line'),'Color',[0.2 0.2 0.2]);
+% Adjust plot aesthetics
+set(gca, 'TickDir', 'out');  % Move ticks outside the plot
+box off;
+
+% Define colors
+colors = [
+     BC_color_genertor('Archt_green');
+     BC_color_genertor('Oxford_blue');
+     ];
+
+% Apply colors to each box
+for i = 1:length(boxes)
+    patch(get(boxes(i), 'XData'), get(boxes(i), 'YData'), colors(i, :),'FaceAlpha', .8);
+end
+ fig = gcf;                   % Get current figure handle
+ fig.Color = [1 1 1];         % Set background color to white
+ sg.Position=[ 2500 100 900 1000]
+
+ % Figure of FG percentage change only in rem
+pcnt_rem_Data= [pcntChange.FG_rem_pwr];
+groupCohorts=[pcntChange.Cohort];
+sg=figure(104);
+boxplot(pcnt_rem_Data, {groupCohorts}, 'FactorSeparator', 1, ...
+        'Labels', {'Control',  'ArchT'});
+    title('Percentage change D1/D2 FG Power');
+    ylabel('Percentage (%)');set(gca, 'FontWeight','bold');set(gca, 'FontSize',18);
+
+boxes = findobj(gca, 'Tag', 'Box');
+xtickangle(45)
+% Customize line and whisker colors
+
+set(findobj(gca,'Type','Line'),'Color',[0.2 0.2 0.2]);
+% Adjust plot aesthetics
+set(gca, 'TickDir', 'out');  % Move ticks outside the plot
+box off;
+
+% Define colors
+colors = [
+     BC_color_genertor('Archt_green');
+     BC_color_genertor('Oxford_blue');
+     ];
+
+% Apply colors to each box
+for i = 1:length(boxes)
+    patch(get(boxes(i), 'XData'), get(boxes(i), 'YData'), colors(i, :),'FaceAlpha', .8);
+end
+ fig = gcf;                   % Get current figure handle
+ fig.Color = [1 1 1];         % Set background color to white
+ sg.Position=[ 2500 100 900 1000]
+
+
 %% Try to put the data in a single box chart
 % % Combine data for both objects
 % combinedData = [D2Int.ObjATime, D2Int.ObjBTime];
