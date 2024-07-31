@@ -4,9 +4,9 @@ if nargin < 3
     plot_flag = 0
 end
 %%
-  x_data=pos.data(3,:);
+    x_data=pos.data(3,:);
     %assign your running area
-    max_tresh=75;
+    max_tresh=80;
     min_tresh=20;
     x_running_index= find(x_data>=min_tresh & x_data<=max_tresh); %Find the data within your treshold
     x_dif=diff(x_running_index); 
@@ -15,31 +15,32 @@ end
     jumps_end=x_running_index(z);
     jumps_end=[jumps_end,x_running_index(end)];
     jumps_start=x_running_index(y);
-    jumps_start=[x_running_index(1), jumps_start];
+    jumps_start=[x_running_index(1), jumps_start];%Adding the first ever start
     jump_start_time=pos.tvec(jumps_start);%Get the time of the start of the jumps from the tvec
     jump_end_time=pos.tvec(jumps_end);%Get the time of the end of the jumps from the tvec
-    iv_running=iv(jump_start_time, jump_end_time); % Created the interval where the mouse is running from the ends and beginning
+    iv_running=iv(jump_start_time, jump_end_time); % Created the interval where the mouse is running from the end and beginning
     % ----To do----
     %1.Remove those intervals where the mouse is to close to the
     %previous one
     %
     
     %2.Check for velocity
-    % spd=[];
-    % spd = pos;
-    % spd.data=[];
-    % spd.data=pos.data(5,:);
-    % spd.lbel={'spd'};
-    % cfg = []; cfg.method = 'raw'; cfg.operation = '>'; cfg.threshold =5.0 ;% speed limit in cm/sec
-    % iv_fast = TSDtoIV(cfg,spd);                                            % only keep intervals with speed above thresh
-    % %Include intervals avobe threshold only
-    % iv_running = IntersectIV([], iv_fast, iv_running); 
+    spd=[];
+    spd = pos;
+    spd.data=[];
+    spd.data=pos.data(5,:);
+    spd.lbel={'spd'};
+    cfg = []; cfg.method = 'raw'; cfg.operation = '>'; cfg.threshold =5.0 ;% speed limit in cm/sec
+    iv_fast = TSDtoIV(cfg,spd);                                            % only keep intervals with speed above thresh
+    %Include intervals avobe threshold only
+    iv_running = IntersectIV([], iv_running, iv_fast); 
     
     % Substarct the iv where the mosue is inhibited from those where it is running
     cfg01=[];
     cfg01.verbose=0;
-    iv_noInhb=DifferenceIV(cfg01,iv_running,iv_inhb);
     
+    iv_noInhb=DifferenceIV(cfg01,iv_running,iv_inhb);
+    iv_inhb=DifferenceIV(cfg01,iv_running,iv_noInhb);
     
     if plot_flag
         % Plot the x_pos by time and plot the int to collaborate that you got them right
@@ -69,6 +70,7 @@ end
         plot(pos.tvec,x_data, 'Color', BC_color_genertor('Oxford_blue'));
         h01=LTplotIvBars(iv_inhb,x_data,BC_color_genertor('Archt_green'),0.8);
         h02=LTplotIvBars(iv_noInhb,x_data,BC_color_genertor('Burnt_orange'),0.4);
+        %h03=LTplotIvBars(iv_running,x_data,BC_color_genertor('Powder_blue'),0.8);
         xlim([pos.tvec(1) pos.tvec(end)]);
         ylim([0 100]);
         % xlabel('Time (s)','Fontsize',14);

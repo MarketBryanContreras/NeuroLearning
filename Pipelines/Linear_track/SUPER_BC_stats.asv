@@ -730,4 +730,4 @@ s=scatter(CtrlInhbSpdPwrTblTotal.SGAmp,CtrlInhbSpdPwrTblTotal.TtaAmp,[],CtrlInhb
 s.MarkerEdgeAlpha = 0.1;
 figure(104)
 s=scatter(CtrlNoInhbSpdPwrTblTotal.SGAmp,CtrlNoInhbSpdPwrTblTotal.TtaAmp,[],CtrlNoInhbSpdPwrTblTotal.Subject,'SizeData',5)
-s.MarkerEdgeAlpha = 0.1;
+s.AlphaData = 0.2;

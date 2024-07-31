@@ -7,7 +7,7 @@
 %% Dynamic loader
 [data_dir, inter_dir]=BC_linearTrack_dynamicLoader('control'); %"experimental" for archT, "control" 
 %% Parameters
-plot_flag = 0; % switch to 0 if you want to supress verification figures.
+plot_flag = 1; % switch to 0 if you want to supress verification figures.
 time_maze_start = 30; %Seconds to exclude from recording
 min_trial_dur = 0.5;
 mouse_group=1; %1 for ArchT and 2 for eYFP. This just modify color of the plots
@@ -114,8 +114,6 @@ for iS =1:length(inhib_dir)
     cfg_filt_t.display_filter = 0; % use this to see the fvtool
     FG_csc = FilterLFP(cfg_filt_t, csc); % filter the raw LFP using
     FG_amp_phi = BC_power_phase(FG_csc);
-%%
-%scatter(theta_amp_phi.data(2,:),SG_amp_phi.data(2,:))    
     %% Restricting data to intervals of inhb, noInhb
     %inhb
     csc_inhb = restrict(csc, iv_inhb);
@@ -206,35 +204,35 @@ for iS =1:length(inhib_dir)
 
     z_FGInhb_modidx = (FGInhb_modidx - FGshift_mean) / FGshift_std; 
     z_FGNoInhb_modidx = (FGNoInhb_modidx - FGshift_mean) / FGshift_std;  
-    %% Epochs by epochs spectral analysis
+    %% Epochs by epochs analysis
     
     % inhibition
     win_s = 256;
-    r_inhib = [];
-    r_noinhib = [];
-    r_run = [];
-    spd_ihb=[];
-    tta_amp_ihb= [];
-    tta_pwr_ihb= [];
-    tta_phi_ihb= [];
-    sg_amp_ihb= [];
-    sg_pwr_ihb= [];
-    sg_phi_ihb= [];
-    fg_amp_ihb= [];
-    fg_pwr_ihb= [];
-    fg_phi_ihb= [];
-    epoch_ihb= [];
+            r_inhib = []; 
+            r_noinhib = []; 
+            r_run = []; 
+            spd_ihb=[]; 
+            tta_amp_ihb= [];
+            tta_pwr_ihb= [];
+            tta_phi_ihb= [];
+            sg_amp_ihb= [];
+            sg_pwr_ihb= [];
+            sg_phi_ihb= [];
+            fg_amp_ihb= [];
+            fg_pwr_ihb= [];
+            fg_phi_ihb= []; 
+            epoch_ihb= [];
 
-    tta_amp_ihbTotal= [];
-    tta_pwr_ihbTotal= [];
-    tta_phi_ihbTotal= [];
-    sg_amp_ihbTotal= [];
-    sg_pwr_ihbTotal= [];
-    sg_phi_ihbTotal= [];
-    fg_amp_ihbTotal= [];
-    fg_pwr_ihbTotal= [];
-    fg_phi_ihbTotal= [];
-    epoch_ihbTotal= [];
+            tta_amp_ihbTotal= [];
+            tta_pwr_ihbTotal= [];
+            tta_phi_ihbTotal= [];
+            sg_amp_ihbTotal= [];
+            sg_pwr_ihbTotal= [];
+            sg_phi_ihbTotal= [];
+            fg_amp_ihbTotal= [];
+            fg_pwr_ihbTotal= [];
+            fg_phi_ihbTotal= [];
+            epoch_ihbTotal= [];
 
     for ii = length(iv_inhb.tstart):-1:1
         if (iv_inhb.tend(ii) - iv_inhb.tstart(ii)) < min_trial_dur
@@ -291,7 +289,7 @@ for iS =1:length(inhib_dir)
             this_Fg_amp=restrict(FG_amp_phi, iv_inhb.tstart(ii), iv_inhb.tend(ii));
             this_pos= restrict(pos, iv_inhb.tstart(ii), iv_inhb.tend(ii));
             
-            %Creating a copy of the amplitude vectors so I can use all the values ion a second analysis
+            %Creating a copy of the amplitude vectors so I can use all the values
             this_theta_amp2=this_theta_amp;
             this_Sg_amp2=this_Sg_amp;
             this_Fg_amp2=this_Fg_amp;
