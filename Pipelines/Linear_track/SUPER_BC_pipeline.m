@@ -5,7 +5,7 @@
 % Make sure to add code from the CEH2 repo, Vadermeer lab code-shared repo,
 % NeuroLearning repo before going forward
 %% Dynamic loader
-[data_dir, inter_dir]=BC_linearTrack_dynamicLoader('control'); %"experimental" for archT, "control" 
+[data_dir, inter_dir]=BC_linearTrack_dynamicLoader('experimental'); %"experimental" for archT, "control" 
 %% Parameters
 plot_flag = 0; % switch to 0 if you want to supress verification figures.
 time_maze_start = 30; %Seconds to exclude from recording
@@ -997,5 +997,5 @@ end
 % Formating for saving output
 
 cd(inter_dir)
-save('out_eyfp_29_jul_24.mat','out')
+save('out_archt_31_jul_24.mat','out')
 %out_eyfp_07_nov_23=out;save('out_eyfp_07_nov_23.mat','out_eyfp_07_nov_23')

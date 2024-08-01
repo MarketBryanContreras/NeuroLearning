@@ -702,10 +702,62 @@ CtrlNoInhbSpdPwrTbl=BC_SpdPwrTblGenerator(out_eyfp,'noInhb');
 CtrlRunningSpdPwrTbl=BC_SpdPwrTblGenerator(out_eyfp,'running');
 
 %% Graphing speed-theta amp
+%Speed Vs Theta Amp
 figure(101)
-s=scatter(ArchtInhbSpdPwrTbl.SGAmp,ArchtInhbSpdPwrTbl.TtaAmp, 'MarkerEdgeColor',BC_color_genertor('Oxford_blue'),'SizeData',11)
+subplot(2,2,2)
+s=scatter(ArchtInhbSpdPwrTbl.Spd,ArchtInhbSpdPwrTbl.TtaAmp, 'MarkerEdgeColor',BC_color_genertor('Archt_green'),'SizeData',11)
+xlim([0 50]); ylim([0 6*10^-4]); xlabel('Speed (cm/s)');ylabel('Theta Amplitude (V)')
+title('ArchT Silencing')
+subplot(2,2,1)
+s=scatter(ArchtNoInhbSpdPwrTbl.Spd,ArchtNoInhbSpdPwrTbl.TtaAmp,'MarkerEdgeColor',BC_color_genertor('Oxford_blue'),'SizeData',11)
+xlim([0 50]); ylim([0 6*10^-4]); xlabel('Speed (cm/s)');ylabel('Theta Amplitude (V)')
+title('ArchT No Silencing')
+subplot(2,2,4)
+s=scatter(CtrlInhbSpdPwrTbl.Spd,CtrlInhbSpdPwrTbl.TtaAmp, 'MarkerEdgeColor',BC_color_genertor('Swamp_green'),'SizeData',11)
+xlim([0 50]); ylim([0 6*10^-4]); xlabel('Speed (cm/s)');ylabel('Theta Amplitude (V)')
+title('Control Silencing')
+subplot(2,2,3)
+s=scatter(CtrlNoInhbSpdPwrTbl.Spd,CtrlNoInhbSpdPwrTbl.TtaAmp,'MarkerEdgeColor',BC_color_genertor('Powder_blue'),'SizeData',11)
+xlim([0 50]); ylim([0 6*10^-4]); xlabel('Speed (cm/s)');ylabel('Theta Amplitude (V)')
+title('Control No Silencing')
+%Speed Vs SGamma Amp
 figure(102)
-s=scatter(ArchtNoInhbSpdPwrTbl.SGAmp,ArchtNoInhbSpdPwrTbl.TtaAmp,'MarkerEdgeColor',BC_color_genertor('Archt_green'),'SizeData',11)
+subplot(2,2,2)
+s=scatter(ArchtInhbSpdPwrTbl.Spd,ArchtInhbSpdPwrTbl.SGAmp, 'MarkerEdgeColor',BC_color_genertor('Archt_green'),'SizeData',11);
+xlim([0 50]); ylim([0 3*10^-4]); xlabel('Speed (cm/s)');ylabel('SG Amplitude (V)')
+title('ArchT Silencing')
+subplot(2,2,1)
+s=scatter(ArchtNoInhbSpdPwrTbl.Spd,ArchtNoInhbSpdPwrTbl.SGAmp,'MarkerEdgeColor',BC_color_genertor('Oxford_blue'),'SizeData',11);
+xlim([0 50]); ylim([0 3*10^-4]); xlabel('Speed (cm/s)');ylabel('SG Amplitude (V)')
+title('ArchT No Silencing')
+subplot(2,2,4)
+s=scatter(CtrlInhbSpdPwrTbl.Spd,CtrlInhbSpdPwrTbl.SGAmp, 'MarkerEdgeColor',BC_color_genertor('Swamp_green'),'SizeData',11);
+xlim([0 50]); ylim([0 3*10^-4]); xlabel('Speed (cm/s)');ylabel('SG Amplitude (V)')
+title('Control Silencing')
+subplot(2,2,3)
+s=scatter(CtrlNoInhbSpdPwrTbl.Spd,CtrlNoInhbSpdPwrTbl.SGAmp,'MarkerEdgeColor',BC_color_genertor('Powder_blue'),'SizeData',11);
+xlim([0 50]); ylim([0 3*10^-4]); xlabel('Speed (cm/s)');ylabel('SG Amplitude (V)')
+title('Control No Silencing')
+
+
+%Speed Vs FGamma Amp
+figure(103)
+subplot(2,2,2)
+s=scatter(ArchtInhbSpdPwrTbl.Spd,ArchtInhbSpdPwrTbl.FGAmp, 'MarkerEdgeColor',BC_color_genertor('Archt_green'),'SizeData',11);
+xlim([0 50]); ylim([0 3*10^-4]); xlabel('Speed (cm/s)');ylabel('FG Amplitude (V)')
+title('ArchT Silencing')
+subplot(2,2,1)
+s=scatter(ArchtNoInhbSpdPwrTbl.Spd,ArchtNoInhbSpdPwrTbl.FGAmp,'MarkerEdgeColor',BC_color_genertor('Oxford_blue'),'SizeData',11);
+xlim([0 50]); ylim([0 3*10^-4]); xlabel('Speed (cm/s)');ylabel('FG Amplitude (V)')
+title('ArchT No Silencing')
+subplot(2,2,4)
+s=scatter(CtrlInhbSpdPwrTbl.Spd,CtrlInhbSpdPwrTbl.FGAmp, 'MarkerEdgeColor',BC_color_genertor('Swamp_green'),'SizeData',11);
+xlim([0 50]); ylim([0 3*10^-4]); xlabel('Speed (cm/s)');ylabel('FG Amplitude (V)')
+title('Control Silencing')
+subplot(2,2,3)
+s=scatter(CtrlNoInhbSpdPwrTbl.Spd,CtrlNoInhbSpdPwrTbl.FGAmp,'MarkerEdgeColor',BC_color_genertor('Powder_blue'),'SizeData',11);
+xlim([0 50]); ylim([0 3*10^-4]); xlabel('Speed (cm/s)');ylabel('FG Amplitude (V)')
+title('Control No Silencing')
 
 %% Putting all the the data for amplitude-amplitude analysis together
 
@@ -717,17 +769,57 @@ CtrlInhbSpdPwrTblTotal=BC_SpdPwrTblTotalGenerator(out_eyfp,'inhb');
 CtrlNoInhbSpdPwrTblTotal=BC_SpdPwrTblTotalGenerator(out_eyfp,'noInhb');
 CtrlRunningSpdPwrTblTotal=BC_SpdPwrTblTotalGenerator(out_eyfp,'running');
 
-%% Graphing theta-gamma amplitude
+%% Graphing theta-Sgamma amplitude
 
-figure(101)
-s=scatter(ArchtInhbSpdPwrTblTotal.SGAmp,ArchtInhbSpdPwrTblTotal.TtaAmp,[],ArchtInhbSpdPwrTblTotal.Subject,'SizeData',5)
-s.MarkerEdgeAlpha = 0.1;
 figure(102)
-s=scatter(ArchtNoInhbSpdPwrTblTotal.SGAmp,ArchtNoInhbSpdPwrTblTotal.TtaAmp,[],ArchtNoInhbSpdPwrTblTotal.Subject,'SizeData',5)
+clf;
+subplot(2,2,4)
+s=scatter(ArchtInhbSpdPwrTblTotal.TtaAmp,ArchtInhbSpdPwrTblTotal.SGAmp,[],ArchtInhbSpdPwrTblTotal.Subject,'SizeData',5);
 s.MarkerEdgeAlpha = 0.1;
+xlim([0 6*10^-4]); ylim([0 3.5*10^-4]); xlabel('Theta Amplitude (V)');ylabel('SG Amplitude (V)')
+title('ArchT Silencing')
+
+subplot(2,2,3)
+s=scatter(ArchtNoInhbSpdPwrTblTotal.TtaAmp,ArchtNoInhbSpdPwrTblTotal.SGAmp,[],ArchtNoInhbSpdPwrTblTotal.Subject,'SizeData',5);
+s.MarkerEdgeAlpha = 0.1;
+xlim([0 6*10^-4]); ylim([0 3.5*10^-4]); xlabel('Theta Amplitude (V)');ylabel('SG Amplitude (V)')
+title('ArchT No Silencing')
+
+subplot(2,2,2)
+s=scatter(CtrlInhbSpdPwrTblTotal.TtaAmp,CtrlInhbSpdPwrTblTotal.SGAmp,[],CtrlInhbSpdPwrTblTotal.Subject,'SizeData',5);
+s.MarkerEdgeAlpha = 0.1;
+xlim([0 6*10^-4]); ylim([0 3.5*10^-4]); xlabel('Theta Amplitude (V)');ylabel('SG Amplitude (V)')
+title('Control Silencing')
+
+subplot(2,2,1)
+s=scatter(CtrlNoInhbSpdPwrTblTotal.TtaAmp,CtrlNoInhbSpdPwrTblTotal.SGAmp,[],CtrlNoInhbSpdPwrTblTotal.Subject,'SizeData',5);
+s.MarkerEdgeAlpha = 0.1;
+xlim([0 6*10^-4]); ylim([0 3.5*10^-4]); xlabel('Theta Amplitude (V)');ylabel('SG Amplitude (V)')
+title('Control No Silencing')
+%Amplitude ThetaVs FG
 figure(103)
-s=scatter(CtrlInhbSpdPwrTblTotal.SGAmp,CtrlInhbSpdPwrTblTotal.TtaAmp,[],CtrlInhbSpdPwrTblTotal.Subject,'SizeData',5)
+clf;
+subplot(2,2,4)
+s=scatter(ArchtInhbSpdPwrTblTotal.TtaAmp,ArchtInhbSpdPwrTblTotal.FGAmp,[],ArchtInhbSpdPwrTblTotal.Subject,'SizeData',5);
 s.MarkerEdgeAlpha = 0.1;
-figure(104)
-s=scatter(CtrlNoInhbSpdPwrTblTotal.SGAmp,CtrlNoInhbSpdPwrTblTotal.TtaAmp,[],CtrlNoInhbSpdPwrTblTotal.Subject,'SizeData',5)
+xlim([0 6*10^-4]); ylim([0 3.5*10^-4]); xlabel('Theta Amplitude (V)');ylabel('FG Amplitude (V)')
+title('ArchT Silencing')
+
+subplot(2,2,3)
+s=scatter(ArchtNoInhbSpdPwrTblTotal.TtaAmp,ArchtNoInhbSpdPwrTblTotal.FGAmp,[],ArchtNoInhbSpdPwrTblTotal.Subject,'SizeData',5);
 s.MarkerEdgeAlpha = 0.1;
+xlim([0 6*10^-4]); ylim([0 3.5*10^-4]); xlabel('Theta Amplitude (V)');ylabel('FG Amplitude (V)')
+title('ArchT No Silencing')
+
+subplot(2,2,2)
+s=scatter(CtrlInhbSpdPwrTblTotal.TtaAmp,CtrlInhbSpdPwrTblTotal.FGAmp,[],CtrlInhbSpdPwrTblTotal.Subject,'SizeData',5);
+s.MarkerEdgeAlpha = 0.1;
+xlim([0 6*10^-4]); ylim([0 3.5*10^-4]); xlabel('Theta Amplitude (V)');ylabel('FG Amplitude (V)')
+title('Control Silencing')
+
+subplot(2,2,1)
+s=scatter(CtrlNoInhbSpdPwrTblTotal.TtaAmp,CtrlNoInhbSpdPwrTblTotal.FGAmp,[],CtrlNoInhbSpdPwrTblTotal.Subject,'SizeData',5);
+s.MarkerEdgeAlpha = 0.1;
+xlim([0 6*10^-4]); ylim([0 3.5*10^-4]); xlabel('Theta Amplitude (V)');ylabel('FG Amplitude (V)')
+title('Control No Silencing')
+
