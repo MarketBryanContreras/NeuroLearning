@@ -57,8 +57,6 @@ for iS=1:length(inhib_dir)
     info.subject=parts{1};
     info.date=[ parts{2} '_' parts{3} '_' parts{4}];
     info.session=parts{5};
-    
-   
     %% Individual parameters
     if info.subject=="BC1807";
         emg_chan = 'CSC1.ncs';lfp_chan = 'CSC6.ncs';

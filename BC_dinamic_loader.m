@@ -1,4 +1,16 @@
-%Cleaner exploratory function
+function BC_dinamic_loader(in)
+%% The function BC_dinamic_loader:
+%            [Provide a general description of the function here]
+%   Inputs:
+%            -input1[type]: description 
+% 
+% 
+%   Outputs:
+%             -output1[type]: description 
+% 
+% 
+%  First version BC 16-Jul-2024 
+%% 
 %% Dynamic loader
 sys=computer;
 if contains(sys,'PCWIN')
