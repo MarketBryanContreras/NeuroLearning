@@ -7,7 +7,7 @@
 %% Dynamic loader
 [data_dir, inter_dir]=BC_linearTrack_dynamicLoader('experimental'); %"experimental" for archT, "control" 
 %% Parameters
-plot_flag = 0; % switch to 0 if you want to supress verification figures.
+plot_flag = 1; % switch to 0 if you want to supress verification figures.
 time_maze_start = 30; %Seconds to exclude from recording
 min_trial_dur = 0.5;
 mouse_group=1; %1 for ArchT and 2 for eYFP. This just modify color of the plots
@@ -44,7 +44,7 @@ for iS =1:length(inhib_dir)
         cfg_csc.fc ={'CSC2.ncs'}; %'CSC4.ncs'
         pattern = 'TTL Input on AcqSystem1_0 board 0 port 3 value (0x0002).';
     elseif strcmpi(info.subject, 'BC051')
-        cfg_csc.fc ={'CSC5.ncs'};
+        cfg_csc.fc ={'CSC7.ncs'};%5
         pattern = 'TTL Input on AcqSystem1_0 board 0 port 3 value (0x0002).';
     elseif strcmpi(info.subject, 'BC1807')
         cfg_csc.fc ={'CSC3.ncs'};
@@ -56,13 +56,13 @@ for iS =1:length(inhib_dir)
         cfg_csc.fc ={'CSC5.ncs'};
         pattern = 'TTL Input on AcqSystem1_0 board 0 port 1 value (0x0040).';
     elseif strcmpi(info.subject, 'BC011')
-        cfg_csc.fc ={'CSC2.ncs'};
+        cfg_csc.fc ={'CSC3.ncs'};%3%7
         pattern = 'TTL Input on AcqSystem1_0 board 0 port 3 value (0x0002).';
     elseif strcmpi(info.subject, 'BC013')
-        cfg_csc.fc ={'CSC2.ncs'};
+        cfg_csc.fc ={'CSC4.ncs'};%2%4
         pattern = 'TTL Input on AcqSystem1_0 board 0 port 1 value (0x0040).';
     elseif strcmpi(info.subject, 'BC014')
-        cfg_csc.fc ={'CSC2.ncs'};
+        cfg_csc.fc ={'CSC5.ncs'};%4%5
         pattern = 'TTL Input on AcqSystem1_0 board 0 port 1 value (0x0040).';
     end
 
@@ -98,8 +98,7 @@ for iS =1:length(inhib_dir)
     cfg_filt_t.display_filter = 0;                                         % use this to see the fvtool
     theta_csc = FilterLFP(cfg_filt_t, csc);                                % filter the raw LFP using
     theta_amp_phi = BC_power_phase(theta_csc);
-    theta_decimated=_BC_ampSpdDecimation(theta_csc, pos)
-
+    theta_decimated=BC_ampSpdDcmt(theta_csc, pos);
     % Filter the LFP in the slow gamma band
     cfg_filt_t = [];
     cfg_filt_t.type = 'butter';                                            %'fdesign'; %the type of filter I want to use via filterlfp
@@ -107,7 +106,8 @@ for iS =1:length(inhib_dir)
     cfg_filt_t.order = 4;                                                  %type filter order
     cfg_filt_t.display_filter = 0;                                         % use this to see the fvtool
     SG_csc = FilterLFP(cfg_filt_t, csc);                                   % filter the raw LFP using
-    SG_amp_phi = BC_power_phase(SG_csc);    
+    SG_amp_phi = BC_power_phase(SG_csc);  
+    SG_decimated=BC_ampSpdDcmt(SG_csc, pos);
     % Filter the LFP in the fast gamma band
     cfg_filt_t = [];
     cfg_filt_t.type = 'butter';%'fdesign'; %the type of filter I want to use via filterlfp
@@ -116,8 +116,54 @@ for iS =1:length(inhib_dir)
     cfg_filt_t.display_filter = 0; % use this to see the fvtool
     FG_csc = FilterLFP(cfg_filt_t, csc); % filter the raw LFP using
     FG_amp_phi = BC_power_phase(FG_csc); 
-%%
-%scatter(theta_amp_phi.data(2,:),SG_amp_phi.data(2,:))    
+    FG_decimated=BC_ampSpdDcmt(FG_csc, pos);
+    %% Plotting ampplitude and velocity according to position in the linear track
+    % Plot the x_pos by time and plot the int to collaborate that you got them right
+    x_data= theta_decimated.data(5,:);
+    fig=figure(1920);
+        clf;
+        x = (theta_decimated.tvec)';
+        y = x_data;
+        z = zeros(size(x));
+        speed_data=theta_decimated.data(4,:);
+        col = speed_data;  % This is the color, it varies with x in this case.
+        ax1=subplot(2,1,1);
+        surface([x;x],[y;y],[z;z],[col;col],... % This create a surface in the shape of a linear plot, this way it allows to mdify the color of the line accoridn to the speed of the mouse
+            'facecol','no',...
+            'edgecol','interp',...
+            'linew',2);
+        c=colorbar;
+        c.Label.String='Velocity (cm/s)';
+        c.Label.FontSize=12;
+        c.Position= [0.910 0.5900 0.0100 0.330];
+        xlim([pos.tvec(1) pos.tvec(end)]);
+        set(gca, 'TickDir', 'out');
+        ax1=subplot(2,1,1);
+        %Amplitude
+        subplot(2,1,2)
+        x_data= theta_decimated.data(5,:);
+       
+        
+        x = (theta_decimated.tvec)';
+        y = x_data;
+        z = zeros(size(x));
+        amp_data=theta_decimated.data(1,:);
+        col = amp_data;  % This is the color, it varies with x in this case.
+        ax2=subplot(2,1,2);
+        surface([x;x],[y;y],[z;z],[col;col],... % This create a surface in the shape of a linear plot, this way it allows to mdify the color of the line accoridn to the speed of the mouse
+            'facecol','no',...
+            'edgecol','interp',...
+            'linew',2);
+        c2=colorbar;
+        c2.Label.String='Tta Amplitude Normalized';
+        c2.Label.FontSize=12;
+        c2.Position= [0.910 0.1200 0.0100 0.330];
+        xlim([pos.tvec(1) pos.tvec(end)]);
+        set(gca, 'TickDir', 'out');
+        figure(1921)
+        scatter(theta_decimated.data(4,:),theta_decimated.data(1,:))
+        R=corr2((theta_decimated.data(4,:))',(theta_decimated.data(1,:))')
+        lsline
     %% Restricting data to intervals of inhb, noInhb
     %inhb
     csc_inhb = restrict(csc, iv_inhb);
@@ -125,14 +171,12 @@ for iS =1:length(inhib_dir)
     SG_inhb = restrict(SG_csc, iv_inhb);
     FG_inhb = restrict(FG_csc, iv_inhb);
     pos_inhb= restrict(pos, iv_inhb);
-    
     %no-inhb
     csc_noinhb = restrict(csc, iv_noInhb);
     theta_noinhb = restrict(theta_csc, iv_noInhb);
     SG_noinhb = restrict(SG_csc, iv_noInhb);
     FG_noinhb = restrict(FG_csc, iv_noInhb);
     pos_noinhb= restrict(pos, iv_noInhb);
-
     %running
     csc_running = restrict(csc, iv_running);
     theta_running = restrict(theta_csc, iv_running);
@@ -237,6 +281,8 @@ for iS =1:length(inhib_dir)
     fg_phi_ihbTotal= [];
     epoch_ihbTotal= [];
 
+    inhbTbl=[];
+
     for ii = length(iv_inhb.tstart):-1:1
         if (iv_inhb.tend(ii) - iv_inhb.tstart(ii)) < min_trial_dur
             t_bp_inhib(ii)= NaN;
@@ -267,6 +313,8 @@ for iS =1:length(inhib_dir)
             fg_pwr_ihbTotal= [fg_pwr_ihbTotal NaN];
             fg_phi_ihbTotal= [fg_phi_ihbTotal NaN];
             epoch_ihbTotal= [epoch_ihbTotal ii];
+
+            outTbl=BC_EpochSpdAmpDcmtdTbl(NaN, NaN, NaN,iv_inhb,ii);
         else
             this_csc = restrict(csc, iv_inhb.tstart(ii), iv_inhb.tend(ii));
             
@@ -284,6 +332,10 @@ for iS =1:length(inhib_dir)
             t_bp_inhib_norm(ii)= t_bp/ ref_bp;
             sg_bp_inhib_norm(ii) = sg_bp/ ref_bp;
             fg_bp_inhib_norm(ii) = fg_bp/ ref_bp;
+            
+            %Create a table with epoch#, condition, amplitude, velocity
+            outTbl=BC_EpochSpdAmpDcmtdTbl(theta_decimated, SG_decimated,FG_decimated,iv_inhb,ii);
+            %Use newTbl=[tbl1;tbl2] to keep adding values to the the table
             
             %Create a table with epoch#, condition, amplitude, velocity
             %The following code create the veactor for the creation of the table
@@ -357,6 +409,7 @@ for iS =1:length(inhib_dir)
             %F: Frequency axis of the spectrogram. P: Power spectral density (or magnitude squared of the Fourier transform) of the signal.
             [r_inhib(:,:,ii),~] = corrcoef(10*log10(P')); % correlation matrix (across frequ`encies) of spectrogram
         end
+        inhbTbl=[inhbTbl;outTbl];
     end
     %putting the speed-pwr into a table so its easier to extract later
     spdPwrTbl_inhb=table( spd_ihb',tta_amp_ihb',tta_pwr_ihb', tta_phi_ihb',sg_amp_ihb',sg_pwr_ihb',sg_phi_ihb',fg_amp_ihb',fg_pwr_ihb',fg_phi_ihb',epoch_ihb', 'VariableNames',{'spd','tta_amp','tta_pwr', 'tta_phi','sg_amp','sg_pwr','sg_phi','fg_amp','fg_pwr','fg_phi','epoch'});
@@ -385,6 +438,8 @@ for iS =1:length(inhib_dir)
             fg_pwr_noIhbTotal= [];
             fg_phi_noIhbTotal= []; 
             epoch_noIhbTotal= [];
+
+            NoInhbTbl=[];
             
     for ii = length(iv_noInhb.tstart):-1:1
         if (iv_noInhb.tend(ii) - iv_noInhb.tstart(ii)) < min_trial_dur
@@ -416,6 +471,7 @@ for iS =1:length(inhib_dir)
             fg_pwr_noIhbTotal= [fg_pwr_noIhbTotal NaN];
             fg_phi_noIhbTotal= [fg_phi_noIhbTotal NaN];
             epoch_noIhbTotal= [epoch_noIhbTotal ii];
+            NIoutTbl=BC_EpochSpdAmpDcmtdTbl(NaN, NaN, NaN,iv_noInhb,ii);
         else
             
             this_csc = restrict(csc, iv_noInhb.tstart(ii), iv_noInhb.tend(ii));
@@ -430,6 +486,9 @@ for iS =1:length(inhib_dir)
             t_bp_noinhib_norm(ii)= t_bp/ ref_bp;
             sg_bp_noinhib_norm(ii) = sg_bp/ ref_bp;
             fg_bp_noinhib_norm(ii) = fg_bp/ ref_bp;
+            
+            NIoutTbl=BC_EpochSpdAmpDcmtdTbl(theta_decimated, SG_decimated,FG_decimated,iv_noInhb,ii);
+            
             %Instantaneus speed_pwr_analaysis
             %Create a table with epoch#, condition, amplitude, velocity
             this_theta_amp=restrict(theta_amp_phi, iv_noInhb.tstart(ii), iv_noInhb.tend(ii));
@@ -502,6 +561,7 @@ for iS =1:length(inhib_dir)
             [r_noinhib(:,:,ii),~] = corrcoef(10*log10(P')); % correlation matrix (across frequencies) of spectrogram
                         
         end
+        NoInhbTbl=[NoInhbTbl; NIoutTbl];
     end
  %putting the speed-pwr into a table so its easier to extract later
     spdPwrTbl_noInhb=table( spd_noIhb',tta_amp_noIhb',tta_pwr_noIhb', tta_phi_noIhb',sg_amp_noIhb',sg_pwr_noIhb',sg_phi_noIhb',fg_amp_noIhb',fg_pwr_noIhb',fg_phi_noIhb',epoch_noIhb', 'VariableNames',{'spd','tta_amp','tta_pwr', 'tta_phi','sg_amp','sg_pwr','sg_phi','fg_amp','fg_pwr','fg_phi','epoch'});
@@ -531,6 +591,8 @@ for iS =1:length(inhib_dir)
     fg_pwr_runningTotal= [];
     fg_phi_runningTotal= [];
     epoch_runningTotal= [];
+
+    RunTbl=[];
     for ii = length(iv_running.tstart):-1:1
         if (iv_running.tend(ii) - iv_running.tstart(ii)) < min_trial_dur
             t_bp_run(ii)= NaN;
@@ -561,6 +623,9 @@ for iS =1:length(inhib_dir)
             fg_pwr_runningTotal= [fg_pwr_runningTotal NaN];
             fg_phi_runningTotal= [fg_phi_runningTotal NaN]; 
             epoch_runningTotal= [epoch_runningTotal ii];
+            RunOutTbl=BC_EpochSpdAmpDcmtdTbl(NaN, NaN, NaN,iv_running,ii);
+
+          
 
         else
             
@@ -576,6 +641,8 @@ for iS =1:length(inhib_dir)
             t_bp_run_norm(ii)= t_bp/ ref_bp;
             sg_bp_run_norm(ii) = sg_bp/ ref_bp;
             fg_bp_run_norm(ii) = fg_bp/ ref_bp;
+
+            RunOutTbl=BC_EpochSpdAmpDcmtdTbl(theta_decimated, SG_decimated,FG_decimated,iv_running,ii);
             %Instantaneus speed_pwr_analaysis
             %Create a table with epoch#, condition, amplitude, velocity
             this_theta_amp=restrict(theta_amp_phi, iv_running.tstart(ii), iv_running.tend(ii));
@@ -648,6 +715,7 @@ for iS =1:length(inhib_dir)
                 [r_run(:,:,ii),~] = corrcoef(10*log10(P')); % correlation matrix (across frequencies) of spectrogram's power
                 
         end
+        RunTbl=[RunTbl; RunOutTbl];
     end
  %putting the speed-pwr into a table so its easier to extract later
     spdPwrTbl_running=table( spd_running',tta_amp_running',tta_pwr_running', tta_phi_running',sg_amp_running',sg_pwr_running',sg_phi_running',fg_amp_running',fg_pwr_running',fg_phi_running',epoch_running', 'VariableNames',{'spd','tta_amp','tta_pwr', 'tta_phi','sg_amp','sg_pwr','sg_phi','fg_amp','fg_pwr','fg_phi','epoch'});
@@ -975,6 +1043,9 @@ end
     out.(info.subject).(info.sess).z_FGInhb_modidx=z_FGInhb_modidx;
     out.(info.subject).(info.sess).speedPwrTbl_inhb=spdPwrTbl_inhb;
     out.(info.subject).(info.sess).speedPwrTbl_inhbTotal=spdPwrTbl_inhbTotal;
+
+    out.(info.subject).(info.sess).InhbDcmtSpeedAmpTbl=inhbTbl;
+
     %noinb
     out.(info.subject).(info.sess).t_bp_noinhib = t_bp_noinhib; 
     out.(info.subject).(info.sess).sg_bp_noinhib = sg_bp_noinhib;
@@ -985,6 +1056,9 @@ end
     out.(info.subject).(info.sess).z_FGNoInhb_modidx=z_FGNoInhb_modidx;
     out.(info.subject).(info.sess).speedPwrTbl_noInhb=spdPwrTbl_noInhb
     out.(info.subject).(info.sess).speedPwrTbl_noInhbTotal=spdPwrTbl_noInhbTotal;
+
+    out.(info.subject).(info.sess).NoInhbDcmtSpeedAmpTbl=NoInhbTbl;
+
     %running
     out.(info.subject).(info.sess).t_bp_noinhib = t_bp_noinhib; 
     out.(info.subject).(info.sess).sg_bp_noinhib = sg_bp_noinhib;
@@ -994,9 +1068,12 @@ end
     out.(info.subject).(info.sess).speedPwrTbl_running=spdPwrTbl_running;
     out.(info.subject).(info.sess).speedPwrTbl_runningTotal=spdPwrTbl_runningTotal;
 
+    out.(info.subject).(info.sess).RunningDcmtSpeedAmpTbl=RunTbl;
+
+
 end
 % Formating for saving output
 
 cd(inter_dir)
-save('out_archt_31_jul_24.mat','out')
+save('out_eyfp_06_Aug_24.mat','out')
 %out_eyfp_07_nov_23=out;save('out_eyfp_07_nov_23.mat','out_eyfp_07_nov_23')

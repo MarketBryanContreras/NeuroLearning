@@ -737,19 +737,19 @@ title('Control No Silencing')
 figure(102)
 subplot(2,2,2)
 s=scatter(ArchtInhbSpdPwrTbl.Spd,ArchtInhbSpdPwrTbl.sgAmp, 'MarkerEdgeColor',BC_color_genertor('Archt_green'),'SizeData',11);
-xlim([0 50]); ylim([0 1]); xlabel('Speed (cm/s)');ylabel('SG Amplitude (V)')
+xlim([0 50]); ylim([0 3*10^-4]); xlabel('Speed (cm/s)');ylabel('SG Amplitude (V)')
 title('ArchT Silencing')
 subplot(2,2,1)
 s=scatter(ArchtNoInhbSpdPwrTbl.Spd,ArchtNoInhbSpdPwrTbl.sgAmp,'MarkerEdgeColor',BC_color_genertor('Oxford_blue'),'SizeData',11);
-xlim([0 50]); ylim([0 1]); xlabel('Speed (cm/s)');ylabel('SG Amplitude (V)')
+xlim([0 50]); ylim([0 3*10^-4]); xlabel('Speed (cm/s)');ylabel('SG Amplitude (V)')
 title('ArchT No Silencing')
 subplot(2,2,4)
-s=scatter(CtrlInhbSpdPwrTbl.Spd,CtrlInhbSpdPwrTbl.sgAmp, 'MarkerEdgeColor',BC_color_genertor('Swamp_green'),'SizeData',11);
-xlim([0 50]); ylim([0 1]); xlabel('Speed (cm/s)');ylabel('SG Amplitude (V)')
+s=scatter(CtrlInhbSpdPwrTbl.Spd,CtrlInhbSpdPwrTbl.SGAmp, 'MarkerEdgeColor',BC_color_genertor('Swamp_green'),'SizeData',11);
+xlim([0 50]); ylim([0 3*10^-4]); xlabel('Speed (cm/s)');ylabel('SG Amplitude (V)')
 title('Control Silencing')
 subplot(2,2,3)
-s=scatter(CtrlNoInhbSpdPwrTbl.Spd,CtrlNoInhbSpdPwrTbl.sgAmp,'MarkerEdgeColor',BC_color_genertor('Powder_blue'),'SizeData',11);
-xlim([0 50]); ylim([0 1]); xlabel('Speed (cm/s)');ylabel('SG Amplitude (V)')
+s=scatter(CtrlNoInhbSpdPwrTbl.Spd,CtrlNoInhbSpdPwrTbl.SGAmp,'MarkerEdgeColor',BC_color_genertor('Powder_blue'),'SizeData',11);
+xlim([0 50]); ylim([0 3*10^-4]); xlabel('Speed (cm/s)');ylabel('SG Amplitude (V)')
 title('Control No Silencing')
 
 
