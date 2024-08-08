@@ -4,7 +4,7 @@
 
 % Make sure to add code from the CEH2 repo, Vadermeer lab code-shared repo,
 % NeuroLearning repo before going forward
-%% Dynamic loader
+ %% Dynamic loader
 [data_dir, inter_dir]=BC_linearTrack_dynamicLoader('control'); %"experimental" for archT, "control" 
 %% Parameters
 plot_flag = 0; % switch to 0 if you want to supress verification figures.
@@ -41,13 +41,13 @@ for iS =1:length(inhib_dir)
     %Assign which csc to load to each mouse and the pattern of the ttl that
     %represents an event in the board
     if strcmpi(info.subject, 'BC1602')
-        cfg_csc.fc ={'CSC2.ncs'}; %2#'CSC4.ncs'
+        cfg_csc.fc ={'CSC7.ncs'}; %2#'CSC4.ncs'
         pattern = 'TTL Input on AcqSystem1_0 board 0 port 3 value (0x0002).';
     elseif strcmpi(info.subject, 'BC051')
         cfg_csc.fc ={'CSC5.ncs'};%5%7%2%4
         pattern = 'TTL Input on AcqSystem1_0 board 0 port 3 value (0x0002).';
     elseif strcmpi(info.subject, 'BC1807')
-        cfg_csc.fc ={'CSC3.ncs'};
+        cfg_csc.fc ={'CSC6.ncs'};%3
         pattern = 'TTL Input on AcqSystem1_0 board 0 port 3 value (0x0002).';
     elseif strcmpi(info.subject, 'BC053')
         cfg_csc.fc ={'CSC4.ncs'};%4
@@ -67,6 +67,18 @@ for iS =1:length(inhib_dir)
     end
 
     [csc, evts, pos] = BC_load_NLX(cfg_csc);%Load ,csc, events and position
+    % figure(1)
+    % plot(pos.tvec,pos.data(5,:))
+    %Filtering the speed to remove outliers
+    filtWinSz=60; %Size of the window in frames to  
+    %pos.data(5,:)=medfilt1(pos.data(5,:),filtWinSz);
+    spd=pos.data(5,:);
+    out_idx=(spd> 35);
+    spd(out_idx) = NaN;
+    fillmissing(spd, 'spline');
+    pos.data(5,:)=spd;clear spd;
+    % figure(2)
+    % plot(pos.tvec,pos.data(5,:))
     %Restricting the csc to the values from time_maze_start onwards on the recording
     fs = csc.cfg.hdr{1}.SamplingFrequency;
     sSampCsc= time_maze_start*fs;                                          %This is the idx of the samplimg at sec 30
@@ -173,18 +185,53 @@ end
     SG_inhb = restrict(SG_csc, iv_inhb);
     FG_inhb = restrict(FG_csc, iv_inhb);
     pos_inhb= restrict(pos, iv_inhb);
+    thetaD_inhb=restrict(theta_decimated, iv_inhb);
     %no-inhb
     csc_noinhb = restrict(csc, iv_noInhb);
     theta_noinhb = restrict(theta_csc, iv_noInhb);
     SG_noinhb = restrict(SG_csc, iv_noInhb);
     FG_noinhb = restrict(FG_csc, iv_noInhb);
     pos_noinhb= restrict(pos, iv_noInhb);
+    thetaD_noinhb=restrict(theta_decimated, iv_noInhb);
     %running
     csc_running = restrict(csc, iv_running);
     theta_running = restrict(theta_csc, iv_running);
     SG_running = restrict(SG_csc, iv_running);
     FG_running = restrict(FG_csc, iv_running);
     pos_running= restrict(pos, iv_running);
+   %% ploting the speed vs amplitude in inhibition and no inhibition
+   tresh=10;
+   SpdInhb=thetaD_inhb.data(4,:);
+   AmpInhb=thetaD_inhb.data(1,:);
+   outIdxInhb=SpdInhb>tresh;
+   SpdInhb=SpdInhb(outIdxInhb);
+   AmpInhb=AmpInhb(outIdxInhb);
+
+   SpdNoInhb=thetaD_noinhb.data(4,:);
+   outIdxNoInhb=SpdNoInhb>tresh;
+   AmpNoInhb=thetaD_noinhb.data(1,:);
+   SpdNoInhb=SpdNoInhb(outIdxNoInhb);
+   AmpNoInhb=AmpNoInhb(outIdxNoInhb);
+
+   if plot_flag
+       figure(1001)
+       s1=subplot(1,2,1);
+       scatter(SpdInhb,AmpInhb, 'MarkerEdgeColor',BC_color_genertor('Archt_green'),'SizeData',11)
+       lsq1=lsline(s1);lsq1.Color='g',lsq1.LineWidth=2;
+       %xlim([0 50]); ylim([0 1]);
+       xlabel('Speed (cm/s)');ylabel('Theta Amplitude Normalized')
+       RI=corr2(SpdInhb,AmpInhb)
+       title(sprintf('Silencing R=%f',RI))
+
+       s2=subplot(1,2,2);
+       scatter(SpdNoInhb,AmpNoInhb,'MarkerEdgeColor',BC_color_genertor('Oxford_blue'),'SizeData',11)
+       lsq2=lsline(s2);lsq2.Color='g',lsq2.LineWidth=2;
+       %xlim([0 50]); ylim([0 1]);
+       xlabel('Speed (cm/s)');ylabel('Theta Amplitude Normalized')
+       RNI=corr2((thetaD_noinhb.data(4,:)),(thetaD_noinhb.data(1,:)))
+       title(sprintf('No Silencing R=%f',RNI))
+     
+   end
     %% Get phase mod for every training session
 
     SGphiAmpNormInhb=BC_phase_amp_norm_bins(theta_inhb,SG_inhb);
@@ -484,6 +531,10 @@ end
             fg_bp = bandpower(this_csc.data, this_csc.cfg.hdr{1}.SamplingFrequency, [60 100]);
             
             ref_bp = bandpower(this_csc.data, this_csc.cfg.hdr{1}.SamplingFrequency, [1 50]);
+            
+            t_bp_noinhib(ii)= t_bp;
+            sg_bp_noinhib(ii) = sg_bp;
+            fg_bp_noinhib(ii) = fg_bp;
             
             t_bp_noinhib_norm(ii)= t_bp/ ref_bp;
             sg_bp_noinhib_norm(ii) = sg_bp/ ref_bp;
@@ -1077,5 +1128,5 @@ end
 % Formating for saving output
 
 cd(inter_dir)
-save('out_eyfp_07_Aug_24.mat','out')
+save('out_eyfp_07_Aug_24(3).mat','out')
 %out_eyfp_07_nov_23=out;save('out_eyfp_07_nov_23.mat','out_eyfp_07_nov_23')

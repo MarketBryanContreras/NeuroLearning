@@ -3,8 +3,8 @@
 % load(['C:\Users\ecarm\Downloads' filesep 'out_Archt_06_nov_23.mat'])
 % load(['C:\Users\ecarm\Downloads' filesep 'out_eyfp_06_nov_23.mat'])
 %% Adjust the name of the files to load
-ArchT_file_name='out_ArchT_06_Aug_24.mat';
-eyfp_file_name='out_eyfp_06_Aug_24.mat';
+ArchT_file_name='out_ArchT_07_Aug_24(3).mat';
+eyfp_file_name='out_eyfp_07_Aug_24(3).mat';
 %% Dynamic loader
 sys=computer;
 if contains(sys,'PCWIN')
@@ -712,27 +712,317 @@ CtrlRunningSpdPwrTbl=BC_SpdPwrDcmtdTblExtractor(out_eyfp,'Running');
 
 %% Graphing speed-theta amp
 %Speed Vs Theta Amp
+PcntTresh=75;
+
+ArchtInhbSpd=ArchtInhbSpdPwrTbl.Spd;
+ArchtInhbAmp=ArchtInhbSpdPwrTbl.ttaAmp;
+ArchtInhbTresh= prctile(ArchtInhbSpd,PcntTresh)
+outArchtIdxInhb=ArchtInhbSpd>ArchtInhbTresh;
+ArchtInhbSpd=ArchtInhbSpd(outArchtIdxInhb);
+ArchtInhbAmp=ArchtInhbAmp(outArchtIdxInhb);
+
+ArchtNoInhbSpd=ArchtNoInhbSpdPwrTbl.Spd;
+ArchtNoInhbAmp=ArchtNoInhbSpdPwrTbl.ttaAmp;
+ArchtNoInhbTresh= prctile(ArchtNoInhbSpd,PcntTresh)
+outArchtIdxNoInhb=ArchtNoInhbSpd>ArchtNoInhbTresh;
+ArchtNoInhbSpd=ArchtNoInhbSpd(outArchtIdxNoInhb);
+ArchtNoInhbAmp=ArchtNoInhbAmp(outArchtIdxNoInhb);
+
+CtrlInhbSpd=CtrlInhbSpdPwrTbl.Spd;
+CtrlInhbAmp=CtrlInhbSpdPwrTbl.ttaAmp;
+CtrlInhbTresh= prctile(CtrlInhbSpd,PcntTresh)
+outCtrlIdxInhb=CtrlInhbSpd>CtrlInhbTresh;
+CtrlInhbSpd=CtrlInhbSpd(outCtrlIdxInhb);
+CtrlInhbAmp=CtrlInhbAmp(outCtrlIdxInhb);
+
+CtrlNoInhbSpd=CtrlNoInhbSpdPwrTbl.Spd;
+CtrlNoInhbAmp=CtrlNoInhbSpdPwrTbl.ttaAmp;
+CtrlNoInhbTresh= prctile(CtrlNoInhbSpd,PcntTresh)
+outCtrlIdxNoInhb=CtrlNoInhbSpd>CtrlNoInhbTresh;
+CtrlNoInhbSpd=CtrlNoInhbSpd(outCtrlIdxNoInhb);
+CtrlNoInhbAmp=CtrlNoInhbAmp(outCtrlIdxNoInhb);
+
+xmin=min([ArchtInhbTresh,ArchtNoInhbTresh,CtrlInhbTresh,CtrlNoInhbTresh]);
+
 figure(101)
-subplot(2,2,2)
-s=scatter(ArchtInhbSpdPwrTbl.Spd,ArchtInhbSpdPwrTbl.ttaPwr, 'MarkerEdgeColor',BC_color_genertor('Archt_green'),'SizeData',11)
-xlim([0 50]); %ylim([0 1]); 
+s1=subplot(2,2,2)
+scatter(ArchtInhbSpd,ArchtInhbAmp, 'MarkerEdgeColor',BC_color_genertor('Archt_green'),'SizeData',11)
+lsq1=lsline(s1);lsq1.Color='g',lsq1.LineWidth=2;
+%xlim([xmin 40]); ylim([0 1]);
+xlabel('Speed (cm/s)');ylabel('Theta Amplitude Normalized')
+yticks([0 0.5 1]);
+RAI=corr2(ArchtInhbSpd,ArchtInhbAmp);
+title(sprintf('ArchT Silencing R=%f',RAI))
+set(gca, 'TickDir', 'out');
+
+
+
+s2=subplot(2,2,1)
+scatter(ArchtNoInhbSpd,ArchtNoInhbAmp,'MarkerEdgeColor',BC_color_genertor('Oxford_blue'),'SizeData',11)
+lsq2=lsline(s2);lsq2.Color='r',lsq2.LineWidth=2;
+%xlim([xmin 40]); ylim([0 1]); 
+xlabel('Speed (cm/s)');ylabel('Theta Amplitude Normalized')
+yticks([0 0.5 1]);
+RANI=corr2(ArchtNoInhbSpd,ArchtNoInhbAmp);
+title(sprintf('ArchT No Silencing R=%f',RANI))
+set(gca, 'TickDir', 'out');
+
+
+
+s3=subplot(2,2,4)
+scatter(CtrlInhbSpd,CtrlInhbAmp, 'MarkerEdgeColor',BC_color_genertor('Swamp_green'),'SizeData',11)
+lsq3=lsline(s3);lsq3.Color='r',lsq3.LineWidth=2;
+%xlim([xmin 40]); ylim([0 1]); 
+xlabel('Speed (cm/s)');ylabel('Theta Amplitude Normalized')
+yticks([0 0.5 1]);
+RCI=corr2(CtrlInhbSpd,CtrlInhbAmp);
+title(sprintf('Control Silencing R=%f',RCI))
+set(gca, 'TickDir', 'out');
+
+
+s4=subplot(2,2,3)
+scatter(CtrlNoInhbSpd,CtrlNoInhbAmp,'MarkerEdgeColor',BC_color_genertor('Powder_blue'),'SizeData',11)
+lsq4=lsline(s4);lsq4.Color='r',lsq4.LineWidth=2;
+%xlim([xmin 40]); ylim([0 1]); 
+xlabel('Speed (cm/s)');ylabel('Theta Amplitude Normalized')
+yticks([0 0.5 1]);
+RCNI=corr2(CtrlNoInhbSpd,CtrlNoInhbAmp);
+title(sprintf('Control No Silencing R=%f',RCNI))
+set(gca, 'TickDir', 'out');
+
+box off;
+fig = gcf;                   % Get current figure handle
+fig.Color = [1 1 1];
+fig.Color = [1 1 1];         % Set background color to white
+hold off;
+%% Graphing theta amp vs sg amp
+
+%Theta Amp Vs SG Amp
+
+ArchtInhbAmpTta=ArchtInhbSpdPwrTbl.ttaAmp;
+fillmissing(ArchtInhbAmpTta,'spline');
+ArchtInhbAmpSG=ArchtInhbSpdPwrTbl.sgAmp;
+fillmissing(ArchtInhbAmpSG,'spline');
+
+
+ArchtNoInhbAmpTta=ArchtNoInhbSpdPwrTbl.ttaAmp;
+fillmissing(ArchtNoInhbAmpTta,'spline');
+ArchtNoInhbAmpSG=ArchtNoInhbSpdPwrTbl.sgAmp;
+fillmissing(ArchtNoInhbAmpSG,'spline');
+
+
+CrtlInhbAmpTta=CtrlInhbSpdPwrTbl.ttaAmp;
+fillmissing(CrtlInhbAmpTta,'spline');
+CrtlInhbAmpSG=CtrlInhbSpdPwrTbl.sgAmp;
+fillmissing(CrtlInhbAmpSG,'spline');
+
+CrtlNoInhbAmpTta=CtrlNoInhbSpdPwrTbl.ttaAmp;
+fillmissing(CrtlNoInhbAmpTta,'spline');
+CrtlNoInhbAmpSG=CtrlNoInhbSpdPwrTbl.sgAmp;
+fillmissing(CrtlNoInhbAmpSG,'spline');
+
+
+figure(102)
+s1=subplot(2,2,2)
+scatter(ArchtInhbAmpTta,ArchtInhbAmpSG, 'MarkerEdgeColor',BC_color_genertor('Archt_green'),'SizeData',11)
+lsq1=lsline(s1);lsq1.Color='g',lsq1.LineWidth=2;
+xlim([0 1]); ylim([0 1]);
+xlabel('Theta Amplitude Normalized');ylabel('SG Amplitude Normalized')
+yticks([0 0.5 1]);xticks([0 0.5 1]);
+RAI=corr2(ArchtInhbAmpTta,ArchtInhbAmpSG)
+title(sprintf('ArchT Silencing R=%f',RAI))
+set(gca, 'TickDir', 'out');
+
+
+
+s2=subplot(2,2,1)
+scatter(ArchtNoInhbAmpTta,ArchtNoInhbAmpSG,'MarkerEdgeColor',BC_color_genertor('Oxford_blue'),'SizeData',11)
+lsq2=lsline(s2);lsq2.Color='r',lsq2.LineWidth=2;
+%xlim([xmin 40]); ylim([0 1]); 
+xlabel('Theta Amplitude Normalized');ylabel('SG Amplitude Normalized')
+yticks([0 0.5 1]);xticks([0 0.5 1]);
+RANI=corr2(ArchtNoInhbAmpTta,ArchtNoInhbAmpSG);
+title(sprintf('ArchT No Silencing R=%f',RANI))
+set(gca, 'TickDir', 'out');
+
+
+
+s3=subplot(2,2,4)
+scatter(CrtlInhbAmpTta,CrtlInhbAmpSG, 'MarkerEdgeColor',BC_color_genertor('Swamp_green'),'SizeData',11)
+lsq3=lsline(s3);lsq3.Color='r',lsq3.LineWidth=2;
+%xlim([xmin 40]); ylim([0 1]); 
+xlabel('Theta Amplitude Normalized');ylabel('SG Amplitude Normalized')
+yticks([0 0.5 1]);xticks([0 0.5 1]);
+RCI=corr2(CrtlInhbAmpTta,CrtlInhbAmpSG);
+title(sprintf('Control Silencing R=%f',RCI))
+set(gca, 'TickDir', 'out');
+
+
+s4=subplot(2,2,3)
+scatter(CrtlNoInhbAmpTta,CrtlNoInhbAmpSG,'MarkerEdgeColor',BC_color_genertor('Powder_blue'),'SizeData',11)
+lsq4=lsline(s4);lsq4.Color='r',lsq4.LineWidth=2;
+%xlim([xmin 40]); ylim([0 1]); 
+xlabel('Theta Amplitude Normalized');ylabel('SG Amplitude Normalized')
+yticks([0 0.5 1]);xticks([0 0.5 1]);
+RCNI=corr2(CrtlNoInhbAmpTta,CrtlNoInhbAmpSG);
+title(sprintf('Control No Silencing R=%f',RCNI))
+set(gca, 'TickDir', 'out');
+
+box off;
+fig = gcf;                   % Get current figure handle
+fig.Color = [1 1 1];
+fig.Color = [1 1 1];         % Set background color to white
+%% Graphing theta amp vs fg amp
+
+%Theta Amp Vs FG Amp
+
+ArchtInhbAmpTta=ArchtInhbSpdPwrTbl.ttaAmp;
+fillmissing(ArchtInhbAmpTta,'spline');
+ArchtInhbAmpFG=ArchtInhbSpdPwrTbl.fgAmp;
+fillmissing(ArchtInhbAmpFG,'spline');
+
+
+ArchtNoInhbAmpTta=ArchtNoInhbSpdPwrTbl.ttaAmp;
+fillmissing(ArchtNoInhbAmpTta,'spline');
+ArchtNoInhbAmpFG=ArchtNoInhbSpdPwrTbl.fgAmp;
+fillmissing(ArchtNoInhbAmpFG,'spline');
+
+
+CrtlInhbAmpTta=CtrlInhbSpdPwrTbl.ttaAmp;
+fillmissing(CrtlInhbAmpTta,'spline');
+CrtlInhbAmpFG=CtrlInhbSpdPwrTbl.fgAmp;
+fillmissing(CrtlInhbAmpFG,'spline');
+
+CrtlNoInhbAmpTta=CtrlNoInhbSpdPwrTbl.ttaAmp;
+fillmissing(CrtlNoInhbAmpTta,'spline');
+CrtlNoInhbAmpFG=CtrlNoInhbSpdPwrTbl.fgAmp;
+fillmissing(CrtlNoInhbAmpFG,'spline');
+
+
+figure(103)
+s1=subplot(2,2,2)
+scatter(ArchtInhbAmpTta,ArchtInhbAmpFG, 'MarkerEdgeColor',BC_color_genertor('Archt_green'),'SizeData',11)
+lsq1=lsline(s1);lsq1.Color='g',lsq1.LineWidth=2;
+xlim([0 1]); ylim([0 1]);
+xlabel('Theta Amplitude Normalized');ylabel('FG Amplitude Normalized')
+yticks([0 0.5 1]);xticks([0 0.5 1]);
+RAI=corr2(ArchtInhbAmpTta,ArchtInhbAmpFG)
+title(sprintf('ArchT Silencing R=%f',RAI))
+set(gca, 'TickDir', 'out');
+
+
+
+s2=subplot(2,2,1)
+scatter(ArchtNoInhbAmpTta,ArchtNoInhbAmpFG,'MarkerEdgeColor',BC_color_genertor('Oxford_blue'),'SizeData',11)
+lsq2=lsline(s2);lsq2.Color='r',lsq2.LineWidth=2;
+%xlim([xmin 40]); ylim([0 1]); 
+xlabel('Theta Amplitude Normalized');ylabel('FG Amplitude Normalized')
+yticks([0 0.5 1]);xticks([0 0.5 1]);
+RANI=corr2(ArchtNoInhbAmpTta,ArchtNoInhbAmpFG);
+title(sprintf('ArchT No Silencing R=%f',RANI))
+set(gca, 'TickDir', 'out');
+
+
+
+s3=subplot(2,2,4)
+scatter(CrtlInhbAmpTta,CrtlInhbAmpFG, 'MarkerEdgeColor',BC_color_genertor('Swamp_green'),'SizeData',11)
+lsq3=lsline(s3);lsq3.Color='r',lsq3.LineWidth=2;
+%xlim([xmin 40]); ylim([0 1]); 
+xlabel('Theta Amplitude Normalized');ylabel('FG Amplitude Normalized')
+yticks([0 0.5 1]);xticks([0 0.5 1]);
+RCI=corr2(CrtlInhbAmpTta,CrtlInhbAmpFG);
+title(sprintf('Control Silencing R=%f',RCI))
+set(gca, 'TickDir', 'out');
+
+
+s4=subplot(2,2,3)
+scatter(CrtlNoInhbAmpTta,CrtlNoInhbAmpFG,'MarkerEdgeColor',BC_color_genertor('Powder_blue'),'SizeData',11)
+lsq4=lsline(s4);lsq4.Color='r',lsq4.LineWidth=2;
+%xlim([xmin 40]); ylim([0 1]); 
+xlabel('Theta Amplitude Normalized');ylabel('FG Amplitude Normalized')
+yticks([0 0.5 1]);xticks([0 0.5 1]);
+RCNI=corr2(CrtlNoInhbAmpTta,CrtlNoInhbAmpFG);
+title(sprintf('Control No Silencing R=%f',RCNI))
+set(gca, 'TickDir', 'out');
+
+box off;
+fig = gcf;                   % Get current figure handle
+fig.Color = [1 1 1];
+fig.Color = [1 1 1];         % Set background color to white
+
+%% Distribution of the speed
+tresh=5;
+vlnCtrlNoInhb=CtrlNoInhbSpdPwrTbl.Spd;
+vlnCtrlNoInhb=vlnCtrlNoInhb(vlnCtrlNoInhb>tresh);
+vlnCtrlInhb=CtrlInhbSpdPwrTbl.Spd;
+vlnCtrlInhb=vlnCtrlInhb(vlnCtrlInhb>tresh);
+vlnArchtNoInhb=ArchtNoInhbSpdPwrTbl.Spd;
+vlnArchtNoInhb=vlnArchtNoInhb(vlnArchtNoInhb>tresh);
+vlnArchtInhb=ArchtInhbSpdPwrTbl.Spd;
+vlnArchtInhb=vlnArchtInhb(vlnArchtInhb>tresh);
+%Stats
+[h1,p1]=ttest2(vlnCtrlNoInhb',vlnCtrlInhb');
+[h2,p2]=ttest2(vlnArchtNoInhb,vlnArchtInhb);
+[h3,p3]=ttest2(vlnArchtNoInhb,vlnArchtInhb);
+
+dataviolin=([vlnCtrlNoInhb;vlnCtrlInhb;vlnArchtNoInhb;vlnArchtInhb]);
+condition_names={'Control No Silencing','Control Silencing','ArchT Silencing','ArchT No Silencing','Control Silencing'};
+groups=([ones(1,length(vlnCtrlNoInhb)),2.*ones(1,length(vlnCtrlInhb)),3.*ones(1,length(vlnArchtNoInhb)),4.*ones(1,length(vlnArchtInhb))]);
+c=[BC_color_genertor('Powder_blue');...
+    BC_color_genertor('Swamp_green');...
+    BC_color_genertor('Oxford_blue');...
+    BC_color_genertor('Archt_green')];
+% adding jittered scattered data same color boxplots for 2x2 data
+figure(332)
+h = daviolinplot(dataviolin,'groups',groups,'outsymbol','k+',...
+    'boxcolors','same','colors',c,'scatter',1,'jitter',0,'violinalpha',0.7,'xtlabels', condition_names);
+ylabel('Speed (cm/s)');
+xl = xlim; xlim([xl(1)-0.1, xl(2)+0.2]); % make more space for the legend
+ylim([0 40]);
+set(gca,'FontSize',12);
+yticks([0 10 20 30 40]);
+% (*)Aesthetics (*)
+box off;
+set(gca, 'TickDir', 'out');
+fig = gcf;                   % Get current figure handle
+fig.Color = [1 1 1];
+fig.Color = [1 1 1];         % Set background color to white
+hold off;
+
+%stats
+
+
+%% Graphing speed-theta amp
+%Speed Vs Theta Amp
+figure(101)
+s1=subplot(2,2,2)
+scatter(ArchtInhbSpdPwrTbl.Spd,ArchtInhbSpdPwrTbl.ttaPwr, 'MarkerEdgeColor',BC_color_genertor('Archt_green'),'SizeData',11)
+lsq1=lsline(s1);lsq1.Color='r',lsq1.LineWidth=2;
+%xlim([0 50]); ylim([0 1]); 
 xlabel('Speed (cm/s)');ylabel('Theta Amplitude Normalized')
 title('ArchT Silencing')
-subplot(2,2,1)
-s=scatter(ArchtNoInhbSpdPwrTbl.Spd,ArchtNoInhbSpdPwrTbl.ttaPwr,'MarkerEdgeColor',BC_color_genertor('Oxford_blue'),'SizeData',11)
-xlim([0 50]); %ylim([0 1]); 
+
+s2=subplot(2,2,1)
+scatter(ArchtNoInhbSpdPwrTbl.Spd,ArchtNoInhbSpdPwrTbl.ttaPwr,'MarkerEdgeColor',BC_color_genertor('Oxford_blue'),'SizeData',11)
+lsq2=lsline(s2);lsq2.Color='r',lsq2.LineWidth=2;
+%xlim([0 50]); ylim([0 1]); 
 xlabel('Speed (cm/s)');ylabel('Theta Amplitude Normalized')
 title('ArchT No Silencing')
-subplot(2,2,4)
-s=scatter(CtrlInhbSpdPwrTbl.Spd,CtrlInhbSpdPwrTbl.ttaPwr, 'MarkerEdgeColor',BC_color_genertor('Swamp_green'),'SizeData',11)
-xlim([0 50]); %ylim([0 1]); 
+
+s3=subplot(2,2,4)
+scatter(CtrlInhbSpdPwrTbl.Spd,CtrlInhbSpdPwrTbl.ttaPwr, 'MarkerEdgeColor',BC_color_genertor('Swamp_green'),'SizeData',11)
+lsq3=lsline(s3);lsq3.Color='r',lsq3.LineWidth=2;
+%xlim([0 50]); ylim([0 1]); 
 xlabel('Speed (cm/s)');ylabel('Theta Amplitude Normalized')
 title('Control Silencing')
-subplot(2,2,3)
-s=scatter(CtrlNoInhbSpdPwrTbl.Spd,CtrlNoInhbSpdPwrTbl.ttaPwr,'MarkerEdgeColor',BC_color_genertor('Powder_blue'),'SizeData',11)
-xlim([0 50]); %ylim([0 1]); 
+
+s4=subplot(2,2,3)
+scatter(CtrlNoInhbSpdPwrTbl.Spd,CtrlNoInhbSpdPwrTbl.ttaPwr,'MarkerEdgeColor',BC_color_genertor('Powder_blue'),'SizeData',11)
+lsq4=lsline(s4);lsq4.Color='r',lsq4.LineWidth=2;
+%xlim([0 50]); ylim([0 1]); 
 xlabel('Speed (cm/s)');ylabel('Theta Amplitude Normalized')
 title('Control No Silencing')
+%%
 %Speed Vs SGamma Amp
 figure(102)
 subplot(2,2,2)
