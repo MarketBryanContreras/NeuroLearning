@@ -91,9 +91,17 @@ pcnt_objA_int= (post.No_obj_a_int./pre.No_obj_a_int)*100;
 pcnt_objB_int= (post.No_obj_b_int./pre.No_obj_b_int)*100;
 
 cohort=post.Cohort;
-metrics= table(cohort,pcnt_invg_time,pcnt_invg_int,disc_indx_time, disc_indx_int, pcnt_objA_int, pcnt_objB_int, 'VariableNames', {'cohort' 'pcnt_inv_time' 'pcnt_inv_int' 'disc_indx_time' 'disc_indx_int' 'pcnt_objA_int_post' 'pcnt_objB_int_post'} );
+subject=post.Subject;
+metrics= table(subject, cohort,pcnt_invg_time,pcnt_invg_int,disc_indx_time, disc_indx_int, pcnt_objA_int, pcnt_objB_int, 'VariableNames', {'subject' 'cohort' 'pcnt_inv_time' 'pcnt_inv_int' 'disc_indx_time' 'disc_indx_int' 'pcnt_objA_int_post' 'pcnt_objB_int_post'} );
 metrics_ctrl=metrics(metrics.cohort==1,:);
 metrics_archT=metrics(metrics.cohort==2,:);
+%% Some stats in the discrimination index
+statsMetrics.discIdx_time= fitlme(metrics, 'disc_indx_time ~ 1+cohort + (1|subject)');
+statsMetrics.discIdx_int= fitlme(metrics, 'disc_indx_int ~ 1+cohort + (1|subject)');
+statsMetrics.pcntInv_time= fitlme(metrics, 'pcnt_inv_time ~ 1+cohort + (1|subject)');
+statsMetrics.pcntInv_int= fitlme(metrics, 'pcnt_inv_int ~ 1+cohort + (1|subject)');
+statsMetrics.pcntObjApost= fitlme(metrics, 'pcnt_objA_int_post ~ 1+cohort + (1|subject)');
+statsMetrics.pcntObjBpost= fitlme(metrics, 'pcnt_objB_int_post ~ 1+cohort + (1|subject)');
 
 %% Intrecations Plotting
 figure (1)
@@ -485,6 +493,28 @@ sleep= table(subject', cohort', day', time_awk', time_sws', time_rem', pcnt_awk'
 %     'FG_rem_modIdx ~ 1 + Day*Cohort + (1|Subject)', ...
 %     'FitMethod', 'REML');
 % disp(stats.FG_rem);
+%% Stats for the times
+%D1 intercohort
+D1Slp=sleep(sleep.Day==1,:);
+StatsSlpTime.D1AwkInterCohort= fitlme(D1Slp,'time_awk ~1+Cohort + (1|Subject)');
+StatsSlpTime.D1SwsInterCohort= fitlme(D1Slp,'time_sws ~1+Cohort + (1|Subject)');
+StatsSlpTime.D1RemInterCohort= fitlme(D1Slp,'time_rem ~1+Cohort + (1|Subject)');
+%D2 intercohort
+D2Slp=sleep(sleep.Day==2,:);
+StatsSlpTime.D2AwkInterCohort= fitlme(D2Slp,'time_awk ~1+Cohort + (1|Subject)');
+StatsSlpTime.D2SwsInterCohort= fitlme(D2Slp,'time_sws ~1+Cohort + (1|Subject)');
+StatsSlpTime.D2RemInterCohort= fitlme(D2Slp,'time_rem ~1+Cohort + (1|Subject)');
+
+%Control intracohort
+C1Slp=sleep(sleep.Cohort==1,:);
+StatsSlpTime.C1AwkIntraCohort= fitlme(C1Slp,'time_awk ~1+Day + (1|Subject)');
+StatsSlpTime.C1SwsIntraCohort= fitlme(C1Slp,'time_sws ~1+Day + (1|Subject)');
+StatsSlpTime.C1RemIntraCohort= fitlme(C1Slp,'time_rem ~1+Day + (1|Subject)');
+%Experimental intracohort
+C2Slp=sleep(sleep.Cohort==2,:);
+StatsSlpTime.C2AwkIntraCohort= fitlme(C2Slp,'time_awk ~1+Day + (1|Subject)');
+StatsSlpTime.C2SwsIntraCohort= fitlme(C2Slp,'time_sws ~1+Day + (1|Subject)');
+StatsSlpTime.C2RemIntraCohort= fitlme(C2Slp,'time_rem ~1+Day + (1|Subject)');
 
 
 %% Sleep data plotting dashboard
@@ -656,7 +686,7 @@ annotation('textbox', [0.405, 0.87 , 0.1, 0.1], 'String', 'Day 2', 'FitBoxToText
 
 
 fig = gcf;                   % Get current figure handle
-fig.Color = [1 1 1];  
+fig.Color = [1 1 1];
 %% [Not necesaary for plotting]Extracting SG Mod idx by cohort for the figure
  sleep_phases = {'Awake', 'SWS', 'REM'};
 % cohorts = {'Control', 'ArchT'};
@@ -1027,22 +1057,29 @@ disp(stats_pwr.FG_rem);
 
 %Adjust according to the intervals with pwr
 int1=1:2;
-int2=(find(contains(fieldnames(sleep),'pwr')))',
-colInt= [int1, int2];
+int2=(find(contains(fieldnames(sleep),'pwr')));
+int3=(find(contains(fieldnames(sleep),'modIdx')));
+
+colInt= [int1, int2, int3]; %Columns interval
 Pwr_d1= sleep(sleep.Day==1,int2);
 Pwr_d2= sleep(sleep.Day==2,int2);
+
+Mod_d1=sleep(sleep.Day==1,:);
+Mod_d2=sleep(sleep.Day==2,int3);
+
 meta=sleep(sleep.Day==1,int1);
-%Divide the coressponding columns of D2/D1 and multiply by 100
+%Divide the coressponding columns of D2/D1 and multiply by 100 in pwr
 pcntChange=(Pwr_d1./Pwr_d2).*100;
 pcntChange= [meta, pcntChange];
-%Plot comparison between cohorts
-boxchart(pcntChange.cohort,pcntChange.Tta_awk_pwr)
-figure(111)
-clf;
-row=1;
-fldnm=pcntChange.Properties.VariableNames;
 
-
+%Divide the coressponding columns of D2/D1 and multiply by 100 in pwr
+pcntModChange=(Mod_d1./Mod_d2).*100;
+pcntModChange= [meta, pcntModChange];
+% Define colors
+colors = [
+     BC_color_genertor('Archt_green');
+     BC_color_genertor('Oxford_blue');
+     ];
 
 % Figure of percentage change only in rem
 pcnt_rem_Data= [pcntChange.Tta_rem_pwr];
@@ -1055,18 +1092,13 @@ boxplot(pcnt_rem_Data, {groupCohorts}, 'FactorSeparator', 1, ...
 
 boxes = findobj(gca, 'Tag', 'Box');
 xtickangle(45)
-% Customize line and whisker colors
+ylim([40 180])
 
+% Customize line and whisker colors
 set(findobj(gca,'Type','Line'),'Color',[0.2 0.2 0.2]);
 % Adjust plot aesthetics
 set(gca, 'TickDir', 'out');  % Move ticks outside the plot
 box off;
-
-% Define colors
-colors = [
-     BC_color_genertor('Archt_green');
-     BC_color_genertor('Oxford_blue');
-     ];
 
 % Apply colors to each box
 for i = 1:length(boxes)
@@ -1074,7 +1106,7 @@ for i = 1:length(boxes)
 end
  fig = gcf;                   % Get current figure handle
  fig.Color = [1 1 1];         % Set background color to white
- sg.Position=[ 2500 100 900 1000]
+ sg.Position=[ 2500 100 400 600]
  
 % Figure of SG percentage change only in rem
 pcnt_rem_Data= [pcntChange.SG_rem_pwr];
@@ -1087,28 +1119,23 @@ boxplot(pcnt_rem_Data, {groupCohorts}, 'FactorSeparator', 1, ...
 
 boxes = findobj(gca, 'Tag', 'Box');
 xtickangle(45)
+ylim([40 180])
+
 % Customize line and whisker colors
 
 set(findobj(gca,'Type','Line'),'Color',[0.2 0.2 0.2]);
 % Adjust plot aesthetics
 set(gca, 'TickDir', 'out');  % Move ticks outside the plot
 box off;
-
-% Define colors
-colors = [
-     BC_color_genertor('Archt_green');
-     BC_color_genertor('Oxford_blue');
-     ];
-
 % Apply colors to each box
 for i = 1:length(boxes)
     patch(get(boxes(i), 'XData'), get(boxes(i), 'YData'), colors(i, :),'FaceAlpha', .8);
 end
  fig = gcf;                   % Get current figure handle
  fig.Color = [1 1 1];         % Set background color to white
- sg.Position=[ 2500 100 900 1000]
+ sg.Position=[ 2500 100 400 600]
 
- % Figure of FG percentage change only in rem
+% Figure of FG percentage change only in rem
 pcnt_rem_Data= [pcntChange.FG_rem_pwr];
 groupCohorts=[pcntChange.Cohort];
 sg=figure(104);
@@ -1119,27 +1146,79 @@ boxplot(pcnt_rem_Data, {groupCohorts}, 'FactorSeparator', 1, ...
 
 boxes = findobj(gca, 'Tag', 'Box');
 xtickangle(45)
+ylim([40 180])
 % Customize line and whisker colors
-
 set(findobj(gca,'Type','Line'),'Color',[0.2 0.2 0.2]);
 % Adjust plot aesthetics
 set(gca, 'TickDir', 'out');  % Move ticks outside the plot
 box off;
-
-% Define colors
-colors = [
-     BC_color_genertor('Archt_green');
-     BC_color_genertor('Oxford_blue');
-     ];
-
 % Apply colors to each box
 for i = 1:length(boxes)
     patch(get(boxes(i), 'XData'), get(boxes(i), 'YData'), colors(i, :),'FaceAlpha', .8);
 end
  fig = gcf;                   % Get current figure handle
  fig.Color = [1 1 1];         % Set background color to white
- sg.Position=[ 2500 100 900 1000]
+ sg.Position=[ 2500 100 400 600]
 
+%Figure of MODIDX SG percentage change only in rem
+pcnt_rem_Data= [pcntModChange.SG_rem_modIdx];
+groupCohorts=[pcntChange.Cohort];
+sg=figure(105);
+boxplot(pcnt_rem_Data, {groupCohorts}, 'FactorSeparator', 1, ...
+        'Labels', {'Control',  'ArchT'});
+    title('Percentage change D1/D2 SG MOD IDX Power');
+    ylabel('Percentage (%)');set(gca, 'FontWeight','bold');set(gca, 'FontSize',18);
+
+boxes = findobj(gca, 'Tag', 'Box');
+xtickangle(45);
+ylim([30 210]);
+yticks([30:45:210]);
+% Customize line and whisker colors
+set(findobj(gca,'Type','Line'),'Color',[0.2 0.2 0.2]);
+% Adjust plot aesthetics
+set(gca, 'TickDir', 'out');  % Move ticks outside the plot
+box off;
+% Apply colors to each box
+for i = 1:length(boxes)
+    patch(get(boxes(i), 'XData'), get(boxes(i), 'YData'), colors(i, :),'FaceAlpha', .8);
+end
+ fig = gcf;                   % Get current figure handle
+ fig.Color = [1 1 1];         % Set background color to white
+ sg.Position=[ 2500 100 400 600]
+
+ %Figure of MODIDX SG percentage change only in rem
+pcnt_rem_Data= [pcntModChange.FG_rem_modIdx];
+groupCohorts=[pcntChange.Cohort];
+sg=figure(106);
+boxplot(pcnt_rem_Data, {groupCohorts}, 'FactorSeparator', 1, ...
+        'Labels', {'Control',  'ArchT'});
+    title('Percentage change D1/D2 FG MOD IDX Power');
+    ylabel('Percentage (%)');set(gca, 'FontWeight','bold');set(gca, 'FontSize',18);
+
+boxes = findobj(gca, 'Tag', 'Box');
+xtickangle(45);
+ylim([30 210]);
+yticks([30:45:210]);
+% Customize line and whisker colors
+set(findobj(gca,'Type','Line'),'Color',[0.2 0.2 0.2]);
+% Adjust plot aesthetics
+set(gca, 'TickDir', 'out');  % Move ticks outside the plot
+box off;
+% Apply colors to each box
+for i = 1:length(boxes)
+    patch(get(boxes(i), 'XData'), get(boxes(i), 'YData'), colors(i, :),'FaceAlpha', .8);
+end
+ fig = gcf;                   % Get current figure handle
+ fig.Color = [1 1 1];         % Set background color to white
+ sg.Position=[ 2500 100 400 600]
+%% Stats for the percentages changes in bandpowers
+statBPPcntChng.remTta=fitlme(pcntChange,'Tta_rem_pwr ~1+Cohort+(1|Subject)');
+statBPPcntChng.remSG=fitlme(pcntChange,'SG_rem_pwr ~1+Cohort+(1|Subject)')
+statBPPcntChng.remFG=fitlme(pcntChange,'FG_rem_pwr ~1+Cohort+(1|Subject)')
+
+%ModIdx stats
+statBPPcntChng.SGModIdx=fitlme(pcntModChange,'SG_rem_modIdx ~1+Cohort+(1|Subject)');
+statBPPcntChng.FGModIdx=fitlme(pcntModChange,'FG_rem_modIdx ~1+Cohort+(1|Subject)');
 
 %% Try to put the data in a single box chart
 % % Combine data for both objects

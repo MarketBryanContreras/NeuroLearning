@@ -7,7 +7,7 @@
  %% Dynamic loader
 [data_dir, inter_dir]=BC_linearTrack_dynamicLoader('control'); %"experimental" for archT, "control" 
 %% Parameters
-plot_flag = 0; % switch to 0 if you want to supress verification figures.
+plot_flag = 1; % switch to 0 if you want to supress verification figures.
 time_maze_start = 30; %Seconds to exclude from recording
 min_trial_dur = 0.5;
 mouse_group=1; %1 for ArchT and 2 for eYFP. This just modify color of the plots
@@ -27,7 +27,7 @@ inhib_dir(indices_to_remove) = [];% Remove the directories containing 'disconnec
 
 %% Loop to load data from raw
 
-for iS =1:length(inhib_dir)
+for iS =3:length(inhib_dir)
    
     %% loading
     cd([inhib_dir(iS).folder filesep inhib_dir(iS).name])
@@ -59,24 +59,27 @@ for iS =1:length(inhib_dir)
         cfg_csc.fc ={'CSC3.ncs'};%3%7
         pattern = 'TTL Input on AcqSystem1_0 board 0 port 3 value (0x0002).';
     elseif strcmpi(info.subject, 'BC013')
-        cfg_csc.fc ={'CSC4.ncs'};%2%4
+        cfg_csc.fc ={'CSC6.ncs'};%2%4
         pattern = 'TTL Input on AcqSystem1_0 board 0 port 1 value (0x0040).';
     elseif strcmpi(info.subject, 'BC014')
-        cfg_csc.fc ={'CSC5.ncs'};%4%5
+        cfg_csc.fc ={'CSC7.ncs'};%4%5
         pattern = 'TTL Input on AcqSystem1_0 board 0 port 1 value (0x0040).';
     end
 
     [csc, evts, pos] = BC_load_NLX(cfg_csc);%Load ,csc, events and position
-    % figure(1)
-    % plot(pos.tvec,pos.data(5,:))
+
     %Filtering the speed to remove outliers
-    filtWinSz=60; %Size of the window in frames to  
-    %pos.data(5,:)=medfilt1(pos.data(5,:),filtWinSz);
+    % filtWinSz=60; %Size of the window in frames to  
+    % pos.data(5,:)=medfilt1(pos.data(5,:),filtWinSz);
     spd=pos.data(5,:);
+    %histogram(spd)
     out_idx=(spd> 35);
-    spd(out_idx) = NaN;
-    fillmissing(spd, 'spline');
-    pos.data(5,:)=spd;clear spd;
+    spd(out_idx)=NaN;
+    %histogram(spd)
+    %plot(isnan(spd))
+    spd=fillmissing(spd,'movmedian',60);
+    %plot(isnan(spd))
+    pos.data(5,:)=spd;
     % figure(2)
     % plot(pos.tvec,pos.data(5,:))
     %Restricting the csc to the values from time_maze_start onwards on the recording
@@ -105,7 +108,7 @@ for iS =1:length(inhib_dir)
     % filter the LFP in the theta band
     cfg_filt_t = [];
     cfg_filt_t.type = 'cheby1';                                            %'fdesign'; %the type of filter I want to use via filterlfp
-    cfg_filt_t.f  = [4 12];                                                % freq range to match Mizuseki et al. 2011
+    cfg_filt_t.f  = [6 10];                                                % freq range to match Mizuseki et al. 2011
     cfg_filt_t.order = 3;                                                  %type filter order
     cfg_filt_t.display_filter = 0;                                         % use this to see the fvtool
     theta_csc = FilterLFP(cfg_filt_t, csc);                                % filter the raw LFP using
@@ -175,7 +178,7 @@ if plot_flag
         set(gca, 'TickDir', 'out');
         figure(1921)
         scatter(theta_decimated.data(4,:),theta_decimated.data(1,:))
-        R=corr2((theta_decimated.data(4,:))',(theta_decimated.data(1,:))')
+        R=corr2((theta_decimated.data(4,:)),(theta_decimated.data(1,:)))
         lsline
 end
     %% Restricting data to intervals of inhb, noInhb
@@ -200,7 +203,7 @@ end
     FG_running = restrict(FG_csc, iv_running);
     pos_running= restrict(pos, iv_running);
    %% ploting the speed vs amplitude in inhibition and no inhibition
-   tresh=10;
+   tresh=0;
    SpdInhb=thetaD_inhb.data(4,:);
    AmpInhb=thetaD_inhb.data(1,:);
    outIdxInhb=SpdInhb>tresh;
@@ -1128,5 +1131,5 @@ end
 % Formating for saving output
 
 cd(inter_dir)
-save('out_eyfp_07_Aug_24(3).mat','out')
+save('out_eyfp_12_Aug_24.mat','out')
 %out_eyfp_07_nov_23=out;save('out_eyfp_07_nov_23.mat','out_eyfp_07_nov_23')

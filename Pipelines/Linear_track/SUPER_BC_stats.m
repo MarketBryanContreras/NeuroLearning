@@ -3,8 +3,8 @@
 % load(['C:\Users\ecarm\Downloads' filesep 'out_Archt_06_nov_23.mat'])
 % load(['C:\Users\ecarm\Downloads' filesep 'out_eyfp_06_nov_23.mat'])
 %% Adjust the name of the files to load
-ArchT_file_name='out_ArchT_07_Aug_24(3).mat';
-eyfp_file_name='out_eyfp_07_Aug_24(3).mat';
+ArchT_file_name='out_Arch_07_nov_23.mat';
+eyfp_file_name='out_eyfp_07_nov_23.mat';
 %% Dynamic loader
 sys=computer;
 if contains(sys,'PCWIN')
@@ -18,8 +18,10 @@ elseif contains(sys,'MAC')
     inter_dir = [getenv('HOME')  filesep 'Williams Lab Dropbox' filesep 'Williams Lab Team Folder' filesep 'Bryan_DropBox' filesep 'CHRNA2_LINEAR_TRACK' filesep 'inter'];
 else disp("This system is not supported on the dynamic loader yet, pleae add it or contact BC for it")
 end
-out_archt=out_archt.out;
+out_archt=out_arch.out;
 out_eyfp=out_eyfp.out;
+% out_archt=out_archt.out_Arch_07_nov_23;
+% out_eyfp=out_eyfp.out_eyfp_07_nov_23;
 archt_list = fieldnames(out_archt);
 eyfp_list = fieldnames(out_eyfp); 
 %% collect and make table
@@ -36,10 +38,10 @@ fg_bp=[];
 sg_bp=[];
 
 for iSub = 1:length(archt_list)
-    sess_list = fieldnames(out_Archt_07_nov_23.(archt_list{iSub})); 
+    sess_list = fieldnames(out_archt.(archt_list{iSub})); 
  
-    n_inhib = length(out_Archt_07_nov_23.(archt_list{iSub}).D4.t_bp_inhib); 
-    n_noinhib = length(out_Archt_07_nov_23.(archt_list{iSub}).D4.t_bp_noinhib);
+    n_inhib = length(out_archt.(archt_list{iSub}).D4.t_bp_inhib); 
+    n_noinhib = length(out_archt.(archt_list{iSub}).D4.t_bp_noinhib);
     
     
      subject= [subject repmat(iSub,1, n_inhib + n_noinhib)]; 
@@ -50,15 +52,15 @@ for iSub = 1:length(archt_list)
      
      opto = [opto, logical([repmat(1,1, n_inhib), repmat(0,1, n_noinhib)])]; 
      
-     SG_modidx = [SG_modidx [out_Archt_07_nov_23.(archt_list{iSub}).D4.modidx_SG_inhib, out_Archt_07_nov_23.(archt_list{iSub}).D4.modidx_SG_noinhib]];
+     SG_modidx = [SG_modidx [out_archt.(archt_list{iSub}).D4.modidx_SG_inhib, out_archt.(archt_list{iSub}).D4.modidx_SG_noinhib]];
      
-     FG_modidx = [FG_modidx [out_Archt_07_nov_23.(archt_list{iSub}).D4.modidx_FG_inhib, out_Archt_07_nov_23.(archt_list{iSub}).D4.modidx_FG_noinhib]];
+     FG_modidx = [FG_modidx [out_archt.(archt_list{iSub}).D4.modidx_FG_inhib, out_archt.(archt_list{iSub}).D4.modidx_FG_noinhib]];
 
-     t_bp = [t_bp [out_Archt_07_nov_23.(archt_list{iSub}).D4.t_bp_inhib, out_Archt_07_nov_23.(archt_list{iSub}).D4.t_bp_noinhib]];
+     t_bp = [t_bp [out_archt.(archt_list{iSub}).D4.t_bp_inhib, out_archt.(archt_list{iSub}).D4.t_bp_noinhib]];
      
-     sg_bp = [sg_bp [out_Archt_07_nov_23.(archt_list{iSub}).D4.sg_bp_inhib, out_Archt_07_nov_23.(archt_list{iSub}).D4.sg_bp_noinhib]];
+     sg_bp = [sg_bp [out_archt.(archt_list{iSub}).D4.sg_bp_inhib, out_archt.(archt_list{iSub}).D4.sg_bp_noinhib]];
      
-     fg_bp = [fg_bp [out_Archt_07_nov_23.(archt_list{iSub}).D4.fg_bp_inhib, out_Archt_07_nov_23.(archt_list{iSub}).D4.fg_bp_noinhib]];
+     fg_bp = [fg_bp [out_archt.(archt_list{iSub}).D4.fg_bp_inhib, out_archt.(archt_list{iSub}).D4.fg_bp_noinhib]];
 
 %      z_SGInhb_modidx=[z_SGInhb_modidx [out_Archt_07_nov_23.(archt_list{iSub}).D4.z_SGInhb_modidx]];
 %      
@@ -74,10 +76,10 @@ end
 % loop for eyfp
 
 for iSub = 1:length(eyfp_list)
-    sess_list = fieldnames(out_eyfp_07_nov_23.(eyfp_list{iSub})); 
+    sess_list = fieldnames(out_eyfp.(eyfp_list{iSub})); 
  
-    n_inhib = length(out_eyfp_07_nov_23.(eyfp_list{iSub}).D4.t_bp_inhib); 
-    n_noinhib = length(out_eyfp_07_nov_23.(eyfp_list{iSub}).D4.t_bp_noinhib);
+    n_inhib = length(out_eyfp.(eyfp_list{iSub}).D4.t_bp_inhib); 
+    n_noinhib = length(out_eyfp.(eyfp_list{iSub}).D4.t_bp_noinhib);
     
     
      subject= [subject repmat(iSub+length(archt_list),1, n_inhib + n_noinhib)]; 
@@ -88,15 +90,15 @@ for iSub = 1:length(eyfp_list)
      
      opto = [opto, logical([repmat(1,1, n_inhib), repmat(0,1, n_noinhib)])]; 
      
-     SG_modidx = [SG_modidx [out_eyfp_07_nov_23.(eyfp_list{iSub}).D4.modidx_SG_inhib, out_eyfp_07_nov_23.(eyfp_list{iSub}).D4.modidx_SG_noinhib]];
+     SG_modidx = [SG_modidx [out_eyfp.(eyfp_list{iSub}).D4.modidx_SG_inhib, out_eyfp.(eyfp_list{iSub}).D4.modidx_SG_noinhib]];
      
-     FG_modidx = [FG_modidx [out_eyfp_07_nov_23.(eyfp_list{iSub}).D4.modidx_FG_inhib, out_eyfp_07_nov_23.(eyfp_list{iSub}).D4.modidx_FG_noinhib]];
+     FG_modidx = [FG_modidx [out_eyfp.(eyfp_list{iSub}).D4.modidx_FG_inhib, out_eyfp.(eyfp_list{iSub}).D4.modidx_FG_noinhib]];
      
-     t_bp = [t_bp [out_eyfp_07_nov_23.(eyfp_list{iSub}).D4.t_bp_inhib, out_eyfp_07_nov_23.(eyfp_list{iSub}).D4.t_bp_noinhib]];
+     t_bp = [t_bp [out_eyfp.(eyfp_list{iSub}).D4.t_bp_inhib, out_eyfp.(eyfp_list{iSub}).D4.t_bp_noinhib]];
      
-     sg_bp = [sg_bp [out_eyfp_07_nov_23.(eyfp_list{iSub}).D4.sg_bp_inhib, out_eyfp_07_nov_23.(eyfp_list{iSub}).D4.sg_bp_noinhib]];
+     sg_bp = [sg_bp [out_eyfp.(eyfp_list{iSub}).D4.sg_bp_inhib, out_eyfp.(eyfp_list{iSub}).D4.sg_bp_noinhib]];
      
-     fg_bp = [fg_bp [out_eyfp_07_nov_23.(eyfp_list{iSub}).D4.fg_bp_inhib, out_eyfp_07_nov_23.(eyfp_list{iSub}).D4.fg_bp_noinhib]];
+     fg_bp = [fg_bp [out_eyfp.(eyfp_list{iSub}).D4.fg_bp_inhib, out_eyfp.(eyfp_list{iSub}).D4.fg_bp_noinhib]];
      
      if iSub==length(eyfp_list)
          eyfp_tbl= table(subject', cohort', opto', trial_n',SG_modidx',FG_modidx',t_bp',sg_bp',fg_bp','VariableNames', {'Subject', 'Cohort', 'Opto', 'Trial', 'SG_modidx', 'FG_modidx','Theta_bp','SG_bp','FG_bp'});
@@ -503,8 +505,8 @@ SG_modidx_z = [];
 FG_modidx_z = []; 
 
 
-archt_list = fieldnames(out_Archt_07_nov_23);
-eyfp_list = fieldnames(out_eyfp_07_nov_23); 
+archt_list = fieldnames(out_archt);
+eyfp_list = fieldnames(out_eyfp); 
 
 
 for iSub = 1:length(archt_list)
@@ -514,9 +516,9 @@ subject = [subject iSub iSub];
 cohort = [cohort 1 1]; 
 opto = [opto 1 0]; 
 
-SG_modidx_z = [SG_modidx_z out_Archt_07_nov_23.(archt_list{iSub}).D4.z_SGInhb_modidx out_Archt_07_nov_23.(archt_list{iSub}).D4.z_SGNoInhb_modidx]; % has both inhib and no_inhib
+SG_modidx_z = [SG_modidx_z out_archt.(archt_list{iSub}).D4.z_SGInhb_modidx out_archt.(archt_list{iSub}).D4.z_SGNoInhb_modidx]; % has both inhib and no_inhib
 
-FG_modidx_z = [FG_modidx_z out_Archt_07_nov_23.(archt_list{iSub}).D4.z_FGInhb_modidx out_Archt_07_nov_23.(archt_list{iSub}).D4.z_FGNoInhb_modidx]; % has both inhib and no_inhib
+FG_modidx_z = [FG_modidx_z out_archt.(archt_list{iSub}).D4.z_FGInhb_modidx out_archt.(archt_list{iSub}).D4.z_FGNoInhb_modidx]; % has both inhib and no_inhib
 
 end
 tbl_avg_archT= table(subject', cohort', opto',SG_modidx_z', FG_modidx_z' ,'VariableNames', {'Subject', 'Cohort', 'Opto', 'SG_modidx_z', 'FG_modidx_z'});
@@ -530,17 +532,24 @@ subject = [subject iSub+length(archt_list) iSub+length(archt_list)];
 cohort = [cohort 0 0]; 
 opto = [opto 1 0]; 
 
-SG_modidx_z = [SG_modidx_z out_eyfp_07_nov_23.(eyfp_list{iSub}).D4.z_SGInhb_modidx out_eyfp_07_nov_23.(eyfp_list{iSub}).D4.z_SGNoInhb_modidx]; % has both inhib and no_inhib
+SG_modidx_z = [SG_modidx_z out_eyfp.(eyfp_list{iSub}).D4.z_SGInhb_modidx out_eyfp.(eyfp_list{iSub}).D4.z_SGNoInhb_modidx]; % has both inhib and no_inhib
 
-FG_modidx_z = [FG_modidx_z out_eyfp_07_nov_23.(eyfp_list{iSub}).D4.z_FGInhb_modidx out_eyfp_07_nov_23.(eyfp_list{iSub}).D4.z_FGNoInhb_modidx]; % has both inhib and no_inhib
+FG_modidx_z = [FG_modidx_z out_eyfp.(eyfp_list{iSub}).D4.z_FGInhb_modidx out_eyfp.(eyfp_list{iSub}).D4.z_FGNoInhb_modidx]; % has both inhib and no_inhib
 
 end
 
-tbl_avg= table(subject', logical(cohort'), logical(opto'),SG_modidx_z', FG_modidx_z' ,'VariableNames', {'Subject', 'Cohort', 'Opto', 'SG_modidx_z', 'FG_modidx_z'});
-
+tbl_avg= table(subject', cohort', logical(opto'),SG_modidx_z', FG_modidx_z' ,'VariableNames', {'Subject', 'Cohort', 'Opto', 'SG_modidx_z', 'FG_modidx_z'});
+archTavgtbl=tbl_avg(tbl_avg.Cohort==1,:);
+ctrlavgtbl=tbl_avg(tbl_avg.Cohort==0,:);
 %% stats for avg Z mod
+zstats.fg=fitlme(tbl_avg,'FG_modidx_z ~ 1+ Opto + (1|Cohort) + (1|Subject)');
+zstats.sg=fitlme(tbl_avg,'SG_modidx_z ~ 1+ Opto + (1|Cohort) + (1|Subject)');
+zstats.archtFG=fitlme(archTavgtbl,'FG_modidx_z ~ 1+ Opto  + (1|Subject)');
+zstats.archtSG=fitlme(archTavgtbl,'SG_modidx_z ~ 1+ Opto  + (1|Subject)');
+zstats.ctrlFG=fitlme(ctrlavgtbl,'FG_modidx_z ~ 1+ Opto  + (1|Subject)');
+zstats.ctrlSG=fitlme(ctrlavgtbl,'SG_modidx_z ~ 1+ Opto  + (1|Subject)');
 
-
+%% Preparation for the graph below
 % subplot(1,2,1)
 % boxchart(tbl.Opto,tbl.SG_modidx,,tbl.Opto)
 % boxchart(tbl_avg.Subject,tbl_avg.SG_modidx_z,'GroupByColor',tbl_avg.Opto )
@@ -574,34 +583,45 @@ eyfp_nosilencing_FG_modidx_z=(tbl_avg.FG_modidx_z(tbl_avg.Opto==0 & tbl_avg.Coho
 
 eyfp_FG_modidx_z=[eyfp_silencing_FG_modidx_z' eyfp_nosilencing_FG_modidx_z'];
 
-%% Plotting z_scores
+%% Plotting z_scores ***This is where you figured out the points connecting  pairwise comparison***
 ff=figure(104);
 clf;
-subplot(1,4,1)
+fontsz=20;
+ff.Position = [200, 200, 1000, 700];  % [x, y, width, height]
+
+
+subplot(1,4,3)
 boxplot(archt_SG_modidx_z, archt_gv_opto,'Labels', {'No silencing', 'Silencing'})
 xtickangle(45);
 hold on
+%Add the lines
 for ii=1:length(archt_silencing_SG_modidx_z)
-    
     x=archt_silencing_SG_modidx_z(ii);
     y=archt_nosilencing_SG_modidx_z(ii);
-    plot([1, 2], [y, x], '-o', 'Color', BC_color_genertor('oxford_blue',0.3), 'LineWidth', 1, 'MarkerSize', 2, 'MarkerFaceColor',BC_color_genertor('oxford_blue') , 'MarkerEdgeColor', BC_color_genertor('oxford_blue'), 'Marker', 'o');  % Traces a line to the first point
-    
+    plot([1, 2], [y, x], '-o', 'Color', BC_color_genertor('oxford_blue',0.3), 'LineWidth', 1, 'MarkerSize', 2, 'MarkerFaceColor',BC_color_genertor('oxford_blue') , 'MarkerEdgeColor', BC_color_genertor('oxford_blue'), 'Marker', 'o');  % Traces a line to the first point  
 end
-title('SG ArchT');
+%Significance plot
+yt = get(gca, 'YTick');
+xt = get(gca, 'XTick');
+plot(xt([1 2]), [1 1]*yt(end)*1.07, '-k',mean(xt([1 2])),yt(end)*1.08, '*k') %one asteriks
+ylim([0 100])
+title('SG');
 colors = [BC_color_genertor('archt_green');  % RGB values for Group 2
     BC_color_genertor('powder_blue')]; % RGB values for Group1;
 h = findobj(gca, 'Tag', 'Box');  % Get handles to the box objects
+%Add colors
 for aa = 1:numel(h)
     patch(get(h(aa), 'XData'), get(h(aa), 'YData'), colors(aa, :), 'FaceAlpha', 0.5);
 end
 % Customize line and whisker colors
 set(findobj(gca,'Type','Line'),'Color',[0.2 0.2 0.2]);
 % Adjust plot aesthetics
+yticks([0:20:100]);
+set(gca,'FontSize',fontsz);
 set(gca, 'TickDir', 'out');  % Move ticks outside the plot
 box off;                     % Turn off the box around the plot
 
-subplot(1,4,2)
+subplot(1,4,4)
 boxplot(archt_FG_modidx_z, archt_gv_opto,'Labels', {'No silencing', 'Silencing'})
 xtickangle(45);
 hold on
@@ -612,7 +632,7 @@ for ii=1:length(archt_silencing_FG_modidx_z)
     plot([1, 2], [y, x], '-o', 'Color', BC_color_genertor('oxford_blue',0.3), 'LineWidth', 1, 'MarkerSize', 2, 'MarkerFaceColor',BC_color_genertor('oxford_blue') , 'MarkerEdgeColor', BC_color_genertor('oxford_blue'), 'Marker', 'o');  % Traces a line to the first point
     
 end
-title('FG ArchT');
+title('FG');
 colors = [BC_color_genertor('archt_green');  % RGB values for Group 2
     BC_color_genertor('powder_blue')]; % RGB values for Group1;
 h = findobj(gca, 'Tag', 'Box');  % Get handles to the box objects
@@ -622,12 +642,15 @@ end
 % Customize line and whisker colors
 set(findobj(gca,'Type','Line'),'Color',[0.2 0.2 0.2]);
 % Adjust plot aesthetics
+yticks([0:20:100]);
+set(gca,'FontSize',fontsz);
+ylim([0 100]);
 set(gca, 'TickDir', 'out');  % Move ticks outside the plot
 box off;                     % Turn off the box around the plot
 
-%EFP
+%EYFP
 
-subplot(1,4,3)
+subplot(1,4,1)
 boxplot(eyfp_SG_modidx_z, eyfp_gv_opto,'Labels', {'No silencing', 'Silencing'})
 xtickangle(45);
 hold on
@@ -638,7 +661,7 @@ for ii=1:length(eyfp_silencing_SG_modidx_z)
     plot([1, 2], [y, x], '-o', 'Color', BC_color_genertor('oxford_blue',0.1), 'LineWidth', 1, 'MarkerSize', 2, 'MarkerFaceColor',BC_color_genertor('oxford_blue') , 'MarkerEdgeColor', BC_color_genertor('oxford_blue'), 'Marker', 'o');  % Traces a line to the first point
     
 end
-title('SG control');
+title('SG');
 colors = [BC_color_genertor('swamp_green');  % RGB values for Group 2
     BC_color_genertor('torment_blue')]; % RGB values for Group1;
 h = findobj(gca, 'Tag', 'Box');  % Get handles to the box objects
@@ -648,10 +671,14 @@ end
 % Customize line and whisker colors
 set(findobj(gca,'Type','Line'),'Color',[0.2 0.2 0.2]);
 % Adjust plot aesthetics
+ylabel('Z-Score (AU)');
+yticks([0:20:100]);
+set(gca,'FontSize',fontsz);
+ylim([0 100]);
 set(gca, 'TickDir', 'out');  % Move ticks outside the plot
 box off;                     % Turn off the box around the plot
 
-subplot(1,4,4)
+subplot(1,4,2)
 boxplot(eyfp_FG_modidx_z, eyfp_gv_opto,'Labels', {'No silencing', 'Silencing'})
 xtickangle(45);
 hold on
@@ -662,7 +689,7 @@ for ii=1:length(eyfp_silencing_FG_modidx_z)
     plot([1, 2], [y, x], '-o', 'Color', BC_color_genertor('oxford_blue',0.3), 'LineWidth', 1, 'MarkerSize', 2, 'MarkerFaceColor',BC_color_genertor('oxford_blue') , 'MarkerEdgeColor', BC_color_genertor('oxford_blue'), 'Marker', 'o');  % Traces a line to the first point
     
 end
-title('FG control');
+title('FG');
 colors = [BC_color_genertor('swamp_green');  % RGB values for Group 2
     BC_color_genertor('torment_blue')]; % RGB values for Group1;
 h = findobj(gca, 'Tag', 'Box');  % Get handles to the box objects
@@ -672,17 +699,18 @@ end
 % Customize line and whisker colors
 set(findobj(gca,'Type','Line'),'Color',[0.2 0.2 0.2]);
 % Adjust plot aesthetics
+yticks([0:20:100]);
+set(gca,'FontSize',fontsz);
+ylim([0 100]);
 set(gca, 'TickDir', 'out');  % Move ticks outside the plot
 box off;                     % Turn off the box around the plot
 
 % Adjust figure properties
- suptitle('\bf MOD IDX Z scores');           % Add a general title above the entire figure
  fig = gcf;                   % Get current figure handle
  fig.Color = [1 1 1];         % Set background color to white
  % Resize the figure (optional)
- fig.Position = [200, 200, 1000, 700];  % [x, y, width, height]
- %saveas(gcf, 'FG_NormModIdx.png');%%%% fill in nice plotting %%%%%%%
-%% avg lme
+% fig.Position = [200, 200, 1000, 700];  % [x, y, width, height]
+ %saveas(gcf, 'FG_NormModIdx.png');%%%% fill in nice plotting %%%%%%%%% avg lme
 %% Collecting data for the amplitud_velocity analysis
 
 
@@ -709,7 +737,54 @@ CtrlInhbSpdPwrTbl=BC_SpdPwrDcmtdTblExtractor(out_eyfp,'Inhb');
 CtrlNoInhbSpdPwrTbl=BC_SpdPwrDcmtdTblExtractor(out_eyfp,'NoInhb');
 CtrlRunningSpdPwrTbl=BC_SpdPwrDcmtdTblExtractor(out_eyfp,'Running');
 
+%% stats
+%Preparing data format
+%Incorporating the opto column to archt
+opto_archtInhb= logical(repmat(1,height(ArchtInhbSpdPwrTbl),1));
+ArchtInhbSpdPwrTbl= addvars(ArchtInhbSpdPwrTbl,opto_archtInhb,'NewVariableNames','Opto' );
+opto_archtNoInhb= logical(repmat(0,height(ArchtNoInhbSpdPwrTbl),1));
+ArchtNoInhbSpdPwrTbl=addvars(ArchtNoInhbSpdPwrTbl,opto_archtNoInhb,'NewVariableNames','Opto' );
+%Incorporating the opto column to control
+opto_ctrlInhb= logical(repmat(1,height(CtrlInhbSpdPwrTbl),1));
+CtrlInhbSpdPwrTbl= addvars(CtrlInhbSpdPwrTbl,opto_ctrlInhb,'NewVariableNames','Opto' );
+opto_ctrlNoInhb= logical(repmat(0,height(CtrlNoInhbSpdPwrTbl),1));
+CtrlNoInhbSpdPwrTbl=addvars(CtrlNoInhbSpdPwrTbl,opto_ctrlNoInhb,'NewVariableNames','Opto' );
 
+%Combining archt tables into a single one and adding the cohort column
+archTtbl= [ArchtInhbSpdPwrTbl;ArchtNoInhbSpdPwrTbl];
+cohortArcht=repmat(1,height(archTtbl),1);
+archTtbl=addvars(archTtbl,cohortArcht, 'NewVariableNames','Cohort');
+%Combining ctrl tables into a single one and adding the cohort column
+ctrlTtbl=[CtrlInhbSpdPwrTbl;CtrlNoInhbSpdPwrTbl];
+cohortCtrl=repmat(0,height(ctrlTtbl),1);
+ctrlTtbl=addvars(ctrlTtbl,cohortCtrl, 'NewVariableNames','Cohort');
+ctrlTtbl.Subject=ctrlTtbl.Subject+max(unique(archTtbl.Subject)); %Adding the number of subjetcs from archt to ctrl table
+%Making a big table
+totalTtbl=[archTtbl;ctrlTtbl];
+%Running the mixed effect model
+stats.speed.tresh0=fitlme(totalTtbl,'Spd ~ 1+ Opto + (1|Cohort) + (1|Subject) ');
+stats.archtSpeed.tresh0=fitlme(archTtbl,'Spd ~ 1+ Opto + (1|Cohort) + (1|Subject)');
+stats.ctrlSpeed.tresh0=fitlme(ctrlTtbl,'Spd ~ 1+ Opto + (1|Cohort) + (1|Subject) ');
+
+%trying to remove velocities below tresh
+totalTblTresh=[];
+archtTblTresh=[];
+ctrlTblTresh=[];
+for tresh=5:5:25;
+    totalTblTresh.(['tresh' num2str(tresh)])=totalTtbl;
+    totalTblTresh.(['tresh' num2str(tresh)])(totalTtbl.Spd<=tresh,:)=[];
+    archtTblTresh.(['tresh' num2str(tresh)])=archTtbl;
+    archtTblTresh.(['tresh' num2str(tresh)])(archTtbl.Spd<=tresh,:)=[];
+    ctrlTblTresh.(['tresh' num2str(tresh)])=ctrlTtbl;
+    ctrlTblTresh.(['tresh' num2str(tresh)])(ctrlTtbl.Spd<=tresh,:)=[];
+end
+
+%Running the mixed effect model with treshholds
+for tresh=5:5:25;
+    stats.speed.(['tresh' num2str(tresh)])=fitlme(totalTblTresh.(['tresh' num2str(tresh)]),'Spd ~ 1+ Opto + (1|Cohort) + (1|Subject)');
+    stats.archtSpeed.(['tresh' num2str(tresh)])=fitlme(archtTblTresh.(['tresh' num2str(tresh)]),'Spd ~ 1+ Opto + (1|Cohort) + (1|Subject)');
+    stats.ctrlSpeed.(['tresh' num2str(tresh)])=fitlme(ctrlTblTresh.(['tresh' num2str(tresh)]),'Spd ~ 1+ Opto + (1|Cohort) + (1|Subject)');
+end
 %% Graphing speed-theta amp
 %Speed Vs Theta Amp
 PcntTresh=75;
@@ -966,7 +1041,7 @@ vlnArchtInhb=vlnArchtInhb(vlnArchtInhb>tresh);
 [h3,p3]=ttest2(vlnArchtNoInhb,vlnArchtInhb);
 
 dataviolin=([vlnCtrlNoInhb;vlnCtrlInhb;vlnArchtNoInhb;vlnArchtInhb]);
-condition_names={'Control No Silencing','Control Silencing','ArchT Silencing','ArchT No Silencing','Control Silencing'};
+condition_names={'Control No Silencing','Control Silencing','ArchT No Silencing','ArchT Silencing'};
 groups=([ones(1,length(vlnCtrlNoInhb)),2.*ones(1,length(vlnCtrlInhb)),3.*ones(1,length(vlnArchtNoInhb)),4.*ones(1,length(vlnArchtInhb))]);
 c=[BC_color_genertor('Powder_blue');...
     BC_color_genertor('Swamp_green');...
@@ -979,7 +1054,7 @@ h = daviolinplot(dataviolin,'groups',groups,'outsymbol','k+',...
 ylabel('Speed (cm/s)');
 xl = xlim; xlim([xl(1)-0.1, xl(2)+0.2]); % make more space for the legend
 ylim([0 40]);
-set(gca,'FontSize',12);
+set(gca,'FontSize',14);
 yticks([0 10 20 30 40]);
 % (*)Aesthetics (*)
 box off;
