@@ -105,11 +105,8 @@ for iS =1%:length(inhib_dir)
     %This creates the intervals where the mouse received light
     iv_inhb = MS_get_evts_off(evts, pattern);
     [iv_inhb,iv_noInhb,iv_running] = BC_LT_trialfun(pos, iv_inhb, plot_flag); %This generates the graph of inhibition and velocity while it also retuns the inhibition, no inhibition and runnings epochs 
-    
     if save_flag
-    saveas(figure(1),[inter_dir filesep 'AutomaticFigures' filesep 'Fig0001' filesep 'Fig01_' info.subject '.png' ]);
-    saveas(figure(1),[inter_dir filesep 'AutomaticFigures' filesep 'Fig0001' filesep 'Fig01_' info.subject '.pdf' ]);
-    saveas(figure(1),[inter_dir filesep 'AutomaticFigures' filesep 'Fig0001' filesep 'Fig01_' info.subject '.fig' ]);
+    saveas(figure(1),[inter_dir filesep 'AutomaticFigures' filesep 'Fig0001' filesep 'Fig01_' info.subject ])
     end
     %% Filter
     % filter the LFP in the theta band
@@ -143,7 +140,7 @@ for iS =1%:length(inhib_dir)
 if plot_flag
     % Plot the x_pos by time and plot the int to collaborate that you got them right
     x_data= theta_decimated.data(5,:);
-    fig=figure(0002);
+    fig=figure(1920);
         clf;
         x = (theta_decimated.tvec)';
         y = x_data;
@@ -188,12 +185,6 @@ if plot_flag
         R=corr2((theta_decimated.data(4,:))',(theta_decimated.data(1,:))')
         lsline
 end
-
-if save_flag
-    saveas(figure(2),[inter_dir filesep 'AutomaticFigures' filesep 'Fig0002' filesep 'Fig02_' info.subject '.png' ]);
-    saveas(figure(2),[inter_dir filesep 'AutomaticFigures' filesep 'Fig0002' filesep 'Fig02_' info.subject '.pdf' ]);
-    saveas(figure(2),[inter_dir filesep 'AutomaticFigures' filesep 'Fig0002' filesep 'Fig02_' info.subject '.fig' ]);
-    end
     %% Restricting data to intervals of inhb, noInhb
     %inhb
     csc_inhb = restrict(csc, iv_inhb);
