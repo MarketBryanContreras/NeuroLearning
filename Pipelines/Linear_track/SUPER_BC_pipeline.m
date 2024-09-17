@@ -10,7 +10,11 @@
 plot_flag = 1; % switch to 0 if you want to supress verification figures.
 time_maze_start = 30; %Seconds to exclude from recording
 min_trial_dur = 0.5;
-mouse_group=1; %1 for ArchT and 2 for eYFP. This just modify color of the plots
+mouse_group=2; %1 for ArchT and 2 for eYFP. This just modify color of the plots
+save_flag=01;
+if plot_flag==00
+    save_flag==00;
+end
 %% Generating color pallet for the mouse group
 if mouse_group==1
     gcolors = [BC_color_genertor('powder_blue');  % RGB values for Group 2
@@ -27,7 +31,7 @@ inhib_dir(indices_to_remove) = [];% Remove the directories containing 'disconnec
 
 %% Loop to load data from raw
 
-for iS =3:length(inhib_dir)
+for iS =1%:length(inhib_dir)
    
     %% loading
     cd([inhib_dir(iS).folder filesep inhib_dir(iS).name])

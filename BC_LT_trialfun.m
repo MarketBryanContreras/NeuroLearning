@@ -44,7 +44,7 @@ end
     
     if plot_flag
         % Plot the x_pos by time and plot the int to collaborate that you got them right
-        fig=figure(1919);
+        fig=figure(0001);
         clf;
         x = pos.tvec;
         y = x_data;
