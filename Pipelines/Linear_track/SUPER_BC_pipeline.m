@@ -11,7 +11,7 @@ plot_flag = 1; % switch to 0 if you want to supress verification figures.
 time_maze_start = 30; %Seconds to exclude from recording
 min_trial_dur = 0.5;
 mouse_group=2; %1 for ArchT and 2 for eYFP. This just modify color of the plots
-save_flg=01;
+save_flag=00;
 if plot_flag==0 %Making sure that if there is not plots, the save flag is off
     save_flag=00;
 end
@@ -45,28 +45,28 @@ for iS =1%:length(inhib_dir)
     %Assign which csc to load to each mouse and the pattern of the ttl that
     %represents an event in the board
     if strcmpi(info.subject, 'BC1602')
-        cfg_csc.fc ={'CSC7.ncs'}; %2#'CSC4.ncs'
+        cfg_csc.fc ={'CSC4.ncs'}; %2#'CSC4.ncs'
         pattern = 'TTL Input on AcqSystem1_0 board 0 port 3 value (0x0002).';
     elseif strcmpi(info.subject, 'BC051')
-        cfg_csc.fc ={'CSC5.ncs'};%5%7%2%4
+        cfg_csc.fc ={'CSC4.ncs'};%5%7%2%4
         pattern = 'TTL Input on AcqSystem1_0 board 0 port 3 value (0x0002).';
     elseif strcmpi(info.subject, 'BC1807')
-        cfg_csc.fc ={'CSC6.ncs'};%3
+        cfg_csc.fc ={'CSC3.ncs'};%3
         pattern = 'TTL Input on AcqSystem1_0 board 0 port 3 value (0x0002).';
     elseif strcmpi(info.subject, 'BC053')
-        cfg_csc.fc ={'CSC4.ncs'};%4
+        cfg_csc.fc ={'CSC5.ncs'};%4
         pattern = 'TTL Input on AcqSystem1_0 board 0 port 1 value (0x0040).';
     elseif strcmpi(info.subject, 'BC054')
         cfg_csc.fc ={'CSC5.ncs'};%5%2%4%7
         pattern = 'TTL Input on AcqSystem1_0 board 0 port 1 value (0x0040).';
     elseif strcmpi(info.subject, 'BC011')
-        cfg_csc.fc ={'CSC3.ncs'};%3%7
+        cfg_csc.fc ={'CSC2.ncs'};%3%7
         pattern = 'TTL Input on AcqSystem1_0 board 0 port 3 value (0x0002).';
     elseif strcmpi(info.subject, 'BC013')
-        cfg_csc.fc ={'CSC6.ncs'};%2%4
+        cfg_csc.fc ={'CSC2.ncs'};%2%4
         pattern = 'TTL Input on AcqSystem1_0 board 0 port 1 value (0x0040).';
     elseif strcmpi(info.subject, 'BC014')
-        cfg_csc.fc ={'CSC7.ncs'};%4%5
+        cfg_csc.fc ={'CSC2.ncs'};%4%5
         pattern = 'TTL Input on AcqSystem1_0 board 0 port 1 value (0x0040).';
     end
 
@@ -110,9 +110,9 @@ for iS =1%:length(inhib_dir)
     [iv_inhb,iv_noInhb,iv_running] = BC_LT_trialfun(pos, iv_inhb, plot_flag); %This generates the graph of inhibition and velocity while it also retuns the inhibition, no inhibition and runnings epochs 
     
     if save_flag
-    saveas(figure(1),[inter_dir filesep 'AutomaticFigures' filesep 'Fig0001' filesep 'Fig01_' info.subject '.png' ]);
-    saveas(figure(1),[inter_dir filesep 'AutomaticFigures' filesep 'Fig0001' filesep 'Fig01_' info.subject '.pdf' ]);
-    saveas(figure(1),[inter_dir filesep 'AutomaticFigures' filesep 'Fig0001' filesep 'Fig01_' info.subject '.fig' ]);
+        saveas(figure(1),[inter_dir filesep 'AutomaticFigures' filesep 'Fig0001' filesep 'Fig01_' info.subject '.png' ]);
+        saveas(figure(1),[inter_dir filesep 'AutomaticFigures' filesep 'Fig0001' filesep 'Fig01_' info.subject '.pdf' ]);
+        saveas(figure(1),[inter_dir filesep 'AutomaticFigures' filesep 'Fig0001' filesep 'Fig01_' info.subject '.fig' ]);
     end
     %% Filter
     % filter the LFP in the theta band
@@ -186,17 +186,34 @@ if plot_flag
         c2.Position= [0.910 0.1200 0.0100 0.330];
         xlim([pos.tvec(1) pos.tvec(end)]);
         set(gca, 'TickDir', 'out');
-        figure(1921)
-        scatter(theta_decimated.data(4,:),theta_decimated.data(1,:))
-        R=corr2((theta_decimated.data(4,:)),(theta_decimated.data(1,:)))
-        lsline
+        %  (*) Asthetics (*)
+        %Give common xlabel, ylabel, and title
+        han=axes(fig,'visible','off');
+        han.Title.Visible='on';
+        han.XLabel.Visible='on';
+        han.YLabel.Visible='on';
+        han.YLabel.Position=[-0.0300 0.5000 0];
+        ylabel(han,'Position in the x axis (cm)','FontSize', 16);
+        han.XLabel.Position=[0.5000 -0.060 0];
+        xlabel(han,'Time(s)','FontSize', 16);
+        title(han,'Example of mouse displacement during linear track','FontSize', 20);
+        fig = gcf;                   % Get current figure handle
+        fig.Color = [1 1 1];
+        fig.Color = [1 1 1];         % Set background color to white
+        fig.Position = [100, 100, 1600, 700];  % [x, y, width, height]
+        hold off;
+        % figure(1921)
+        % scatter(theta_decimated.data(4,:),theta_decimated.data(1,:)) %This plots the speed vs the theta amplitude
+        % R=corr2((theta_decimated.data(4,:)),(theta_decimated.data(1,:))) %This calculates the correlation between speed and amplitude but I have to correct for nan values I think
+        % lsline
 end
+
 
 if save_flag
     saveas(figure(2),[inter_dir filesep 'AutomaticFigures' filesep 'Fig0002' filesep 'Fig02_' info.subject '.png' ]);
     saveas(figure(2),[inter_dir filesep 'AutomaticFigures' filesep 'Fig0002' filesep 'Fig02_' info.subject '.pdf' ]);
     saveas(figure(2),[inter_dir filesep 'AutomaticFigures' filesep 'Fig0002' filesep 'Fig02_' info.subject '.fig' ]);
-    end
+end
     %% Restricting data to intervals of inhb, noInhb
     %inhb
     csc_inhb = restrict(csc, iv_inhb);
@@ -251,17 +268,24 @@ if save_flag
        title(sprintf('No Silencing R=%f',RNI))
      
    end
-    %% Get phase mod for every training session
-
+    %% Calculating and plotting modulation index 
+    %For slow gamma
+    %SG-Inhb
     SGphiAmpNormInhb=BC_phase_amp_norm_bins(theta_inhb,SG_inhb);
     SGInhb_modidx=MS_ModIdx(SGphiAmpNormInhb);
     if plot_flag
         if mouse_group ==1;
-        BC_plot_modidx(SGphiAmpNormInhb,BC_color_genertor('Archt_green'),SGInhb_modidx,'SG', 'Light' )
+            BC_plot_modidx(SGphiAmpNormInhb,BC_color_genertor('Archt_green'),SGInhb_modidx,'SG', 'Light' )
         else
-        BC_plot_modidx(SGphiAmpNormInhb,BC_color_genertor('Swamp_green'),SGInhb_modidx,'SG', 'Light' )
-        end 
+            BC_plot_modidx(SGphiAmpNormInhb,BC_color_genertor('Swamp_green'),SGInhb_modidx,'SG', 'Light' )
+        end
     end
+    if save_flag
+        saveas(figure(1),[inter_dir filesep 'AutomaticFigures' filesep 'Fig0003' filesep 'Fig03_' info.subject '.png' ]);
+        saveas(figure(1),[inter_dir filesep 'AutomaticFigures' filesep 'Fig0003' filesep 'Fig03_' info.subject '.pdf' ]);
+        saveas(figure(1),[inter_dir filesep 'AutomaticFigures' filesep 'Fig0003' filesep 'Fig03_' info.subject '.fig' ]);
+    end
+%SG-NoInhb
     SGphiAmpNormNoInhb = BC_phase_amp_norm_bins(theta_noinhb,SG_noinhb);
     SGNoInhb_modidx=MS_ModIdx(SGphiAmpNormNoInhb);
     if plot_flag
@@ -271,8 +295,13 @@ if save_flag
         BC_plot_modidx(SGphiAmpNormNoInhb,BC_color_genertor('Torment_blue'),SGNoInhb_modidx, 'SG', 'No light')
         end 
     end
+    if save_flag
+        saveas(figure(2),[inter_dir filesep 'AutomaticFigures' filesep 'Fig0004' filesep 'Fig04_' info.subject '.png' ]);
+        saveas(figure(2),[inter_dir filesep 'AutomaticFigures' filesep 'Fig0004' filesep 'Fig04_' info.subject '.pdf' ]);
+        saveas(figure(2),[inter_dir filesep 'AutomaticFigures' filesep 'Fig0004' filesep 'Fig04_' info.subject '.fig' ]);
+    end
     [SGshift_mean, SGshift_std]=LTshifted_meanModIdx(theta_running,SG_running);
-%Z scores for SG
+%Z scores for SG. This calculates the z score with the mean and the std from the random shift
     z_SGInhb_modidx = (SGInhb_modidx - SGshift_mean) / SGshift_std;
     z_SGNoInhb_modidx = (SGNoInhb_modidx - SGshift_mean) / SGshift_std;
 % %Prototype of a bar graph for the mod idx comparison between light and no light
@@ -293,7 +322,8 @@ if save_flag
 %     fig.Position = [100, 100, 600, 800];  % [x, y, width, height]
 % end
 
-    %FG
+%For Fast Gamma
+%FG-Inhb
     FGphiAmpNormInhb=BC_phase_amp_norm_bins(theta_inhb,FG_inhb);
     FGInhb_modidx=MS_ModIdx(FGphiAmpNormInhb);
     if plot_flag
@@ -303,7 +333,12 @@ if save_flag
         BC_plot_modidx(FGphiAmpNormInhb,BC_color_genertor('Swamp_green'),FGInhb_modidx,'FG', 'Light' )
         end
     end
-    %NoInhb
+      if save_flag
+        saveas(figure(1),[inter_dir filesep 'AutomaticFigures' filesep 'Fig0005' filesep 'Fig05_' info.subject '.png' ]);
+        saveas(figure(1),[inter_dir filesep 'AutomaticFigures' filesep 'Fig0005' filesep 'Fig05_' info.subject '.pdf' ]);
+        saveas(figure(1),[inter_dir filesep 'AutomaticFigures' filesep 'Fig0005' filesep 'Fig05_' info.subject '.fig' ]);
+    end
+%%FG-NoInhb
     FGphiAmpNormNoInhb = BC_phase_amp_norm_bins(theta_noinhb,FG_noinhb);
     FGNoInhb_modidx=MS_ModIdx(FGphiAmpNormNoInhb);
     if plot_flag
@@ -312,6 +347,11 @@ if save_flag
         else
         BC_plot_modidx(FGphiAmpNormNoInhb,BC_color_genertor('Torment_blue'),FGNoInhb_modidx, 'FG', 'No light')
         end
+    end
+    if save_flag
+        saveas(figure(1),[inter_dir filesep 'AutomaticFigures' filesep 'Fig0006' filesep 'Fig06_' info.subject '.png' ]);
+        saveas(figure(1),[inter_dir filesep 'AutomaticFigures' filesep 'Fig0006' filesep 'Fig06_' info.subject '.pdf' ]);
+        saveas(figure(1),[inter_dir filesep 'AutomaticFigures' filesep 'Fig0006' filesep 'Fig06_' info.subject '.fig' ]);
     end
     %Shifted
     [FGshift_mean,FGshift_std]=LTshifted_meanModIdx(theta_running,FG_running);
@@ -352,7 +392,7 @@ if save_flag
     inhbTbl=[];
 
     for ii = length(iv_inhb.tstart):-1:1
-        if (iv_inhb.tend(ii) - iv_inhb.tstart(ii)) < min_trial_dur
+        if (iv_inhb.tend(ii) - iv_inhb.tstart(ii)) < min_trial_dur %Testing that the epoch last more than the treshold
             t_bp_inhib(ii)= NaN;
             sg_bp_inhib(ii) = NaN;
             fg_bp_inhib(ii) = NaN;
@@ -387,12 +427,13 @@ if save_flag
             this_csc = restrict(csc, iv_inhb.tstart(ii), iv_inhb.tend(ii));
             
             % get the power
-            t_bp =  bandpower(this_csc.data, this_csc.cfg.hdr{1}.SamplingFrequency, [5 12]);
-            sg_bp = bandpower(this_csc.data, this_csc.cfg.hdr{1}.SamplingFrequency, [30 58]);
-            fg_bp = bandpower(this_csc.data, this_csc.cfg.hdr{1}.SamplingFrequency, [60 100]);
+            t_bp =  bandpower(this_csc.data, this_csc.cfg.hdr{1}.SamplingFrequency, [5 12]); %Calculates the theta band power
+            sg_bp = bandpower(this_csc.data, this_csc.cfg.hdr{1}.SamplingFrequency, [30 58]);%Calculates the sg band power
+            fg_bp = bandpower(this_csc.data, this_csc.cfg.hdr{1}.SamplingFrequency, [60 100]);%Calculates the fg band power
             
-            ref_bp = bandpower(this_csc.data, this_csc.cfg.hdr{1}.SamplingFrequency, [1 50]);
+            ref_bp = bandpower(this_csc.data, this_csc.cfg.hdr{1}.SamplingFrequency, [1 50]);%Calculates the theta band power
             
+            %Store the theta, sg, and fg power in the 
             t_bp_inhib(ii)= t_bp;
             sg_bp_inhib(ii) = sg_bp;
             fg_bp_inhib(ii) = fg_bp;
@@ -797,7 +838,7 @@ if save_flag
     %% plot power and cross freq coupling
     
     if plot_flag
-        figure(101)
+        figure(0007)
         clf
         subplot(3,3,[1 4])
         boxplot([t_bp_inhib, t_bp_noinhib],[zeros(size(t_bp_inhib)), ones(size(t_bp_noinhib))])
@@ -878,6 +919,11 @@ if save_flag
 
     end
     
+    if save_flag
+        saveas(figure(7),[inter_dir filesep 'AutomaticFigures' filesep 'Fig0007' filesep 'Fig07_' info.subject '.png' ]);
+        saveas(figure(7),[inter_dir filesep 'AutomaticFigures' filesep 'Fig0007' filesep 'Fig07_' info.subject '.pdf' ]);
+        saveas(figure(7),[inter_dir filesep 'AutomaticFigures' filesep 'Fig0007' filesep 'Fig07_' info.subject '.fig' ]);
+    end
     %% Plot the CoModulation matrix
     
     % plots are duplicates for some reason. WIP
@@ -892,7 +938,7 @@ if save_flag
     [CoMoNI, phi_f, amp_f] = MS_phase_freq(cfg_como, csc_noinhb, [4 12], [30 100]);
     [CoMoR, phi_f, amp_f] = MS_phase_freq(cfg_como, csc_running, [4 12], [30 100]);
     if plot_flag
-        figure(202)
+        figure(0008)
         clf
         subplot(1,2,1); cla;
         %surf(phi_f,amp_f,CoMoI')
@@ -924,6 +970,12 @@ if save_flag
 
         SetFigure([], gcf)
         maximize
+
+if save_flag
+        saveas(figure(8),[inter_dir filesep 'AutomaticFigures' filesep 'Fig0008' filesep 'Fig08_' info.subject '.png' ]);
+        saveas(figure(8),[inter_dir filesep 'AutomaticFigures' filesep 'Fig0008' filesep 'Fig08_' info.subject '.pdf' ]);
+        saveas(figure(8),[inter_dir filesep 'AutomaticFigures' filesep 'Fig0008' filesep 'Fig08_' info.subject '.fig' ]);
+end
 
     end
        

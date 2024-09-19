@@ -1,6 +1,7 @@
 function dcmtAmp=BC_ampSpdDcmt(filteredSig, pos)
 %% The function BC_ampSpdDcmt:
-%            This fucntion calculates the 
+%            This fucntion decimates the LFP signal and interpolates the tracking position obtained from DLC to match the number of sampling points.
+%            It povides the following information in the order of rows: 1)Amplitude, 2)Power, 3)Phase, 4)Speed 5)Position in the x axis
 %   Inputs:
 %            -filteredSig[struct]: Filtered signal recorded with the vandermer lab struct
 %            -pos[struct]: Position strcuture from the DLCtoTSD function from Eric C.
@@ -40,7 +41,7 @@ function dcmtAmp=BC_ampSpdDcmt(filteredSig, pos)
     Phi98(Phi98>=1)=1; %Any values bigger than 1 are assigned to 1
 
     %Putting pwr, amp and phi into a single strcuture
-    dcmtAmp.data(1,:)=Amp98;
+    dcmtAmp.data(1,:)=Amp98; 
     dcmtAmp.data(2,:)=Pwr98;
     dcmtAmp.data(3,:)=Phi98;
     dcmtAmp.data(4,:)=spd_interp;
