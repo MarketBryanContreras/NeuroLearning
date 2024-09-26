@@ -3,8 +3,11 @@
 % load(['C:\Users\ecarm\Downloads' filesep 'out_Archt_06_nov_23.mat'])
 % load(['C:\Users\ecarm\Downloads' filesep 'out_eyfp_06_nov_23.mat'])
 %% Adjust the name of the files to load
-ArchT_file_name='out_Arch_07_nov_23.mat';
-eyfp_file_name='out_eyfp_07_nov_23.mat';
+ArchT_file_name='out_archt_08_Aug_24.mat';
+eyfp_file_name='out_eyfp_08_Aug_24.mat';
+
+% ArchT_file_name='out_Arch_07_nov_23.mat';
+% eyfp_file_name='out_eyfp_07_nov_23.mat';
 %% Dynamic loader
 sys=computer;
 if contains(sys,'PCWIN')
@@ -18,7 +21,7 @@ elseif contains(sys,'MAC')
     inter_dir = [getenv('HOME')  filesep 'Williams Lab Dropbox' filesep 'Williams Lab Team Folder' filesep 'Bryan_DropBox' filesep 'CHRNA2_LINEAR_TRACK' filesep 'inter'];
 else disp("This system is not supported on the dynamic loader yet, pleae add it or contact BC for it")
 end
-out_archt=out_arch.out;
+out_archt=out_archt.out;
 out_eyfp=out_eyfp.out;
 % out_archt=out_archt.out_Arch_07_nov_23;
 % out_eyfp=out_eyfp.out_eyfp_07_nov_23;
@@ -36,6 +39,7 @@ FG_modidx = [];
 t_bp=[];
 fg_bp=[];
 sg_bp=[];
+
 
 for iSub = 1:length(archt_list)
     sess_list = fieldnames(out_archt.(archt_list{iSub})); 

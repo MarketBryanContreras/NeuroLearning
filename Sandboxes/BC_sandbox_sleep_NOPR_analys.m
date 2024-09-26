@@ -16,7 +16,7 @@
      
 % cd(data_dir)
 %% General parameters
-plot_flag = 00;
+plot_flag = 01;
 video_flag=00;
 save_output=01;
 %% Rolling through the folders with dynamic loader
@@ -44,7 +44,7 @@ inhib_dir = dir('*BC*');
 
 %% Loop to load data from raw
 
-for iS=1:length(inhib_dir)
+for iS=9:length(inhib_dir)
 
 
     %% Colloecting subject info
@@ -111,7 +111,7 @@ for iS=1:length(inhib_dir)
         fprintf('<strong>NOPR duration: %.2f mins</strong>\n', ((end_NOPR - start_NOPR)/60));
     end
 
-    %Restrict the data to just the sleep phase.
+    %Restrict the data to just the sleep recording.
     csc_s = restrict(csc, start_sleep, end_sleep);
     emg_s = restrict(emg, start_sleep, end_sleep);
 
@@ -425,12 +425,35 @@ bpower_slp.rem.FG = bandpower(CSC_Rem.data,CSC_Rem.cfg.hdr{1}.SamplingFrequency,
                 if iframe==1
                     clear iframe;clear x1;clear x2;clear y1;clear y2;clear d;
                 end
-            end
+            end       
         end
         distances.labels=(pos.File1.label(3:4))';
 
 
         %%% You are here in this function
+%% Creating a heatmap of the position of the mouse
+% Number of bins for the heatmap (resolution of the grid)
+numBins = 40;
+sec2delete=40;
+GaussianS=1.2;
+for iF=1:nfiles
+    X=pos.(files{iF}).data(1,sec2delete*30:end);
+    Y=pos.(files{iF}).data(2,sec2delete*30:end);
+    [heatmapData,C] = hist3([X', Y'], [numBins, numBins]);
+    heatmapData=(heatmapData./length(X))*100;
+    heatmapData_smoothed = imgaussfilt(heatmapData, GaussianS);
+    % Plot the heatmap
+    figure (1600+iF);
+    imagesc(C{1}', C{2}',heatmapData_smoothed'); % Transpose because hist3's output is transposed
+    hold on
+    plot(X,Y,'w')
+    clim([0 0.2])
+    %set(gca, 'YDir', 'normal'); % Correct the Y-axis direction
+    colorbar; % Show color scale
+    title('Heatmap of Mouse Position in Open Field');
+    %xlabel('Position (cm) ');
+    %ylabel('Position (cm)');
+end
         %% Plot the position of the mouse
         %%---To do--- Adapt this cell to the new structures
        

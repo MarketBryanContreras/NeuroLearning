@@ -5,12 +5,12 @@
 % Make sure to add code from the CEH2 repo, Vadermeer lab code-shared repo,
 % NeuroLearning repo before going forward
  %% Dynamic loader
-[data_dir, inter_dir]=BC_linearTrack_dynamicLoader('control'); %"experimental" for archT, "control" 
+[data_dir, inter_dir]=BC_linearTrack_dynamicLoader('experimental'); %"experimental" for archT, "control" 
 %% Parameters
 plot_flag = 1; % switch to 0 if you want to supress verification figures.
 time_maze_start = 30; %Seconds to exclude from recording
 min_trial_dur = 0.5;
-mouse_group=2; %1 for ArchT and 2 for eYFP. This just modify color of the plots
+mouse_group=1; %1 for ArchT and 2 for eYFP. This just modify color of the plots
 save_flag=00;
 if plot_flag==0 %Making sure that if there is not plots, the save flag is off
     save_flag=00;
@@ -45,32 +45,33 @@ for iS =1%:length(inhib_dir)
     %Assign which csc to load to each mouse and the pattern of the ttl that
     %represents an event in the board
     if strcmpi(info.subject, 'BC1602')
-        cfg_csc.fc ={'CSC4.ncs'}; %2#'CSC4.ncs'
+        cfg_csc.fc ={'CSC4.ncs'}; %2#'CSC4.ncs,7'
         pattern = 'TTL Input on AcqSystem1_0 board 0 port 3 value (0x0002).';
     elseif strcmpi(info.subject, 'BC051')
-        cfg_csc.fc ={'CSC4.ncs'};%5%7%2%4
+        cfg_csc.fc ={'CSC5.ncs'};%5%7%2%4
         pattern = 'TTL Input on AcqSystem1_0 board 0 port 3 value (0x0002).';
     elseif strcmpi(info.subject, 'BC1807')
-        cfg_csc.fc ={'CSC3.ncs'};%3
+        cfg_csc.fc ={'CSC6.ncs'};%3
         pattern = 'TTL Input on AcqSystem1_0 board 0 port 3 value (0x0002).';
     elseif strcmpi(info.subject, 'BC053')
-        cfg_csc.fc ={'CSC5.ncs'};%4
+        cfg_csc.fc ={'CSC4.ncs'};%4
         pattern = 'TTL Input on AcqSystem1_0 board 0 port 1 value (0x0040).';
     elseif strcmpi(info.subject, 'BC054')
         cfg_csc.fc ={'CSC5.ncs'};%5%2%4%7
         pattern = 'TTL Input on AcqSystem1_0 board 0 port 1 value (0x0040).';
     elseif strcmpi(info.subject, 'BC011')
-        cfg_csc.fc ={'CSC2.ncs'};%3%7
+        cfg_csc.fc ={'CSC3.ncs'};%3%7
         pattern = 'TTL Input on AcqSystem1_0 board 0 port 3 value (0x0002).';
     elseif strcmpi(info.subject, 'BC013')
-        cfg_csc.fc ={'CSC2.ncs'};%2%4
+        cfg_csc.fc ={'CSC6.ncs'};%2%4
         pattern = 'TTL Input on AcqSystem1_0 board 0 port 1 value (0x0040).';
     elseif strcmpi(info.subject, 'BC014')
-        cfg_csc.fc ={'CSC2.ncs'};%4%5
+        cfg_csc.fc ={'CSC7.ncs'};%4%5
         pattern = 'TTL Input on AcqSystem1_0 board 0 port 1 value (0x0040).';
     end
 
     [csc, evts, pos] = BC_load_NLX(cfg_csc);%Load ,csc, events and position
+    fs=csc.cfg.hdr{1}.SamplingFrequency;
 
     %Filtering the speed to remove outliers
     % filtWinSz=60; %Size of the window in frames to  
@@ -142,6 +143,29 @@ for iS =1%:length(inhib_dir)
     FG_csc = FilterLFP(cfg_filt_t, csc); % filter the raw LFP using
     FG_amp_phi = BC_power_phase(FG_csc); 
     FG_decimated=BC_ampSpdDcmt(FG_csc, pos);
+    %% Calculating the psd for the frequencies of interest
+    %Caluclate the psd
+    w = 2^12; [pxx,f]=pwelch(csc.data, hanning(w),w/2,w*2, fs);
+    %Calculate the mean of the 1-50 Hz
+    freqRange = [5 50];
+    % Find the indices of frequencies within the desired range
+    idx = f >= freqRange(1) & f <= freqRange(2);
+    % Extract the frequencies and power values within this range
+    frequencies_in_range = f(idx);
+    power_in_range = pxx(idx);
+    % Sum the power to get total power within this range
+    total_power_in_range = sum(power_in_range);
+    %Divide the frequencies to the mean amplitude of 1-50
+    norm_power=pxx./total_power_in_range
+    % Plot
+    if plot_flag
+        plot(f,(norm_power)); xlim([0 15])
+    end
+    %store the values in a strucutre
+    psd=[];
+    psd.frequency=f;
+    psd.power=pxx;
+    psd.normPower=norm_power;
     %% Plotting ampplitude and velocity according to position in the linear track
 if plot_flag
     % Plot the x_pos by time and plot the int to collaborate that you got them right
@@ -236,38 +260,38 @@ end
     FG_running = restrict(FG_csc, iv_running);
     pos_running= restrict(pos, iv_running);
    %% ploting the speed vs amplitude in inhibition and no inhibition
-   tresh=0;
-   SpdInhb=thetaD_inhb.data(4,:);
-   AmpInhb=thetaD_inhb.data(1,:);
-   outIdxInhb=SpdInhb>tresh;
-   SpdInhb=SpdInhb(outIdxInhb);
-   AmpInhb=AmpInhb(outIdxInhb);
-
-   SpdNoInhb=thetaD_noinhb.data(4,:);
-   outIdxNoInhb=SpdNoInhb>tresh;
-   AmpNoInhb=thetaD_noinhb.data(1,:);
-   SpdNoInhb=SpdNoInhb(outIdxNoInhb);
-   AmpNoInhb=AmpNoInhb(outIdxNoInhb);
-
-   if plot_flag
-       figure(1001)
-       s1=subplot(1,2,1);
-       scatter(SpdInhb,AmpInhb, 'MarkerEdgeColor',BC_color_genertor('Archt_green'),'SizeData',11)
-       lsq1=lsline(s1);lsq1.Color='g',lsq1.LineWidth=2;
-       %xlim([0 50]); ylim([0 1]);
-       xlabel('Speed (cm/s)');ylabel('Theta Amplitude Normalized')
-       RI=corr2(SpdInhb,AmpInhb)
-       title(sprintf('Silencing R=%f',RI))
-
-       s2=subplot(1,2,2);
-       scatter(SpdNoInhb,AmpNoInhb,'MarkerEdgeColor',BC_color_genertor('Oxford_blue'),'SizeData',11)
-       lsq2=lsline(s2);lsq2.Color='g',lsq2.LineWidth=2;
-       %xlim([0 50]); ylim([0 1]);
-       xlabel('Speed (cm/s)');ylabel('Theta Amplitude Normalized')
-       RNI=corr2((thetaD_noinhb.data(4,:)),(thetaD_noinhb.data(1,:)))
-       title(sprintf('No Silencing R=%f',RNI))
-     
-   end
+   % tresh=0;
+   % SpdInhb=thetaD_inhb.data(4,:);
+   % AmpInhb=thetaD_inhb.data(1,:);
+   % outIdxInhb=SpdInhb>tresh;
+   % SpdInhb=SpdInhb(outIdxInhb);
+   % AmpInhb=AmpInhb(outIdxInhb);
+   % 
+   % SpdNoInhb=thetaD_noinhb.data(4,:);
+   % outIdxNoInhb=SpdNoInhb>tresh;
+   % AmpNoInhb=thetaD_noinhb.data(1,:);
+   % SpdNoInhb=SpdNoInhb(outIdxNoInhb);
+   % AmpNoInhb=AmpNoInhb(outIdxNoInhb);
+   % 
+   % if plot_flag
+   %     figure(1001)
+   %     s1=subplot(1,2,1);
+   %     scatter(SpdInhb,AmpInhb, 'MarkerEdgeColor',BC_color_genertor('Archt_green'),'SizeData',11)
+   %     lsq1=lsline(s1);lsq1.Color='g',lsq1.LineWidth=2;
+   %     %xlim([0 50]); ylim([0 1]);
+   %     xlabel('Speed (cm/s)');ylabel('Theta Amplitude Normalized')
+   %     RI=corr2(SpdInhb,AmpInhb)
+   %     title(sprintf('Silencing R=%f',RI))
+   % 
+   %     s2=subplot(1,2,2);
+   %     scatter(SpdNoInhb,AmpNoInhb,'MarkerEdgeColor',BC_color_genertor('Oxford_blue'),'SizeData',11)
+   %     lsq2=lsline(s2);lsq2.Color='g',lsq2.LineWidth=2;
+   %     %xlim([0 50]); ylim([0 1]);
+   %     xlabel('Speed (cm/s)');ylabel('Theta Amplitude Normalized')
+   %     RNI=corr2((thetaD_noinhb.data(4,:)),(thetaD_noinhb.data(1,:)))
+   %     title(sprintf('No Silencing R=%f',RNI))
+   % 
+   % end
     %% Calculating and plotting modulation index 
     %For slow gamma
     %SG-Inhb
@@ -359,6 +383,16 @@ end
 
     z_FGInhb_modidx = (FGInhb_modidx - FGshift_mean) / FGshift_std; 
     z_FGNoInhb_modidx = (FGNoInhb_modidx - FGshift_mean) / FGshift_std;  
+    %% 
+    % Identify the csc corresponding to silencing and no silencing
+
+    %Apply psd and reduce the xlim to 0 to 15
+
+
+    %Calculate the band power of delta, theta, sg and fg
+
+
+    %Normalize to the band power to 140
     %% Epochs by epochs spectral analysis
     
     % inhibition
@@ -388,7 +422,6 @@ end
     fg_pwr_ihbTotal= [];
     fg_phi_ihbTotal= [];
     epoch_ihbTotal= [];
-
     inhbTbl=[];
 
     for ii = length(iv_inhb.tstart):-1:1
@@ -427,11 +460,11 @@ end
             this_csc = restrict(csc, iv_inhb.tstart(ii), iv_inhb.tend(ii));
             
             % get the power
-            t_bp =  bandpower(this_csc.data, this_csc.cfg.hdr{1}.SamplingFrequency, [5 12]); %Calculates the theta band power
+            t_bp =  bandpower(this_csc.data, this_csc.cfg.hdr{1}.SamplingFrequency, [4 12]); %Calculates the theta band power
             sg_bp = bandpower(this_csc.data, this_csc.cfg.hdr{1}.SamplingFrequency, [30 58]);%Calculates the sg band power
             fg_bp = bandpower(this_csc.data, this_csc.cfg.hdr{1}.SamplingFrequency, [60 100]);%Calculates the fg band power
             
-            ref_bp = bandpower(this_csc.data, this_csc.cfg.hdr{1}.SamplingFrequency, [1 50]);%Calculates the theta band power
+            ref_bp = bandpower(this_csc.data, this_csc.cfg.hdr{1}.SamplingFrequency, [1 50]);%Calculates the ref band power
             
             %Store the theta, sg, and fg power in the 
             t_bp_inhib(ii)= t_bp;
@@ -443,9 +476,7 @@ end
             fg_bp_inhib_norm(ii) = fg_bp/ ref_bp;
             
             %Create a table with epoch#, condition, amplitude, velocity
-            outTbl=BC_EpochSpdAmpDcmtdTbl(theta_decimated, SG_decimated,FG_decimated,iv_inhb,ii);
-            %Use newTbl=[tbl1;tbl2] to keep adding values to the the table
-            
+            outTbl=BC_EpochSpdAmpDcmtdTbl(theta_decimated, SG_decimated,FG_decimated,iv_inhb,ii);       
             %Create a table with epoch#, condition, amplitude, velocity
             %The following code create the veactor for the creation of the table
             this_theta_amp=restrict(theta_amp_phi, iv_inhb.tstart(ii), iv_inhb.tend(ii));
@@ -940,18 +971,18 @@ end
     if plot_flag
         figure(0008)
         clf
-        subplot(1,2,1); cla;
+        ax1=subplot(1,2,1); cla;
         %surf(phi_f,amp_f,CoMoI')
         %hold on
         imagesc(phi_f, amp_f, CoMoI');
         
          set(gca, 'ydir', 'normal') %axis('xy')
-         clim([0 10^-3])
+         clim([0 10^-3.5])
          title('Silencing')
          xlabel('Phase Freq (Hz)'); ylabel('Amp Freq (Hz)');
          colorbar('Location', 'southoutside')
 
-        subplot(1,2,2); cla;
+        ax2=subplot(1,2,2); cla;
         imagesc(phi_f, amp_f, CoMoNI');
         %surf(CoMoNI)
         set(gca, 'ydir', 'normal')
@@ -981,7 +1012,7 @@ end
        
     %% Wavelet
     if plot_flag
-        figure(109)
+        figure(1009)
         cwt(csc.data, fs);
         [cfs, frq]=cwt(csc.data, fs);
         AX = gca;
@@ -1009,6 +1040,11 @@ end
         fig.Color = [1 1 1];         % Set background color to white
         fig.Position = [100, 100, 1200, 700];  % [x, y, width, height]
     end
+if save_flag
+        saveas(figure(9),[inter_dir filesep 'AutomaticFigures' filesep 'Fig0009' filesep 'Fig09_' info.subject '.png' ]);
+        %saveas(figure(9),[inter_dir filesep 'AutomaticFigures' filesep 'Fig0009' filesep 'Fig09_' info.subject '.pdf' ]);
+        saveas(figure(9),[inter_dir filesep 'AutomaticFigures' filesep 'Fig0009' filesep 'Fig09_' info.subject '.fig' ]);
+end
     
 %% Figure example LFP
 
@@ -1034,9 +1070,9 @@ if plot_flag
     %Theta phase
     ax3=subplot(5,2,3,'position', [0.05, 0.63, 0.43, 0.16])
     hold on
-    plot(csc.tvec, theta_phi, 'color',BC_color_genertor('Swamp_green') , 'linewidth', 1);
+    plot(csc.tvec, theta_amp_phi.data(3,:), 'color',BC_color_genertor('Swamp_green') , 'linewidth', 1);
     ylabel({'Theta phase','(rad)'})
-    ylim([min(theta_phi)-0.1 max(theta_phi)+0.1]);
+    ylim([min(theta_amp_phi.data(3,:))-0.1 max(theta_amp_phi.data(3,:))+0.1]);
     xlim([0 max(csc.tvec)]);
     
     % SG Amplitude 
@@ -1084,11 +1120,11 @@ if plot_flag
 
      %Theta phase
     ax4=subplot(5,2,4,'position', [0.52, 0.63, 0.43, 0.16])
-    plot(csc.tvec, theta_phi, 'color',BC_color_genertor('Swamp_green') , 'linewidth', 1);
+    plot(csc.tvec, theta_amp_phi.data(3,:), 'color',BC_color_genertor('Swamp_green') , 'linewidth', 1);
     
     h01=LTplotIvBars(iv_inhb,theta_csc.data,BC_color_genertor('Archt_green'),0.1);
     h02=LTplotIvBars(iv_noInhb,theta_csc.data,BC_color_genertor('Burnt_orange'),0.1);
-    ylim([min(theta_phi) max(theta_phi)]);
+    ylim([min(theta_amp_phi.data(3,:)) max(theta_amp_phi.data(3,:))]);
     xlim([0 max(csc.tvec)]);
 
     %SG amplitude
@@ -1157,6 +1193,7 @@ end
     out.(info.subject).(info.sess).sg_bp_inhib = sg_bp_inhib;
     out.(info.subject).(info.sess).fg_bp_inhib = fg_bp_inhib;
 
+
     out.(info.subject).(info.sess).t_bp_inhib_norm = t_bp_inhib_norm; 
     out.(info.subject).(info.sess).sg_bp_inhib_norm = sg_bp_inhib_norm;
     out.(info.subject).(info.sess).fg_bp_inhib_norm = fg_bp_inhib_norm;
@@ -1174,6 +1211,11 @@ end
     out.(info.subject).(info.sess).t_bp_noinhib = t_bp_noinhib; 
     out.(info.subject).(info.sess).sg_bp_noinhib = sg_bp_noinhib;
     out.(info.subject).(info.sess).fg_bp_noinhib = fg_bp_noinhib;
+
+    out.(info.subject).(info.sess).t_bp_noinhib_norm = t_bp_noinhib_norm; 
+    out.(info.subject).(info.sess).sg_bp_noinhib_norm = sg_bp_noinhib_norm;
+    out.(info.subject).(info.sess).fg_bp_noinhib_norm = fg_bp_noinhib_norm;
+
     out.(info.subject).(info.sess).modidx_SG_noinhib = modidx_SG_noinhib;
     out.(info.subject).(info.sess).modidx_FG_noinhib = modidx_FG_noinhib;
     out.(info.subject).(info.sess).z_SGNoInhb_modidx=z_SGNoInhb_modidx;
