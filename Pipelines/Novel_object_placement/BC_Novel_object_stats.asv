@@ -1062,7 +1062,7 @@ colInt= [int1; int2; int3]; %Columns interval
 Pwr_d1= sleep(sleep.Day==1,int2);
 Pwr_d2= sleep(sleep.Day==2,int2);
 
-Mod_d1=sleep(sleep.Day==1,int3);
+Mod_d1=sleep(sleep.Day==1,:);
 Mod_d2=sleep(sleep.Day==2,int3);
 
 meta=sleep(sleep.Day==1,int1);

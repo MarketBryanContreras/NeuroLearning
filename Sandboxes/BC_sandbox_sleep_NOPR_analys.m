@@ -44,7 +44,7 @@ inhib_dir = dir('*BC*');
 
 %% Loop to load data from raw
 
-for iS=9:length(inhib_dir)
+for iS=1:length(inhib_dir)
 
 
     %% Colloecting subject info
@@ -58,7 +58,9 @@ for iS=9:length(inhib_dir)
     info.date=[ parts{2} '_' parts{3} '_' parts{4}];
     info.session=parts{5};
     %% Individual parameters
-    if info.subject=="BC1807";
+    if info.subject=="BC011";
+        emg_chan = 'CSC1.ncs';lfp_chan = 'CSC4.ncs';%6 ..5,4
+    elseif info.subject=="BC1807";
         emg_chan = 'CSC1.ncs';lfp_chan = 'CSC6.ncs';
     elseif info.subject=="BC054";
         emg_chan = 'CSC1.ncs';lfp_chan = 'CSC7.ncs';
@@ -70,8 +72,6 @@ for iS=9:length(inhib_dir)
         emg_chan = 'CSC1.ncs';lfp_chan = 'CSC4.ncs';
     elseif info.subject=="BC013";
         emg_chan = 'CSC1.ncs';lfp_chan = 'CSC2.ncs';
-    elseif info.subject=="BC011";
-        emg_chan = 'CSC1.ncs';lfp_chan = 'CSC3.ncs';
     end
     %% Loading some data
 
@@ -211,12 +211,9 @@ for iS=9:length(inhib_dir)
     %% Obtaining the Mod IDX for the sleep periods
     % Restrict the filtered csc to the IV of SWS and REM
     theta_awake= restrict(theta_csc,iv_awake);
-    
     theta_sws= restrict(theta_csc,iv_sws);
-    
     theta_rem= restrict(theta_csc,iv_rem);
     
-
     SG_awake= restrict(SG_csc,iv_awake);
     SG_sws= restrict(SG_csc,iv_sws);
     SG_rem= restrict(SG_csc,iv_rem);
@@ -225,7 +222,7 @@ for iS=9:length(inhib_dir)
     FG_sws= restrict(FG_csc,iv_sws);
     FG_rem= restrict(FG_csc,iv_rem);
 
-    %Restricting the non filtered CSC to the sleep periods
+    % Restricting the non filtered CSC to the sleep periods
     CSC_Awk= restrict(csc_out, iv_awake);
     CSC_Sws= restrict(csc_out, iv_sws);
     CSC_Rem= restrict(csc_out, iv_rem);
@@ -248,6 +245,14 @@ for iS=9:length(inhib_dir)
 
     % Storing the Mod idx in a matrix
     this_mouse_modidx=[SGawakemodidx FGawakemodidx; SGswsmodidx FGswsmodidx; SGremmodidx FGremmodidx];
+
+    if plot_flag
+        figure(2001)
+        subplot(2,1,1) %plot the modulation index for FG 
+        plot([1 2 3],this_mouse_modidx(:,1));xticks([1:1:3]);xticklabels([{'Awake' 'SWS' 'REM'}]); ylabel('SG Mod Idx');
+        subplot(2,1,2) %plot the modulation index for FG
+        plot([1 2 3],this_mouse_modidx(:,2));xticks([1:1:3]);xticklabels([{'Awake' 'SWS' 'REM'}]); ylabel('FG Mod Idx');
+    end
     %sleep_mod_idx(:,:,iS)=this_mouse_modidx;
 %% Computing the CoMo analysis fo  this mouse
     cfg_como.A_step = 2; %I am using 2 for time-processing reasons
@@ -322,7 +327,7 @@ bpower_slp.rem.FG = bandpower(CSC_Rem.data,CSC_Rem.cfg.hdr{1}.SamplingFrequency,
         for ii=2:-1:1
             bar((x+step(ii)),this_mouse_modidx(:,ii),'BarWidth', .2,'EdgeColor','none' );
         end
-        xticks([1 2 3]);xticklabels(labels);legend({'Slow gamma' 'Fast Gamma'})
+        xticks([1 2 3]);xticklabels(labels);legend({'Fast gamma' 'Slow Gamma'})
         colororder(sleep_colors);
         ylabel("Modulation index (AU)"); 
         set(gca,'fontsize', 20);
