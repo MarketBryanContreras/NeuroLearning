@@ -29,7 +29,7 @@ if ~isstruct(theta_decimated) && ~isstruct(SG_decimated) && ~isstruct(FG_decimat
 
 else
 
-    %The following code create the veactor for the creation of the table
+    %The following code create the vector for the creation of the table
     thisThetAmp=restrict(theta_decimated, iv_inhb.tstart(ii), iv_inhb.tend(ii));
     thisSgAmp=restrict(SG_decimated, iv_inhb.tstart(ii), iv_inhb.tend(ii));
     thisFgAmp=restrict(FG_decimated, iv_inhb.tstart(ii), iv_inhb.tend(ii));

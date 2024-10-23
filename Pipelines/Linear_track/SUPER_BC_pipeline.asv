@@ -424,7 +424,6 @@ end
     inhbTbl=[];
 
     psd_inhb=[];
-    psd_inhb_norm=[];
 
     for ii = length(iv_inhb.tstart):-1:1
         if (iv_inhb.tend(ii) - iv_inhb.tstart(ii)) < min_trial_dur %Testing that the epoch last more than the treshold
@@ -493,8 +492,7 @@ end
             % Sum the power to get total power within this range
             total_power_in_range = sum(power_in_range);
             %Divide the frequencies to the mean amplitude of 1-50
-            norm_power=pxx./total_power_in_range;
-            psd_inhb_norm=[psd_inhb_norm; norm_power'];
+            norm_power=pxx./total_power_in_range
 
             %Create a table with epoch#, condition, amplitude, velocity
             outTbl=BC_EpochSpdAmpDcmtdTbl(theta_decimated, SG_decimated,FG_decimated,iv_inhb,ii);       
