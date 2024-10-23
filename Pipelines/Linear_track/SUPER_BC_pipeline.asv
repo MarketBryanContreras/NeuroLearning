@@ -424,6 +424,7 @@ end
     inhbTbl=[];
 
     psd_inhb=[];
+    psd_inhb_norm=[];
 
     for ii = length(iv_inhb.tstart):-1:1
         if (iv_inhb.tend(ii) - iv_inhb.tstart(ii)) < min_trial_dur %Testing that the epoch last more than the treshold
@@ -492,7 +493,8 @@ end
             % Sum the power to get total power within this range
             total_power_in_range = sum(power_in_range);
             %Divide the frequencies to the mean amplitude of 1-50
-            norm_power=pxx./total_power_in_range
+            norm_power=pxx./total_power_in_range;
+            psd_inhb_norm=[psd_inhb_norm; norm_power'];
 
             %Create a table with epoch#, condition, amplitude, velocity
             outTbl=BC_EpochSpdAmpDcmtdTbl(theta_decimated, SG_decimated,FG_decimated,iv_inhb,ii);       
@@ -574,7 +576,9 @@ end
     spdPwrTbl_inhb=table( spd_ihb',tta_amp_ihb',tta_pwr_ihb', tta_phi_ihb',sg_amp_ihb',sg_pwr_ihb',sg_phi_ihb',fg_amp_ihb',fg_pwr_ihb',fg_phi_ihb',epoch_ihb', 'VariableNames',{'spd','tta_amp','tta_pwr', 'tta_phi','sg_amp','sg_pwr','sg_phi','fg_amp','fg_pwr','fg_phi','epoch'});
     %creating a table for all the variables of the amplitude        
     spdPwrTbl_inhbTotal= table( tta_amp_ihbTotal',tta_pwr_ihbTotal', tta_phi_ihbTotal',sg_amp_ihbTotal',sg_pwr_ihbTotal',sg_phi_ihbTotal',fg_amp_ihbTotal',fg_pwr_ihbTotal',fg_phi_ihbTotal',epoch_ihbTotal', 'VariableNames',{'tta_amp','tta_pwr', 'tta_phi','sg_amp','sg_pwr','sg_phi','fg_amp','fg_pwr','fg_phi','epoch'});      
-          
+%Plotting the 
+
+
     % NO inhibition
             spd_noIhb=[]; 
             tta_amp_noIhb= [];

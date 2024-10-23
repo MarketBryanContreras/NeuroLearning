@@ -576,7 +576,11 @@ end
     spdPwrTbl_inhb=table( spd_ihb',tta_amp_ihb',tta_pwr_ihb', tta_phi_ihb',sg_amp_ihb',sg_pwr_ihb',sg_phi_ihb',fg_amp_ihb',fg_pwr_ihb',fg_phi_ihb',epoch_ihb', 'VariableNames',{'spd','tta_amp','tta_pwr', 'tta_phi','sg_amp','sg_pwr','sg_phi','fg_amp','fg_pwr','fg_phi','epoch'});
     %creating a table for all the variables of the amplitude        
     spdPwrTbl_inhbTotal= table( tta_amp_ihbTotal',tta_pwr_ihbTotal', tta_phi_ihbTotal',sg_amp_ihbTotal',sg_pwr_ihbTotal',sg_phi_ihbTotal',fg_amp_ihbTotal',fg_pwr_ihbTotal',fg_phi_ihbTotal',epoch_ihbTotal', 'VariableNames',{'tta_amp','tta_pwr', 'tta_phi','sg_amp','sg_pwr','sg_phi','fg_amp','fg_pwr','fg_phi','epoch'});      
-          
+%Plotting the psd with stdandar error
+std_error_psd_norm=std(psd_inhb_norm)./sqrt(size(psd_inhb_norm,2));
+
+
+
     % NO inhibition
             spd_noIhb=[]; 
             tta_amp_noIhb= [];
