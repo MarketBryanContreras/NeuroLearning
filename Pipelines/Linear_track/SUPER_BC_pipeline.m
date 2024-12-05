@@ -5,12 +5,12 @@
 % Make sure to add code from the CEH2 repo, Vadermeer lab code-shared repo,
 % NeuroLearning repo before going forward
  %% Dynamic loader
-[data_dir, inter_dir]=BC_linearTrack_dynamicLoader('experimental'); %"experimental" for archT, "control" 
+[data_dir, inter_dir]=BC_linearTrack_dynamicLoader('control'); %"experimental" for archT, "control" 
 %% Parameters
 plot_flag = 1; % switch to 0 if you want to supress verification figures.
 time_maze_start = 30; %Seconds to exclude from recording
 min_trial_dur = 0.5;
-mouse_group=1; %1 for ArchT and 2 for eYFP. This just modify color of the plots
+mouse_group=2; %1 for ArchT and 2 for eYFP. This just modify color of the plots
 save_flag=00;
 if plot_flag==0 %Making sure that if there is not plots, the save flag is off
     save_flag=00;
@@ -45,7 +45,7 @@ for iS =1%:length(inhib_dir)
     %Assign which csc to load to each mouse and the pattern of the ttl that
     %represents an event in the board
     if strcmpi(info.subject, 'BC1602')
-        cfg_csc.fc ={'CSC4.ncs'}; %2#'CSC4.ncs,7'
+        cfg_csc.fc ={'CSC7.ncs'}; %2#'CSC4.ncs,7'
         pattern = 'TTL Input on AcqSystem1_0 board 0 port 3 value (0x0002).';
     elseif strcmpi(info.subject, 'BC051')
         cfg_csc.fc ={'CSC5.ncs'};%5%7%2%4
@@ -54,7 +54,7 @@ for iS =1%:length(inhib_dir)
         cfg_csc.fc ={'CSC6.ncs'};%3
         pattern = 'TTL Input on AcqSystem1_0 board 0 port 3 value (0x0002).';
     elseif strcmpi(info.subject, 'BC053')
-        cfg_csc.fc ={'CSC4.ncs'};%4
+        cfg_csc.fc ={'CSC5.ncs'};%4
         pattern = 'TTL Input on AcqSystem1_0 board 0 port 1 value (0x0040).';
     elseif strcmpi(info.subject, 'BC054')
         cfg_csc.fc ={'CSC5.ncs'};%5%2%4%7
@@ -66,7 +66,7 @@ for iS =1%:length(inhib_dir)
         cfg_csc.fc ={'CSC6.ncs'};%2%4
         pattern = 'TTL Input on AcqSystem1_0 board 0 port 1 value (0x0040).';
     elseif strcmpi(info.subject, 'BC014')
-        cfg_csc.fc ={'CSC7.ncs'};%4%5
+        cfg_csc.fc ={'CSC2.ncs'};%4%5
         pattern = 'TTL Input on AcqSystem1_0 board 0 port 1 value (0x0040).';
     end
 
@@ -119,7 +119,7 @@ for iS =1%:length(inhib_dir)
     % filter the LFP in the theta band
     cfg_filt_t = [];
     cfg_filt_t.type = 'cheby1';                                            %'fdesign'; %the type of filter I want to use via filterlfp
-    cfg_filt_t.f  = [6 10];                                                % freq range to match Mizuseki et al. 2011
+    cfg_filt_t.f  = [4 12];                                                % freq range to match Mizuseki et al. 2011
     cfg_filt_t.order = 3;                                                  %type filter order
     cfg_filt_t.display_filter = 0;                                         % use this to see the fvtool
     theta_csc = FilterLFP(cfg_filt_t, csc);                                % filter the raw LFP using
@@ -155,6 +155,7 @@ for iS =1%:length(inhib_dir)
     power_in_range = pxx(idx);
     % Sum the power to get total power within this range
     total_power_in_range = sum(power_in_range);
+    %control_bp =  bandpower(csc.data, csc.cfg.hdr{1}.SamplingFrequency, [5 50]); %Calculates the theta band power
     %Divide the frequencies to the mean amplitude of 1-50
     norm_power=pxx./total_power_in_range
     % Plot
@@ -295,7 +296,7 @@ end
     %% Calculating and plotting modulation index 
     %For slow gamma
     %SG-Inhb
-    SGphiAmpNormInhb=BC_phase_amp_norm_bins(theta_inhb,SG_inhb);
+    SGphiAmpNormInhb=BC_phase_amp_norm_bins(theta_inhb,SG_inhb,9);
     SGInhb_modidx=MS_ModIdx(SGphiAmpNormInhb);
     if plot_flag
         if mouse_group ==1;

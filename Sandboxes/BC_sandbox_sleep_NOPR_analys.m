@@ -16,9 +16,10 @@
      
 % cd(data_dir)
 %% General parameters
-plot_flag = 01;
+plot_flag = 00;
 video_flag=00;
 save_output=01;
+save_figures=00;
 %% Rolling through the folders with dynamic loader
 sys=computer;
 if contains(sys,'PCWIN')
@@ -45,8 +46,6 @@ inhib_dir = dir('*BC*');
 %% Loop to load data from raw
 
 for iS=1:length(inhib_dir)
-
-
     %% Colloecting subject info
     
     cd([inhib_dir(iS).folder filesep inhib_dir(iS).name])
@@ -59,15 +58,17 @@ for iS=1:length(inhib_dir)
     info.session=parts{5};
     %% Individual parameters
     if info.subject=="BC011";
-        emg_chan = 'CSC1.ncs';lfp_chan = 'CSC4.ncs';%6 ..5,4
+        emg_chan = 'CSC1.ncs';lfp_chan = 'CSC6.ncs';%6...5,4
     elseif info.subject=="BC1807";
-        emg_chan = 'CSC1.ncs';lfp_chan = 'CSC6.ncs';
+        emg_chan = 'CSC1.ncs';lfp_chan = 'CSC5.ncs';%6...
     elseif info.subject=="BC054";
-        emg_chan = 'CSC1.ncs';lfp_chan = 'CSC7.ncs';
+        emg_chan = 'CSC1.ncs';lfp_chan = 'CSC4.ncs';%7...6,5,4,3,
     elseif info.subject=="BC053";
         emg_chan = 'CSC1.ncs';lfp_chan = 'CSC7.ncs';
-    elseif info.subject=="BC051";
-        emg_chan = 'CSC1.ncs';lfp_chan = 'CSC2.ncs';
+    elseif info.subject=="BC051" && info.session=="D1"; %Adjudted to match cable number, due to mouse bitting cable during end of recording in D1 and changing cables in D2 and tracked the corresponding cable to match corresponding cable
+        emg_chan = 'CSC1.ncs';lfp_chan = 'CSC6.ncs';%2...3,4,5,6,7
+    elseif info.subject=="BC051" && info.session=="D2";
+        emg_chan = 'CSC1.ncs';lfp_chan = 'CSC2.ncs';%2...3,4,5,6,7
     elseif info.subject=="BC014";
         emg_chan = 'CSC1.ncs';lfp_chan = 'CSC4.ncs';
     elseif info.subject=="BC013";
@@ -181,7 +182,7 @@ for iS=1:length(inhib_dir)
     wake_idx = nearest_idx(wake_t, csc_s.tvec); %Converts time to sample idx
     wake_idx = reshape(wake_idx,2, length(wake_idx)/2)'; %reshape(columns, rows)
     %% score the sleep
-    [hypno, csc_out, emg_out] = dSub_Sleep_screener(plot_flag, csc_s, emg_s, wake_idx);  % can add in 'wake_idx' as the last input.
+    [hypno, csc_out, emg_out] = dSub_Sleep_screener(0, csc_s, emg_s, wake_idx);  % can add in 'wake_idx' as the last input.
     %% Obtaining the time stamps for these sleep states
     [iv_awake, iv_sws, iv_rem]= BC_sleep_iv_extractor(hypno);
     %% Filter CSC in the theta and gamma bands
@@ -246,61 +247,61 @@ for iS=1:length(inhib_dir)
     % Storing the Mod idx in a matrix
     this_mouse_modidx=[SGawakemodidx FGawakemodidx; SGswsmodidx FGswsmodidx; SGremmodidx FGremmodidx];
 
-    if plot_flag
-        figure(2001)
-        subplot(2,1,1) %plot the modulation index for FG 
-        plot([1 2 3],this_mouse_modidx(:,1));xticks([1:1:3]);xticklabels([{'Awake' 'SWS' 'REM'}]); ylabel('SG Mod Idx');
-        subplot(2,1,2) %plot the modulation index for FG
-        plot([1 2 3],this_mouse_modidx(:,2));xticks([1:1:3]);xticklabels([{'Awake' 'SWS' 'REM'}]); ylabel('FG Mod Idx');
-    end
+    % if plot_flag
+    %     figure(2001)
+    %     subplot(2,1,1) %plot the modulation index for FG 
+    %     plot([1 2 3],this_mouse_modidx(:,1));xticks([1:1:3]);xticklabels([{'Awake' 'SWS' 'REM'}]); ylabel('SG Mod Idx');
+    %     subplot(2,1,2) %plot the modulation index for FG
+    %     plot([1 2 3],this_mouse_modidx(:,2));xticks([1:1:3]);xticklabels([{'Awake' 'SWS' 'REM'}]); ylabel('FG Mod Idx');
+    % end
     %sleep_mod_idx(:,:,iS)=this_mouse_modidx;
 %% Computing the CoMo analysis fo  this mouse
-    cfg_como.A_step = 2; %I am using 2 for time-processing reasons
-    cfg_como.P_step = .5; %0.5
-    cfg_como.phi_bins = 18; %18
-
-    This_CoMo=[];
-    [This_CoMo.CoMoAwk, This_CoMo.phi_f, This_CoMo.amp_f] = MS_phase_freq(cfg_como, CSC_Awk, [4 12], [30 100]);
-    [This_CoMo.CoMoSws, phi_f, amp_f] = MS_phase_freq(cfg_como, CSC_Sws, [4 12], [30 100]);
-    [This_CoMo.CoMoRem, ~, ~] = MS_phase_freq(cfg_como, CSC_Rem, [4 12], [30 100]);
-
-    
-    if plot_flag
-        figure(203)
-        clf
-        subplot(1,3,1); cla;
-        %surf(phi_f,amp_f,CoMoAwk')
-        %zlim([-0.5e-3 2e-3])
-        %hold on
-        imagesc(phi_f, amp_f, CoMoAwk');
-        set(gca, 'ydir', 'normal') %axis('xy')
-        clim([0 10^-3.4])
-        title('Awake')
-        xlabel('Phase Freq (Hz)'); ylabel('Amp Freq (Hz)');
-        colorbar('Location', 'southoutside')
-
-        subplot(1,3,2); cla;
-        %surf(phi_f,amp_f,CoMoAwk')
-        %zlim([-0.5e-3 2e-3])
-        %hold on
-        imagesc(phi_f, amp_f, CoMoSws');
-        set(gca, 'ydir', 'normal') %axis('xy')
-        %clim([0 10^-3.4])
-        title('SWS')
-        xlabel('Phase Freq (Hz)'); ylabel('Amp Freq (Hz)');
-        colorbar('Location', 'southoutside')
-
-        subplot(1,3,3); cla;
-        imagesc(phi_f, amp_f, CoMoRem');
-        set(gca, 'ydir', 'normal') %axis('xy')
-        %clim([0 10^-3.4])
-        title('REM')
-        xlabel('Phase Freq (Hz)'); ylabel('Amp Freq (Hz)');
-        colorbar('Location', 'southoutside')
-        SetFigure([], gcf)
-        maximize
+    % cfg_como.A_step = 2; %I am using 2 for time-processing reasons
+    % cfg_como.P_step = .5; %0.5
+    % cfg_como.phi_bins = 18; %18
+    % 
+    % This_CoMo=[];
+    % [This_CoMo.CoMoAwk, This_CoMo.phi_f, This_CoMo.amp_f] = MS_phase_freq(cfg_como, CSC_Awk, [4 12], [30 100]);
+    % [This_CoMo.CoMoSws, phi_f, amp_f] = MS_phase_freq(cfg_como, CSC_Sws, [4 12], [30 100]);
+    % [This_CoMo.CoMoRem, ~, ~] = MS_phase_freq(cfg_como, CSC_Rem, [4 12], [30 100]);
+    % 
+    % 
+    % if plot_flag
+    %     figure(203)
+    %     clf
+    %     subplot(1,3,1); cla;
+    %     %surf(phi_f,amp_f,CoMoAwk')
+    %     %zlim([-0.5e-3 2e-3])
+    %     %hold on
+    %     imagesc(phi_f, amp_f, CoMoAwk');
+    %     set(gca, 'ydir', 'normal') %axis('xy')
+    %     clim([0 10^-3.4])
+    %     title('Awake')
+    %     xlabel('Phase Freq (Hz)'); ylabel('Amp Freq (Hz)');
+    %     colorbar('Location', 'southoutside')
+    % 
+    %     subplot(1,3,2); cla;
+    %     %surf(phi_f,amp_f,CoMoAwk')
+    %     %zlim([-0.5e-3 2e-3])
+    %     %hold on
+    %     imagesc(phi_f, amp_f, CoMoSws');
+    %     set(gca, 'ydir', 'normal') %axis('xy')
+    %     %clim([0 10^-3.4])
+    %     title('SWS')
+    %     xlabel('Phase Freq (Hz)'); ylabel('Amp Freq (Hz)');
+    %     colorbar('Location', 'southoutside')
+    % 
+    %     subplot(1,3,3); cla;
+    %     imagesc(phi_f, amp_f, CoMoRem');
+    %     set(gca, 'ydir', 'normal') %axis('xy')
+    %     %clim([0 10^-3.4])
+    %     title('REM')
+    %     xlabel('Phase Freq (Hz)'); ylabel('Amp Freq (Hz)');
+    %     colorbar('Location', 'southoutside')
+    %     SetFigure([], gcf)
+    %     maximize
         
-    end
+    %end
 %% Analizying the powerband of the sleep periods
 bpower_slp=[];
 bpower_slp.awk.Tta = bandpower(CSC_Awk.data,CSC_Awk.cfg.hdr{1}.SamplingFrequency, [5 12]);
@@ -314,9 +315,26 @@ bpower_slp.sws.FG = bandpower(CSC_Sws.data,CSC_Sws.cfg.hdr{1}.SamplingFrequency,
 bpower_slp.rem.Tta = bandpower(CSC_Rem.data,CSC_Rem.cfg.hdr{1}.SamplingFrequency, [5 12]);
 bpower_slp.rem.SG = bandpower(CSC_Rem.data,CSC_Rem.cfg.hdr{1}.SamplingFrequency, [30 58]);
 bpower_slp.rem.FG = bandpower(CSC_Rem.data,CSC_Rem.cfg.hdr{1}.SamplingFrequency, [60 100]);
+sleep_colors= [...
+            0.3467    0.5360    0.6907;
+            0.9153    0.2816    0.2878;
+            0.4416    0.7490    0.4322];
 
+% Creating  a structure for the bar graph to compare powers
+bp_bar=[];
+lclBP=[];
+slpStates=fieldnames(bpower_slp);
+bpCat=fieldnames(bpower_slp.(slpStates{1}));
+for iS=1:length(slpStates)
+    for iC=1:length(bpCat)
+        lclBP=[lclBP; bpower_slp.(slpStates{iS}).(bpCat{iC})];
+    end
+    bp_bar=[bp_bar lclBP];
+    lclBP=[];
+end
     %% Ploting the mod idx over the sleep phases for comparison
     if plot_flag
+        figure(3)
         clf
         x=[1 2 3];
         step=0.15;
@@ -334,12 +352,40 @@ bpower_slp.rem.FG = bandpower(CSC_Rem.data,CSC_Rem.cfg.hdr{1}.SamplingFrequency,
         cYLim=gca().YLim;cYLim=cYLim(2);
         new_axis=[0:(cYLim/4):cYLim];
         yticks(new_axis);
-       
+        tText=[sprintf('ModIdx of mouse %s on %s with %s' , info.subject, info.session, lfp_chan )];
+        title(tText); colororder(sleep_colors);
+  
     end
+    if save_figures
+        cd('/Users/bryancontrerasmercado/Documents/01_Projects/02_OLM_silencing/11_sleep_guide/ModIdx')
 
+        modIdxFileName=[sprintf('%s_SleepModIDX_%s_%s.',info.subject, info.session,(lfp_chan(1:4)))];
+        saveas(figure(3),[modIdxFileName 'png']);
+        saveas(figure(3),[modIdxFileName 'fig']);
+    end
     % FG_pow = BC_power(FG_csc);
     % FG_phi = angle(hilbert(FG_csc.data));
-        %% Getting the percentage of sleep sates
+%% Plotting the band powers
+if plot_flag
+    figure(2)
+    bar(bp_bar,'EdgeColor','none');
+    legend({"Awake" "SWS" "REM"});
+    xticklabels({'Theta' 'SG' 'FG'});
+    ylabel('Band power (V)');
+    tText=[sprintf('Band power of mouse %s on %s with %s' , info.subject, info.session, lfp_chan )];
+    title(tText); colororder(sleep_colors);
+end
+if save_figures
+    cd('/Users/bryancontrerasmercado/Documents/01_Projects/02_OLM_silencing/11_sleep_guide/BandPower')
+    BPFileName=[sprintf('%s_SleepModIDX_%s_%s.',info.subject, info.session,(lfp_chan(1:4)))];
+    if save_figures
+        cd('/Users/bryancontrerasmercado/Documents/01_Projects/02_OLM_silencing/11_sleep_guide/BandPower');
+        BpFileName=[sprintf('%s_SleepBandBower_%s_%s.',info.subject, info.session,(lfp_chan(1:4)))];
+        saveas(figure(2),[BpFileName 'png']);
+        saveas(figure(2),[BpFileName 'fig']);
+    end
+end
+    %% Getting the percentage of sleep sates
     [y,x]=histcounts(hypno.data,[0.5:1:3.5]); %Y=count, x=rnage values
     y_per=(y/sum(y))*100; %Percentage of Wake, SWS and REM
     sleep_time_sec=(y./(csc_s.cfg.hdr{1,1}.SamplingFrequency))';
@@ -381,7 +427,7 @@ bpower_slp.rem.FG = bandpower(CSC_Rem.data,CSC_Rem.cfg.hdr{1}.SamplingFrequency,
     out.(info.subject).(info.session).sleep.percetages=y_per;
     out.(info.subject).(info.session).sleep.times_sec=sleep_time_sec;
     out.(info.subject).(info.session).sleep.mod_idx=this_mouse_modidx;
-    out.(info.subject).(info.session).sleep.CoMo=This_CoMo;
+    %out.(info.subject).(info.session).sleep.CoMo=This_CoMo;
     out.(info.subject).sleep_labels=hypno.labels;
     out.(info.subject).(info.session).sleep.powers=bpower_slp;
 
@@ -438,26 +484,28 @@ bpower_slp.rem.FG = bandpower(CSC_Rem.data,CSC_Rem.cfg.hdr{1}.SamplingFrequency,
         %%% You are here in this function
 %% Creating a heatmap of the position of the mouse
 % Number of bins for the heatmap (resolution of the grid)
-numBins = 40;
-sec2delete=40;
-GaussianS=1.2;
-for iF=1:nfiles
-    X=pos.(files{iF}).data(1,sec2delete*30:end);
-    Y=pos.(files{iF}).data(2,sec2delete*30:end);
-    [heatmapData,C] = hist3([X', Y'], [numBins, numBins]);
-    heatmapData=(heatmapData./length(X))*100;
-    heatmapData_smoothed = imgaussfilt(heatmapData, GaussianS);
-    % Plot the heatmap
-    figure (1600+iF);
-    imagesc(C{1}', C{2}',heatmapData_smoothed'); % Transpose because hist3's output is transposed
-    hold on
-    plot(X,Y,'w')
-    clim([0 0.2])
-    %set(gca, 'YDir', 'normal'); % Correct the Y-axis direction
-    colorbar; % Show color scale
-    title('Heatmap of Mouse Position in Open Field');
-    %xlabel('Position (cm) ');
-    %ylabel('Position (cm)');
+if plot_flag
+    numBins = 40;
+    sec2delete=40;
+    GaussianS=1.2;
+    for iF=1:nfiles
+        X=pos.(files{iF}).data(1,sec2delete*30:end);
+        Y=pos.(files{iF}).data(2,sec2delete*30:end);
+        [heatmapData,C] = hist3([X', Y'], [numBins, numBins]);
+        heatmapData=(heatmapData./length(X))*100;
+        heatmapData_smoothed = imgaussfilt(heatmapData, GaussianS);
+        % Plot the heatmap
+        figure (1600+iF);
+        imagesc(C{1}', C{2}',heatmapData_smoothed'); % Transpose because hist3's output is transposed
+        hold on
+        plot(X,Y,'w')
+        clim([0 0.2])
+        %set(gca, 'YDir', 'normal'); % Correct the Y-axis direction
+        colorbar; % Show color scale
+        title('Heatmap of Mouse Position in Open Field');
+        %xlabel('Position (cm) ');
+        %ylabel('Position (cm)');
+    end
 end
         %% Plot the position of the mouse
         %%---To do--- Adapt this cell to the new structures

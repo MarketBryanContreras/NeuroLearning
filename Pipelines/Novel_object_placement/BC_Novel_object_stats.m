@@ -15,7 +15,7 @@ end
 %% Load data
 cd(inter_dir);
 load ("out-13-Jun-2024.mat"); %Selecte the data to be loaded
-% out=rmfield(out,"BC051");
+out=rmfield(out,"BC051");
 %% Init paramaters
 %Initialize columns
 subject = []; 
@@ -203,12 +203,14 @@ linkaxes([sp3 sp4],'y')
 %Pcnt of inv time
 ff=figure(900);
 clf;
-subplot(1,6,1)
+subplot(1,2,1)
 boxplot(metrics.pcnt_inv_time, metrics.cohort,'Labels', {'Control', 'ArchT'})
+ylim([30 90])
+%ylabel('Percentage (%)')
 xtickangle(45);
 hold on
 
-title('% of Inv. Time');
+title(sprintf('Investigation\ntime'));
 colors = [BC_color_genertor('archt_green');  % RGB values for Group 2
     BC_color_genertor('powder_blue')]; % RGB values for Group1;
 h = findobj(gca, 'Tag', 'Box');  % Get handles to the box objects
@@ -216,21 +218,24 @@ for aa = 1:numel(h)
     patch(get(h(aa), 'XData'), get(h(aa), 'YData'), colors(aa, :), 'FaceAlpha', 0.8);
 end
 % Customize line and whisker colors
-set(findobj(gca,'Type','Line'),'Color',[0.2 0.2 0.2]);
+set(findobj(gca,'Type','Line'),'Color',[0.1 0.1 0.1]);
 % Adjust plot aesthetics
 set(gca, 'TickDir', 'out');  % Move ticks outside the plot
+set(gca, 'FontSize',18);  % Move ticks outside the plot
+
 box off;                     % Turn off the box around the plot
 
 % ctrl_val=(metrics.pcnt_inv_time(metrics.cohort==1));
 % exp_val=(metrics.pcnt_inv_time(metrics.cohort==2));
 % [h,p]=ttest2(ctrl_val,exp_val)
 
-subplot(1,6,2)
+subplot(1,2,2)
 boxplot(metrics.pcnt_inv_int,  metrics.cohort,'Labels', {'Control', 'ArchT'})
+ylim([30 90]);
 xtickangle(45);
 hold on
 
-title('% of Inv. Interactions');
+title(sprintf('Investigation\ninteractions'));
 colors = [BC_color_genertor('archt_green');  % RGB values for Group 2
     BC_color_genertor('powder_blue')]; % RGB values for Group1;
 h = findobj(gca, 'Tag', 'Box');  % Get handles to the box objects
@@ -242,91 +247,93 @@ set(findobj(gca,'Type','Line'),'Color',[0.2 0.2 0.2]);
 % Adjust plot aesthetics
 set(gca, 'TickDir', 'out');  % Move ticks outside the plot
 box off;                     % Turn off the box around the plot
+set(gca, 'FontSize',18);  % Move ticks outside the plot
 
-ctrl_val=(metrics.pcnt_inv_int(metrics.cohort==1));
-exp_val=(metrics.pcnt_inv_int(metrics.cohort==2));
-[h,p]=ttest2(ctrl_val,exp_val)
 
-subplot(1,6,3)
-boxplot(metrics.disc_indx_time,  metrics.cohort,'Labels', {'Control', 'ArchT'})
-xtickangle(45);
-hold on
-title('Disc. idx time');
-colors = [BC_color_genertor('archt_green');  % RGB values for Group 2
-    BC_color_genertor('powder_blue')]; % RGB values for Group1;
-h = findobj(gca, 'Tag', 'Box');  % Get handles to the box objects
-for aa = 1:numel(h)
-    patch(get(h(aa), 'XData'), get(h(aa), 'YData'), colors(aa, :), 'FaceAlpha', 0.8);
-end
-% Customize line and whisker colors
-set(findobj(gca,'Type','Line'),'Color',[0.2 0.2 0.2]);
-% Adjust plot aesthetics
-set(gca, 'TickDir', 'out');  % Move ticks outside the plot
-box off;                     % Turn off the box around the plot
-
-% ctrl_val=(mmetrics.disc_indx_time(metrics.cohort==1))
-% exp_val=(metrics.disc_indx_time(metrics.cohort==2))
-%[h,p]=ttest2(ctrl_val,exp_val)
-
-subplot(1,6,4)
-boxplot(metrics.disc_indx_int,  metrics.cohort,'Labels', {'Control', 'ArchT'})
-xtickangle(45);
-hold on
-title('Disc. idx interactions');
-colors = [BC_color_genertor('archt_green');  % RGB values for Group 2
-    BC_color_genertor('powder_blue')]; % RGB values for Group1;
-h = findobj(gca, 'Tag', 'Box');  % Get handles to the box objects
-for aa = 1:numel(h)
-    patch(get(h(aa), 'XData'), get(h(aa), 'YData'), colors(aa, :), 'FaceAlpha', 0.8);
-end
-% Customize line and whisker colors
-set(findobj(gca,'Type','Line'),'Color',[0.2 0.2 0.2]);
-% Adjust plot aesthetics
-set(gca, 'TickDir', 'out');  % Move ticks outside the plot
-box off;                     % Turn off the box around the plot
-
-% ctrl_val=(metrics.disc_indx_int(metrics.cohort==1))
-% exp_val=(metrics.disc_indx_int(metrics.cohort==2))
+% ctrl_val=(metrics.pcnt_inv_int(metrics.cohort==1));
+% exp_val=(metrics.pcnt_inv_int(metrics.cohort==2));
 % [h,p]=ttest2(ctrl_val,exp_val)
 
-
-subplot(1,6,5)
-boxplot(metrics.pcnt_objA_int_post,  metrics.cohort,'Labels', {'Control', 'ArchT'})
-xtickangle(45);
-hold on
-title('% of interactions obj. A post');
-colors = [BC_color_genertor('archt_green');  % RGB values for Group 2
-    BC_color_genertor('powder_blue')]; % RGB values for Group1;
-h = findobj(gca, 'Tag', 'Box');  % Get handles to the box objects
-for aa = 1:numel(h)
-    patch(get(h(aa), 'XData'), get(h(aa), 'YData'), colors(aa, :), 'FaceAlpha', 0.8);
-end
-% Customize line and whisker colors
-set(findobj(gca,'Type','Line'),'Color',[0.2 0.2 0.2]);
-% Adjust plot aesthetics
-set(gca, 'TickDir', 'out');  % Move ticks outside the plot
-box off;                     % Turn off the box around the plot
-
-% ctrl_val=(metrics.pcnt_objA_int_post(metrics.cohort==1))
-% exp_val=(metrics.pcnt_objA_int_post(metrics.cohort==2))
-% [h,p]=ttest2(ctrl_val,exp_val)
-
-subplot(1,6,6)
-boxplot(metrics.pcnt_objB_int_post,  metrics.cohort,'Labels', {'Control', 'ArchT'})
-xtickangle(45);
-hold on
-title('% of interactions obj. B post');
-colors = [BC_color_genertor('archt_green');  % RGB values for Group 2
-    BC_color_genertor('powder_blue')]; % RGB values for Group1;
-h = findobj(gca, 'Tag', 'Box');  % Get handles to the box objects
-for aa = 1:numel(h)
-    patch(get(h(aa), 'XData'), get(h(aa), 'YData'), colors(aa, :), 'FaceAlpha', 0.8);
-end
-% Customize line and whisker colors
-set(findobj(gca,'Type','Line'),'Color',[0.2 0.2 0.2]);
-% Adjust plot aesthetics
-set(gca, 'TickDir', 'out');  % Move ticks outside the plot
-box off;          
+% subplot(1,6,3)
+% boxplot(metrics.disc_indx_time,  metrics.cohort,'Labels', {'Control', 'ArchT'})
+% xtickangle(45);
+% hold on
+% title('Disc. idx time');
+% colors = [BC_color_genertor('archt_green');  % RGB values for Group 2
+%     BC_color_genertor('powder_blue')]; % RGB values for Group1;
+% h = findobj(gca, 'Tag', 'Box');  % Get handles to the box objects
+% for aa = 1:numel(h)
+%     patch(get(h(aa), 'XData'), get(h(aa), 'YData'), colors(aa, :), 'FaceAlpha', 0.8);
+% end
+% % Customize line and whisker colors
+% set(findobj(gca,'Type','Line'),'Color',[0.2 0.2 0.2]);
+% % Adjust plot aesthetics
+% set(gca, 'TickDir', 'out');  % Move ticks outside the plot
+% box off;                     % Turn off the box around the plot
+% 
+% % ctrl_val=(mmetrics.disc_indx_time(metrics.cohort==1))
+% % exp_val=(metrics.disc_indx_time(metrics.cohort==2))
+% %[h,p]=ttest2(ctrl_val,exp_val)
+% 
+% subplot(1,6,4)
+% boxplot(metrics.disc_indx_int,  metrics.cohort,'Labels', {'Control', 'ArchT'})
+% xtickangle(45);
+% hold on
+% title('Disc. idx interactions');
+% colors = [BC_color_genertor('archt_green');  % RGB values for Group 2
+%     BC_color_genertor('powder_blue')]; % RGB values for Group1;
+% h = findobj(gca, 'Tag', 'Box');  % Get handles to the box objects
+% for aa = 1:numel(h)
+%     patch(get(h(aa), 'XData'), get(h(aa), 'YData'), colors(aa, :), 'FaceAlpha', 0.8);
+% end
+% % Customize line and whisker colors
+% set(findobj(gca,'Type','Line'),'Color',[0.2 0.2 0.2]);
+% % Adjust plot aesthetics
+% set(gca, 'TickDir', 'out');  % Move ticks outside the plot
+% box off;                     % Turn off the box around the plot
+% 
+% % ctrl_val=(metrics.disc_indx_int(metrics.cohort==1))
+% % exp_val=(metrics.disc_indx_int(metrics.cohort==2))
+% % [h,p]=ttest2(ctrl_val,exp_val)
+% 
+% 
+% subplot(1,6,5)
+% boxplot(metrics.pcnt_objA_int_post,  metrics.cohort,'Labels', {'Control', 'ArchT'})
+% xtickangle(45);
+% hold on
+% title('% of interactions obj. A post');
+% colors = [BC_color_genertor('archt_green');  % RGB values for Group 2
+%     BC_color_genertor('powder_blue')]; % RGB values for Group1;
+% h = findobj(gca, 'Tag', 'Box');  % Get handles to the box objects
+% for aa = 1:numel(h)
+%     patch(get(h(aa), 'XData'), get(h(aa), 'YData'), colors(aa, :), 'FaceAlpha', 0.8);
+% end
+% % Customize line and whisker colors
+% set(findobj(gca,'Type','Line'),'Color',[0.2 0.2 0.2]);
+% % Adjust plot aesthetics
+% set(gca, 'TickDir', 'out');  % Move ticks outside the plot
+% box off;                     % Turn off the box around the plot
+% 
+% % ctrl_val=(metrics.pcnt_objA_int_post(metrics.cohort==1))
+% % exp_val=(metrics.pcnt_objA_int_post(metrics.cohort==2))
+% % [h,p]=ttest2(ctrl_val,exp_val)
+% 
+% subplot(1,6,6)
+% boxplot(metrics.pcnt_objB_int_post,  metrics.cohort,'Labels', {'Control', 'ArchT'})
+% xtickangle(45);
+% hold on
+% title('% of interactions obj. B post');
+% colors = [BC_color_genertor('archt_green');  % RGB values for Group 2
+%     BC_color_genertor('powder_blue')]; % RGB values for Group1;
+% h = findobj(gca, 'Tag', 'Box');  % Get handles to the box objects
+% for aa = 1:numel(h)
+%     patch(get(h(aa), 'XData'), get(h(aa), 'YData'), colors(aa, :), 'FaceAlpha', 0.8);
+% end
+% % Customize line and whisker colors
+% set(findobj(gca,'Type','Line'),'Color',[0.2 0.2 0.2]);
+% % Adjust plot aesthetics
+% set(gca, 'TickDir', 'out');  % Move ticks outside the plot
+% box off;          
 
 % ctrl_val=(metrics.pcnt_objB_int_post(metrics.cohort==1))
 % exp_val=(metrics.pcnt_objB_int_post(metrics.cohort==2))
@@ -337,7 +344,7 @@ box off;
  fig = gcf;                   % Get current figure handle
  fig.Color = [1 1 1];         % Set background color to white
  % Resize the figure (optional)
- fig.Position = [200, 200, 1000, 700];  % [x, y, width, height]
+ fig.Position = [600, 200, 400, 600];  % [x, y, width, height]
  %saveas(gcf, 'FG_NormModIdx.png');%%%% fill in nice plotting %%%%%%%
 
 %% Stats
@@ -1067,11 +1074,11 @@ Mod_d2=sleep(sleep.Day==2,int3);
 
 meta=sleep(sleep.Day==1,int1);
 %Divide the coressponding columns of D2/D1 and multiply by 100 in pwr
-pcntChange=(Pwr_d1./Pwr_d2).*100;
+pcntChange=(Pwr_d2./Pwr_d1).*100;
 pcntChange= [meta, pcntChange];
 
 %Divide the coressponding columns of D2/D1 and multiply by 100 in pwr
-pcntModChange=(Mod_d1./Mod_d2).*100;
+pcntModChange=(Mod_d2./Mod_d1).*100;
 pcntModChange= [meta, pcntModChange];
 % Define colors
 colors = [

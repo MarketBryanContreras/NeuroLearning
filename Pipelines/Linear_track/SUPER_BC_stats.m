@@ -4,7 +4,7 @@
 % load(['C:\Users\ecarm\Downloads' filesep 'out_eyfp_06_nov_23.mat'])
 %% Adjust the name of the files to load
 ArchT_file_name='out_archt_08_Aug_24.mat';
-eyfp_file_name='out_eyfp_08_Aug_24.mat';
+eyfp_file_name='out_eyfp_12_Aug_24.mat';
 
 % ArchT_file_name='out_Arch_07_nov_23.mat';
 % eyfp_file_name='out_eyfp_07_nov_23.mat';
@@ -1040,21 +1040,21 @@ vlnArchtNoInhb=vlnArchtNoInhb(vlnArchtNoInhb>tresh);
 vlnArchtInhb=ArchtInhbSpdPwrTbl.Spd;
 vlnArchtInhb=vlnArchtInhb(vlnArchtInhb>tresh);
 %Stats
-[h1,p1]=ttest2(vlnCtrlNoInhb',vlnCtrlInhb');
-[h2,p2]=ttest2(vlnArchtNoInhb,vlnArchtInhb);
-[h3,p3]=ttest2(vlnArchtNoInhb,vlnArchtInhb);
+% [h1,p1]=ttest2(vlnCtrlNoInhb',vlnCtrlInhb');
+% [h2,p2]=ttest2(vlnArchtNoInhb,vlnArchtInhb);
+% [h3,p3]=ttest2(vlnArchtNoInhb,vlnArchtInhb);
 
 dataviolin=([vlnCtrlNoInhb;vlnCtrlInhb;vlnArchtNoInhb;vlnArchtInhb]);
-condition_names={'Control No Silencing','Control Silencing','ArchT No Silencing','ArchT Silencing'};
+condition_names={'No light','Light','No light','Light'};
 groups=([ones(1,length(vlnCtrlNoInhb)),2.*ones(1,length(vlnCtrlInhb)),3.*ones(1,length(vlnArchtNoInhb)),4.*ones(1,length(vlnArchtInhb))]);
-c=[BC_color_genertor('Powder_blue');...
+c=[BC_color_genertor('Oxford_blue');...
     BC_color_genertor('Swamp_green');...
-    BC_color_genertor('Oxford_blue');...
+    BC_color_genertor('Powder_blue');...
     BC_color_genertor('Archt_green')];
 % adding jittered scattered data same color boxplots for 2x2 data
 figure(332)
 h = daviolinplot(dataviolin,'groups',groups,'outsymbol','k+',...
-    'boxcolors','same','colors',c,'scatter',1,'jitter',0,'violinalpha',0.7,'xtlabels', condition_names);
+    'boxcolors','same','colors',c,'scatter',0,'jitter',1,'violinalpha',0.7,'xtlabels', condition_names);
 ylabel('Speed (cm/s)');
 xl = xlim; xlim([xl(1)-0.1, xl(2)+0.2]); % make more space for the legend
 ylim([0 40]);
