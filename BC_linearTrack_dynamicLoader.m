@@ -1,4 +1,4 @@
-function [data_dir,inter_dir]=BC_linearTrack_dynamicLoader(group)
+function [data_dir,inter_dir, mouse_group]=BC_linearTrack_dynamicLoader(group)
 %% The function Dynamic loader: Goes to the dyrectroy of experiemntal orcontrol groups to continue with the the pipeline
 %            
 %   Inputs:
@@ -38,5 +38,11 @@ elseif ischar(group) || isstring(group)
         else disp("This system is not supported on the dynamic loader yet, pleae add it or contact BC for it")
         end
         cd(data_dir)
+        if group=="experimental"
+            mouse_group=1;
+        else
+            mouse_group=2;
+        end
     end
+    
 end

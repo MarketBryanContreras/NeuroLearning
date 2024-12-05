@@ -44,7 +44,7 @@ for iS =1%:length(inhib_dir)
     cfg_csc.desired_sampling_frequency = 2000;
     %Assign which csc to load to each mouse and the pattern of the ttl that represents an event in the board
     if strcmpi(info.subject, 'BC1602')
-        cfg_csc.fc ={'CSC7.ncs'}; %2#'CSC4.ncs,7'
+        cfg_csc.fc ={'CSC4.ncs'}; %2#'CSC4.ncs,7'
         pattern = 'TTL Input on AcqSystem1_0 board 0 port 3 value (0x0002).';
     elseif strcmpi(info.subject, 'BC051')
         cfg_csc.fc ={'CSC5.ncs'};%5%7%2%4
@@ -53,7 +53,7 @@ for iS =1%:length(inhib_dir)
         cfg_csc.fc ={'CSC6.ncs'};%3
         pattern = 'TTL Input on AcqSystem1_0 board 0 port 3 value (0x0002).';
     elseif strcmpi(info.subject, 'BC053')
-        cfg_csc.fc ={'CSC5.ncs'};%4
+        cfg_csc.fc ={'CSC4.ncs'};%4
         pattern = 'TTL Input on AcqSystem1_0 board 0 port 1 value (0x0040).';
     elseif strcmpi(info.subject, 'BC054')
         cfg_csc.fc ={'CSC5.ncs'};%5%2%4%7
@@ -65,7 +65,7 @@ for iS =1%:length(inhib_dir)
         cfg_csc.fc ={'CSC6.ncs'};%2%4
         pattern = 'TTL Input on AcqSystem1_0 board 0 port 1 value (0x0040).';
     elseif strcmpi(info.subject, 'BC014')
-        cfg_csc.fc ={'CSC2.ncs'};%4%5
+        cfg_csc.fc ={'CSC7.ncs'};%4%5
         pattern = 'TTL Input on AcqSystem1_0 board 0 port 1 value (0x0040).';
     end
 
@@ -154,7 +154,6 @@ for iS =1%:length(inhib_dir)
     power_in_range = pxx(idx);
     % Sum the power to get total power within this range
     total_power_in_range = sum(power_in_range);
-    %control_bp =  bandpower(csc.data, csc.cfg.hdr{1}.SamplingFrequency, [5 50]); %Calculates the theta band power
     %Divide the frequencies to the mean amplitude of 1-50
     norm_power=pxx./total_power_in_range
     % Plot
@@ -295,7 +294,7 @@ end
     %% Calculating and plotting modulation index 
     %For slow gamma
     %SG-Inhb
-    SGphiAmpNormInhb=BC_phase_amp_norm_bins(theta_inhb,SG_inhb,9);
+    SGphiAmpNormInhb=BC_phase_amp_norm_bins(theta_inhb,SG_inhb);
     SGInhb_modidx=MS_ModIdx(SGphiAmpNormInhb);
     if plot_flag
         if mouse_group ==1;
@@ -577,9 +576,7 @@ end
     spdPwrTbl_inhb=table( spd_ihb',tta_amp_ihb',tta_pwr_ihb', tta_phi_ihb',sg_amp_ihb',sg_pwr_ihb',sg_phi_ihb',fg_amp_ihb',fg_pwr_ihb',fg_phi_ihb',epoch_ihb', 'VariableNames',{'spd','tta_amp','tta_pwr', 'tta_phi','sg_amp','sg_pwr','sg_phi','fg_amp','fg_pwr','fg_phi','epoch'});
     %creating a table for all the variables of the amplitude        
     spdPwrTbl_inhbTotal= table( tta_amp_ihbTotal',tta_pwr_ihbTotal', tta_phi_ihbTotal',sg_amp_ihbTotal',sg_pwr_ihbTotal',sg_phi_ihbTotal',fg_amp_ihbTotal',fg_pwr_ihbTotal',fg_phi_ihbTotal',epoch_ihbTotal', 'VariableNames',{'tta_amp','tta_pwr', 'tta_phi','sg_amp','sg_pwr','sg_phi','fg_amp','fg_pwr','fg_phi','epoch'});      
-%Plotting the psd with stdandar error
-std_error_psd_norm=std(psd_inhb_norm)./sqrt(size(psd_inhb_norm,2));
-
+%Plotting the 
 
 
     % NO inhibition
