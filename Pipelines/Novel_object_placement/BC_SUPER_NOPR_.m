@@ -36,26 +36,22 @@ else disp("This system is not supported on the dynamic loader yet, pleae add it 
 end
 cd(data_dir)
 
-% get all sessions with 'BC'
-inhib_dir = dir('*BC*');
-
+% get the folders from D1 and D2
+D1_dir = dir('*D1_hab*');
+D2_dir=dir('*D2_nopr*');
 %% Initializing outputs
     out=[];
     sleep_mod_idx=[];
 
 %% Loop to load data from raw
 
-for iS=1:length(inhib_dir)
+for iS=1:length(D1_dir)
     %% Colloecting subject info
-    
-    cd([inhib_dir(iS).folder filesep inhib_dir(iS).name])
+    subjectFolder = fullfile(data_dir, inhib_dir(iS).name);
+
+    cd([D1_dir(iS).folder filesep D1_dir(iS).name])
     parts = pwd;
-    parts= split(parts,filesep);
-    parts=parts{end};
-    parts= split(parts,'_');
-    info.subject=parts{1};
-    info.date=[ parts{2} '_' parts{3} '_' parts{4}];
-    info.session=parts{5};
+    infoD1= infoSession(parts);
     %% Individual parameters
     if info.subject=="BC011";
         emg_chan = 'CSC1.ncs';lfp_chan = 'CSC6.ncs';%6...5,4
@@ -74,52 +70,24 @@ for iS=1:length(inhib_dir)
     elseif info.subject=="BC013";
         emg_chan = 'CSC1.ncs';lfp_chan = 'CSC2.ncs';
     end
-    %% Loading some data
+    %% Loading data
 
     % Load the CSC guide
     cfg = [];
     cfg.fc = {lfp_chan};
-    csc = MS_LoadCSC(cfg);
+    cscD1 = MS_LoadCSC(cfg);
 
     % Load the EMG
     cfg_emg = [];
     cfg_emg.fc = {emg_chan};
-    emg = MS_LoadCSC(cfg_emg);
+    emgD1= MS_LoadCSC(cfg_emg);
 
     % load the events
-    evts = LoadEvents([]);
+    evtsD1 = LoadEvents([]);
 
     %% Restrict the data only to the sleep phase
-
-    %Extractinc the time stamps of the recording
-    start_OF = evts.t{find(contains(evts.label, 'Starting Recording'))}(1); %Choose the time stamp of the first "Starting recording" which corresponds to the start of the OF
-    start_sleep = evts.t{find(contains(evts.label, 'Starting Recording'))}(2); %Choose the time stamp of the *second* "Starting recording" which corresponds to the start of the sleep recording
-
-    end_OF = evts.t{find(contains(evts.label, 'Stopping Recording'))}(1);%Choose the time stamp of the first "Stopping Recording" which corresponds to the end of the OF
-    end_sleep = evts.t{find(contains(evts.label, 'Stopping Recording'))}(2);%Choose the time stamp of the second "Stopping Recording" which corresponds to the end of the sleep recording
-
-    %Add the third recoding seesion in case it is a recording from day 2
-    if info.session=="D2"
-        start_NOPR = evts.t{find(contains(evts.label, 'Starting Recording'))}(3);
-        end_NOPR = evts.t{find(contains(evts.label, 'Stopping Recording'))}(3);
-    end
-
-    %Printing the duration of OF and sleeping
-    fprintf('<strong>OF duration: %.2f mins</strong>\n', (end_OF - start_OF)/60);
-    fprintf('<strong>Sleep duration: %.2f mins = %.2f hrs and %.2f min </strong>\n', (end_sleep - start_sleep)/60,floor(((end_sleep - start_sleep)/60)/60), ((end_sleep - start_sleep)/60) -(60*(floor(((end_sleep - start_sleep)/60)/60))));
-
-    if info.session=="D2"
-        fprintf('<strong>NOPR duration: %.2f mins</strong>\n', ((end_NOPR - start_NOPR)/60));
-    end
-
-    %Restrict the data to just the sleep recording.
-    csc_s = restrict(csc, start_sleep, end_sleep);
-    emg_s = restrict(emg, start_sleep, end_sleep);
-
-    %Correcting times
-    csc_s.tvec= csc_s.tvec-csc_s.tvec(1);
-    emg_s.tvec=emg_s.tvec- emg_s.tvec(1);
-
+    [csc_sD1, emg_sD1]=Sleep_restrict(evtsD1,cscD1,emgD1,infoD1);
+ 
     %% plot a bit of data for quality check end verify the awake states
     if plot_flag
 
@@ -140,56 +108,53 @@ for iS=1:length(inhib_dir)
         xlim([csc_s.tvec(1) csc_s.tvec(end)])
     end
 
-    %% sleep state
+    %% sleep state *adapt
 
     % specify known wake times or periods to ignore. Note; The perios are in
     % the interval format, so you want to write when do they start and when do
     % they end in pairs
-    if info.session== "D1" %Awake times for mice during the day one
-        if strcmpi(info.subject,"BC1807")
-            wake_t = [0 3292 3657 5083 8332 10042 12118 13092];
-        elseif strcmpi(info.subject,"BC053") %Specify the wake period according to subject and session
-            wake_t = [0 3093 5015 5631 8824 9340 10605 10880 11531 11803 12450 13020 13618 13743 14188 14397];
-        elseif strcmpi(info.subject,"BC011")
-            wake_t = [0 1493 3455 4407 10405 13405 14654 14710];
-        elseif strcmpi(info.subject,"BC013")
-            wake_t = [0 4296 4735 5514 9823 10377 12838 13281];
-        elseif strcmpi(info.subject,"BC014")
-            wake_t = [0 4869 6952 9715 11557 11861 12753 13105 13301 13531];
-        elseif strcmpi(info.subject,"BC051") % check this animal, apparenlty there was only 2 hrs of sleep 
-            wake_t = [0 954 6238 8179];
-        elseif strcmpi(info.subject,"BC054") 
-            wake_t = [0 1423 2710 3859 4097 5355 6072 7153 9607 10098 11770 13206 13683 14402];
+    
+        if strcmpi(infoD1.subject,"BC1807")
+            wake_tD1 = [0 3292 3657 5083 8332 10042 12118 13092];
+        elseif strcmpi(infoD1.subject,"BC053") %Specify the wake period according to subject and session
+            wake_tD1 = [0 3093 5015 5631 8824 9340 10605 10880 11531 11803 12450 13020 13618 13743 14188 14397];
+        elseif strcmpi(infoD1.subject,"BC011")
+            wake_tD1 = [0 1493 3455 4407 10405 13405 14654 14710];
+        elseif strcmpi(infoD1.subject,"BC013")
+            wake_tD1 = [0 4296 4735 5514 9823 10377 12838 13281];
+        elseif strcmpi(infoD1.subject,"BC014")
+            wake_tD1 = [0 4869 6952 9715 11557 11861 12753 13105 13301 13531];
+        elseif strcmpi(infoD1.subject,"BC051") % check this animal, apparenlty there was only 2 hrs of sleep 
+            wake_tD1 = [0 954 6238 8179];
+        elseif strcmpi(infoD1.subject,"BC054") 
+            wake_tD1 = [0 1423 2710 3859 4097 5355 6072 7153 9607 10098 11770 13206 13683 14402];
         end
-    elseif info.session== "D2" %Awake times for mice during the day two
-        if strcmpi(info.subject,"BC1807")
-            wake_t = [0 4735 7179 9298 10043 11642 13919 14403];
-        elseif strcmpi(info.subject,"BC011")
-            wake_t = [0 9199 10295  11070];
-        elseif strcmpi(info.subject,"BC013")
-            wake_t = [0 688 1817 3130 4335 4783 6820 7511 10772 11917];
-        elseif strcmpi(info.subject,"BC014")
-            wake_t = [0 3730 ];
-        elseif strcmpi(info.subject,"BC051") % check this animal, apparenlty there was only 2 hrs of sleep
-            wake_t = [0 2453 2944 4320 4721 5119 6653 7569 10306 11233 13043 13639];
-        elseif strcmpi(info.subject,"BC053") %Specify the wake period according to subject and session
-            %wake_t = [0 3093 5015 5631 8824 9340 10605 10880 11531 11803 12450 13020 13618 13743 14188 14397];
-        elseif strcmpi(info.subject,"BC054") % check this animal, apparenlty there was only 2 hrs of sleep
-            wake_t = [0 2518 4597 5331 6521 8947 9211 7153 9607 10094 12110 12942];
-        end
+        %To add to part2
+        % if strcmpi(infoD2.subject,"BC1807")
+        %     wake_t = [0 4735 7179 9298 10043 11642 13919 14403];
+        % elseif strcmpi(infoD2.subject,"BC011")
+        %     wake_t = [0 9199 10295  11070];
+        % elseif strcmpi(infoD2.subject,"BC013")
+        %     wake_t = [0 688 1817 3130 4335 4783 6820 7511 10772 11917];
+        % elseif strcmpi(infoD2.subject,"BC014")
+        %     wake_t = [0 3730 ];
+        % elseif strcmpi(infoD2.subject,"BC051") % check this animal, apparenlty there was only 2 hrs of sleep
+        %     wake_t = [0 2453 2944 4320 4721 5119 6653 7569 10306 11233 13043 13639];
+        % elseif strcmpi(infoD2.subject,"BC053") %Specify the wake period according to subject and session
+        %     %wake_t = [0 3093 5015 5631 8824 9340 10605 10880 11531 11803 12450 13020 13618 13743 14188 14397];
+        % elseif strcmpi(infoD2.subject,"BC054") % check this animal, apparenlty there was only 2 hrs of sleep
+        %     wake_t = [0 2518 4597 5331 6521 8947 9211 7153 9607 10094 12110 12942];
+        % end
     end
     
-    wake_idx = nearest_idx(wake_t, csc_s.tvec); %Converts time to correspondant sample idx
-    wake_idx = reshape(wake_idx,2, length(wake_idx)/2)'; %reshape(columns, rows)
+    wake_idxD1 = nearest_idx(wake_tD1, csc_sD1.tvec); %Converts time to correspondant sample idx
+    wake_idxD1 = reshape(wake_idxD1,2, length(wake_idxD1)/2)'; %reshape(columns, rows)
     %% score the sleep
-    [hypno, csc_out, emg_out] = dSub_Sleep_screener(1, csc_s, emg_s, wake_idx);  % can add in 'wake_idx' as the last input.
+    [hypno, csc_out, emg_out] = dSub_Sleep_screener(1, csc_s, emg_s, wake_idxD1);  % can add in 'wake_idx' as the last input.
     %% Obtaining the time stamps for these sleep states
-    [iv_awake, iv_sws, iv_rem]= BC_sleep_iv_extractor(hypno);
+    [iv_awakeD1, iv_swsD1, iv_remD1]= BC_sleep_iv_extractor(hypno);
     %% Obtaining IV for inhibition in case this is session D2
-    if info.session=='D2'
-        evts = LoadEvents([]);
-    end
-    %
+ 
     %% Filter CSC in the theta and gamma bands
     % filter the LFP in the theta band
     cfg_filt_t = [];
@@ -217,12 +182,10 @@ for iS=1:length(inhib_dir)
 
     %% Band power extraction per REM episode
     min_trial_dur=10;
-    D1BD=[];
-    D1Modidx=[];
+   
     %loop over the REM IV
-    for thisIV =length(iv_rem.tstart):1:1
-        if (iv_rem.tend(thisIV) - iv_rem.tstart(thisIV)) < min_trial_dur %Testing that the epoch last more than the treshold
-
+    for thisIV =length(iv_remD1.tstart):1:1
+        %if (iv_rem.tend(thisIV) - iv_rem.tstart(thisIV)) < min_trial_dur %Testing that the epoch last more than the treshold
 
             %Extract the band power and mod idx for each rem episode
             this_csc = restrict(csc_s, iv_inhb.tstart(ii), iv_inhb.tend(ii));
@@ -256,8 +219,9 @@ for iS=1:length(inhib_dir)
             [~, F, ~,P] = spectrogram(this_csc.data,hanning(win_s),win_s/2,1:0.1:160,this_csc.cfg.hdr{1}.SamplingFrequency); % spectrogram -- will take a while to compute!, add 'yaxis for visualization porpuses
             %F: Frequency axis of the spectrogram. P: Power spectral density (or magnitude squared of the Fourier transform) of the signal.
             [r_inhib(:,:,ii),~] = corrcoef(10*log10(P')); % correlation matrix (across frequ`encies) of spectrogram
-        end
-        %Putting these values in a structure 
+%        end
+        
+        %% Putting these values in a structure 
         out.(info.subject).(info.sess).t_bp_inhib = t_bp_inhib;
         out.(info.subject).(info.sess).sg_bp_inhib = sg_bp_inhib;
         out.(info.subject).(info.sess).fg_bp_inhib = fg_bp_inhib;
@@ -270,11 +234,13 @@ for iS=1:length(inhib_dir)
         out.(info.subject).(info.sess).modidx_FG_inhib = modidx_FG_inhib;
         out.(info.subject).(info.sess).z_SGInhb_modidx=z_SGInhb_modidx;
         out.(info.subject).(info.sess).z_FGInhb_modidx=z_FGInhb_modidx;
-       
-
-
-
-
+    end
+        %% Going to D2 session
+    cd([D2_dir(iS).folder filesep D2_dir(iS).name])
+    parts = pwd;
+    infoD2=infoSession(parts);
+    
+        
     %% Obtaining the Mod IDX for the sleep periods
     % Restrict the filtered csc to the IV of SWS and REM
     theta_awake= restrict(theta_csc,iv_awake);
