@@ -16,7 +16,7 @@
      
 % cd(data_dir)
 %% General parameters
-plot_flag = 00;
+plot_flag = 01;
 video_flag=00;
 save_output=01;
 save_figures=00;
@@ -179,12 +179,13 @@ for iS=1:length(inhib_dir)
         end
     end
     
-    wake_idx = nearest_idx(wake_t, csc_s.tvec); %Converts time to sample idx
+    wake_idx = nearest_idx(wake_t, csc_s.tvec); %Converts time to correspondant sample idx
     wake_idx = reshape(wake_idx,2, length(wake_idx)/2)'; %reshape(columns, rows)
     %% score the sleep
-    [hypno, csc_out, emg_out] = dSub_Sleep_screener(0, csc_s, emg_s, wake_idx);  % can add in 'wake_idx' as the last input.
+    [hypno, csc_out, emg_out] = dSub_Sleep_screener(1, csc_s, emg_s, wake_idx);  % can add in 'wake_idx' as the last input.
     %% Obtaining the time stamps for these sleep states
     [iv_awake, iv_sws, iv_rem]= BC_sleep_iv_extractor(hypno);
+    %% Obtaining IV for inhibition in case this is session D2
     %% Filter CSC in the theta and gamma bands
     % filter the LFP in the theta band
     cfg_filt_t = [];
@@ -209,6 +210,38 @@ for iS=1:length(inhib_dir)
     cfg_filt_fg.order = 4;                                                  %type filter order
     cfg_filt_fg.display_filter = 0;                                         % use this to see the fvtool
     FG_csc = FilterLFP(cfg_filt_fg, csc_out);                                   % filter the raw LFP using
+
+    %% Band power extraction per REM episode
+    min_trial_dur=10;
+    D1BD=[];
+    D1Modidx=[];
+    %loop over the REM IV
+    for thisIV =length(iv_rem.tstart):1:1
+        if (iv_rem.tend(thisIV) - iv_rem.tstart(thisIV)) < min_trial_dur %Testing that the epoch last more than the treshold
+
+
+            %Extract the band power and mod idx for each rem episode
+            this_csc = restrict(csc_s, iv_inhb.tstart(ii), iv_inhb.tend(ii));
+
+            t_bp =  bandpower(this_csc.data, this_csc.cfg.hdr{1}.SamplingFrequency, [4 12]); %Calculates the theta band power
+            sg_bp = bandpower(this_csc.data, this_csc.cfg.hdr{1}.SamplingFrequency, [30 58]);%Calculates the sg band power
+            fg_bp = bandpower(this_csc.data, this_csc.cfg.hdr{1}.SamplingFrequency, [60 100]);%Calculates the fg band power
+
+            ref_bp = bandpower(this_csc.data, this_csc.cfg.hdr{1}.SamplingFrequency, [1 50]);%Calculates the ref band power
+            %Store the theta, sg, and fg power in their varibales
+            t_bp_inhib(ii)= t_bp;
+            sg_bp_inhib(ii) = sg_bp;
+            fg_bp_inhib(ii) = fg_bp;
+            
+            t_bp_inhib_norm(ii)= t_bp/ ref_bp;
+            sg_bp_inhib_norm(ii) = sg_bp/ ref_bp;
+            fg_bp_inhib_norm(ii) = fg_bp/ ref_bp;
+
+
+            %Store it in a vector
+
+        end
+
     %% Obtaining the Mod IDX for the sleep periods
     % Restrict the filtered csc to the IV of SWS and REM
     theta_awake= restrict(theta_csc,iv_awake);
