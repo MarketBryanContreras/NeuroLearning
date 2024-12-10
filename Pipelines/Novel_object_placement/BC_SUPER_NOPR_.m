@@ -16,7 +16,7 @@
      
 % cd(data_dir)
 %% General parameters
-plot_flag = 01;
+plot_flag = 00;
 video_flag=00;
 save_output=01;
 save_figures=00;
@@ -45,30 +45,28 @@ D2_dir=dir('*D2_nopr*');
 
 %% Loop to load data from raw
 
-for iS=1:length(D1_dir)
+for iS=4:length(D1_dir)
     %% Colloecting subject info
-    subjectFolder = fullfile(data_dir, inhib_dir(iS).name);
+    %subjectFolder = fullfile(data_dir, inhib_dir(iS).name);
 
     cd([D1_dir(iS).folder filesep D1_dir(iS).name])
     parts = pwd;
     infoD1= infoSession(parts);
     %% Individual parameters
-    if info.subject=="BC011";
-        emg_chan = 'CSC1.ncs';lfp_chan = 'CSC6.ncs';%6...5,4
-    elseif info.subject=="BC1807";
-        emg_chan = 'CSC1.ncs';lfp_chan = 'CSC5.ncs';%6...
-    elseif info.subject=="BC054";
-        emg_chan = 'CSC1.ncs';lfp_chan = 'CSC4.ncs';%7...6,5,4,3,
-    elseif info.subject=="BC053";
-        emg_chan = 'CSC1.ncs';lfp_chan = 'CSC7.ncs';
-    elseif info.subject=="BC051" && info.session=="D1"; %Adjudted to match cable number, due to mouse bitting cable during end of recording in D1 and changing cables in D2 and tracked the corresponding cable to match corresponding cable
-        emg_chan = 'CSC1.ncs';lfp_chan = 'CSC6.ncs';%2...3,4,5,6,7
-    elseif info.subject=="BC051" && info.session=="D2";
-        emg_chan = 'CSC1.ncs';lfp_chan = 'CSC2.ncs';%2...3,4,5,6,7
-    elseif info.subject=="BC014";
-        emg_chan = 'CSC1.ncs';lfp_chan = 'CSC4.ncs';
-    elseif info.subject=="BC013";
-        emg_chan = 'CSC1.ncs';lfp_chan = 'CSC2.ncs';
+    if infoD1.subject=="BC011";
+        emg_chan = 'CSC1.ncs';lfp_chan = 'CSC3.ncs';lfp_chanD2='CSC3.ncs';%6...5,4
+    elseif infoD1.subject=="BC1807";
+        emg_chan = 'CSC1.ncs';lfp_chan = 'CSC6.ncs';lfp_chanD2='CSC6.ncs';%6...7...4.3
+    elseif infoD1.subject=="BC054";
+        emg_chan = 'CSC1.ncs';lfp_chan = 'CSC3.ncs';lfp_chanD2='CSC3.ncs';%7...6,5,4,3,
+    elseif infoD1.subject=="BC053";
+        emg_chan = 'CSC1.ncs';lfp_chan = 'CSC7.ncs';lfp_chanD2='CSC7.ncs';
+    elseif infoD1.subject=="BC051" ; %Adjudted to match cable number, due to mouse bitting cable during end of recording in D1 and changing cables in D2 and tracked the corresponding cable to match corresponding cable
+        emg_chan = 'CSC1.ncs';lfp_chan = 'CSC6.ncs';lfp_chanD2='CSC2.ncs';%2...3,4,5,6,7
+    elseif infoD1.subject=="BC014";
+        emg_chan = 'CSC1.ncs';lfp_chan = 'CSC4.ncs';lfp_chanD2='CSC4.ncs';
+    elseif infoD1.subject=="BC013";
+        emg_chan = 'CSC1.ncs';lfp_chan = 'CSC7.ncs';lfp_chanD2='CSC7.ncs';
     end
     %% Loading data
 
@@ -91,21 +89,21 @@ for iS=1:length(D1_dir)
     %% plot a bit of data for quality check end verify the awake states
     if plot_flag
 
-        figure(1)
+        figure(4)
         clf
 
         ax(1) = subplot(2,1,1);
-        plot(csc_s.tvec, csc_s.data);
+        plot(csc_sD1.tvec, csc_sD1.data);
         legend('HC LFP')
 
         ax(2) = subplot(2,1,2);
-        plot(emg_s.tvec, emg_s.data - .001, 'r') % offset it a bit
+        plot(emg_sD1.tvec, emg_sD1.data - .001, 'r') % offset it a bit
         legend('emg')
 
         linkaxes(ax, 'x'); % locks the x axes of the subplots so if you zoom on one the other zooms in.
 
         % fix the annoying wide limits on the x axis
-        xlim([csc_s.tvec(1) csc_s.tvec(end)])
+        xlim([csc_sD1.tvec(1) csc_sD1.tvec(end)])
     end
 
     %% sleep state *adapt
@@ -125,9 +123,9 @@ for iS=1:length(D1_dir)
         elseif strcmpi(infoD1.subject,"BC014")
             wake_tD1 = [0 4869 6952 9715 11557 11861 12753 13105 13301 13531];
         elseif strcmpi(infoD1.subject,"BC051") % check this animal, apparenlty there was only 2 hrs of sleep 
-            wake_tD1 = [0 954 6238 8179];
+            wake_tD1 = [0 954 1542 1603 2770 2822 3081 3144 4588 4661 6238 8179];
         elseif strcmpi(infoD1.subject,"BC054") 
-            wake_tD1 = [0 1423 2710 3859 4097 5355 6072 7153 9607 10098 11770 13206 13683 14402];
+            wake_tD1 = [0 2054 2710 3859 4111 4621 4971 5234 6148 6328 6695 7153 7498 8198 8410 8725 9564 9999 11770 13106 13683 14402];
         end
         %To add to part2
         % if strcmpi(infoD2.subject,"BC1807")
@@ -145,24 +143,24 @@ for iS=1:length(D1_dir)
         % elseif strcmpi(infoD2.subject,"BC054") % check this animal, apparenlty there was only 2 hrs of sleep
         %     wake_t = [0 2518 4597 5331 6521 8947 9211 7153 9607 10094 12110 12942];
         % end
-    end
-    
+        %end
+
     wake_idxD1 = nearest_idx(wake_tD1, csc_sD1.tvec); %Converts time to correspondant sample idx
     wake_idxD1 = reshape(wake_idxD1,2, length(wake_idxD1)/2)'; %reshape(columns, rows)
     %% score the sleep
-    [hypno, csc_out, emg_out] = dSub_Sleep_screener(1, csc_s, emg_s, wake_idxD1);  % can add in 'wake_idx' as the last input.
+    [hypnoD1, csc_outD1, emg_outD1] = dSub_Sleep_screener(1, csc_sD1, emg_sD1, wake_idxD1);  % can add in 'wake_idx' as the last input.
     %% Obtaining the time stamps for these sleep states
-    [iv_awakeD1, iv_swsD1, iv_remD1]= BC_sleep_iv_extractor(hypno);
+    [iv_awakeD1, iv_swsD1, iv_remD1]= BC_sleep_iv_extractor(hypnoD1);
     %% Obtaining IV for inhibition in case this is session D2
  
-    %% Filter CSC in the theta and gamma bands
+     %% Filter CSC in the theta and gamma bands
     % filter the LFP in the theta band
     cfg_filt_t = [];
     cfg_filt_t.type = 'cheby1';                                            %'fdesign'; %the type of filter I want to use via filterlfp
     cfg_filt_t.f  = [5 12];                                                % freq range to match Mizuseki et al. 2011
     cfg_filt_t.order = 3;                                                  %type filter order
     cfg_filt_t.display_filter = 0;                                         % use this to see the fvtool
-    theta_csc = FilterLFP(cfg_filt_t, csc_out);                                % filter the raw LFP using
+    theta_cscD1 = FilterLFP(cfg_filt_t, csc_outD1);                                % filter the raw LFP using
     
     % Filter the LFP in the slow gamma band
     cfg_filt_sg = [];
@@ -170,7 +168,7 @@ for iS=1:length(D1_dir)
     cfg_filt_sg.f  = [30 58]; % freq range to match Mizuseki et al. 2011
     cfg_filt_sg.order = 4; %type filter orderf
     cfg_filt_sg.display_filter = 0; % use this to see the fvtool
-    SG_csc = FilterLFP(cfg_filt_sg, csc_out); % filter the raw LFP using
+    SG_cscD1 = FilterLFP(cfg_filt_sg, csc_outD1); % filter the raw LFP using
 
     % Filter the LFP in the fast gamma band
     cfg_filt_fg = [];
@@ -178,87 +176,334 @@ for iS=1:length(D1_dir)
     cfg_filt_fg.f  = [60 100];                                               % freq range to match Mizuseki et al. 2011
     cfg_filt_fg.order = 4;                                                  %type filter order
     cfg_filt_fg.display_filter = 0;                                         % use this to see the fvtool
-    FG_csc = FilterLFP(cfg_filt_fg, csc_out);                                   % filter the raw LFP using
+    FG_cscD1 = FilterLFP(cfg_filt_fg, csc_outD1);                                   % filter the raw LFP using
 
     %% Band power extraction per REM episode
     min_trial_dur=10;
-   
+    win_s = 256;
     %loop over the REM IV
-    for thisIV =length(iv_remD1.tstart):1:1
+    for ii =length(iv_remD1.tstart):-1:1
         %if (iv_rem.tend(thisIV) - iv_rem.tstart(thisIV)) < min_trial_dur %Testing that the epoch last more than the treshold
 
             %Extract the band power and mod idx for each rem episode
-            this_csc = restrict(csc_s, iv_inhb.tstart(ii), iv_inhb.tend(ii));
+            this_csc = restrict(csc_sD1, iv_remD1.tstart(ii), iv_remD1.tend(ii));
 
-            t_bp =  bandpower(this_csc.data, this_csc.cfg.hdr{1}.SamplingFrequency, [4 12]); %Calculates the theta band power
-            sg_bp = bandpower(this_csc.data, this_csc.cfg.hdr{1}.SamplingFrequency, [30 58]);%Calculates the sg band power
-            fg_bp = bandpower(this_csc.data, this_csc.cfg.hdr{1}.SamplingFrequency, [60 100]);%Calculates the fg band power
+            t_bpD1 =  bandpower(this_csc.data, this_csc.cfg.hdr{1}.SamplingFrequency, [4 12]); %Calculates the theta band power
+            sg_bpD1 = bandpower(this_csc.data, this_csc.cfg.hdr{1}.SamplingFrequency, [30 58]);%Calculates the sg band power
+            fg_bpD1 = bandpower(this_csc.data, this_csc.cfg.hdr{1}.SamplingFrequency, [60 100]);%Calculates the fg band power
 
-            ref_bp = bandpower(this_csc.data, this_csc.cfg.hdr{1}.SamplingFrequency, [1 50]);%Calculates the ref band power
+            ref_bpD1 = bandpower(this_csc.data, this_csc.cfg.hdr{1}.SamplingFrequency, [1 50]);%Calculates the ref band power
             %Store the theta, sg, and fg power in their varibales
-            t_bp_inhib(ii)= t_bp;
-            sg_bp_inhib(ii) = sg_bp;
-            fg_bp_inhib(ii) = fg_bp;
+            t_bp_inhibD1(ii)= t_bpD1;
+            sg_bp_inhibD1(ii) = sg_bpD1;
+            fg_bp_inhibD1(ii) = fg_bpD1;
             
-            t_bp_inhib_norm(ii)= t_bp/ ref_bp;
-            sg_bp_inhib_norm(ii) = sg_bp/ ref_bp;
-            fg_bp_inhib_norm(ii) = fg_bp/ ref_bp;
+            t_bp_inhib_normD1(ii)= t_bpD1/ ref_bpD1;
+            sg_bp_inhib_normD1(ii) = sg_bpD1/ ref_bpD1;
+            fg_bp_inhib_normD1(ii) = fg_bpD1/ ref_bpD1;
 
             %Mod-idx analysis
 
-            this_th = restrict(theta_csc, iv_inhb.tstart(ii), iv_inhb.tend(ii));
-            this_sg = restrict(SG_csc, iv_inhb.tstart(ii), iv_inhb.tend(ii));
-            this_fg = restrict(FG_csc, iv_inhb.tstart(ii), iv_inhb.tend(ii));
+            this_thD1 = restrict(theta_cscD1, iv_remD1.tstart(ii), iv_remD1.tend(ii));
+            this_sgD1 = restrict(SG_cscD1, iv_remD1.tstart(ii), iv_remD1.tend(ii));
+            this_fgD1 = restrict(FG_cscD1, iv_remD1.tstart(ii), iv_remD1.tend(ii));
             %SG
-            this_SG_phi_amp=BC_phase_amp_norm_bins(this_th,this_sg);
-            modidx_SG_inhib(ii) =MS_ModIdx(this_SG_phi_amp);
+            this_SG_phi_ampD1=BC_phase_amp_norm_bins(this_thD1,this_sgD1);
+            modidx_SG_inhibD1(ii) =MS_ModIdx(this_SG_phi_ampD1);
             %FG
-            this_FG_phi_amp=BC_phase_amp_norm_bins(this_th,this_fg);
-            modidx_FG_inhib(ii) =MS_ModIdx(this_FG_phi_amp);
+            this_FG_phi_ampD1=BC_phase_amp_norm_bins(this_thD1,this_fgD1);
+            modidx_FG_inhibD1(ii) =MS_ModIdx(this_FG_phi_ampD1);
             % cross freq coupling
             [~, F, ~,P] = spectrogram(this_csc.data,hanning(win_s),win_s/2,1:0.1:160,this_csc.cfg.hdr{1}.SamplingFrequency); % spectrogram -- will take a while to compute!, add 'yaxis for visualization porpuses
             %F: Frequency axis of the spectrogram. P: Power spectral density (or magnitude squared of the Fourier transform) of the signal.
-            [r_inhib(:,:,ii),~] = corrcoef(10*log10(P')); % correlation matrix (across frequ`encies) of spectrogram
-%        end
+            [r_remD1(:,:,ii),~] = corrcoef(10*log10(P')); % correlation matrix (across frequ`encies) of spectrogram
+        %end
         
-        %% Putting these values in a structure 
-        out.(info.subject).(info.sess).t_bp_inhib = t_bp_inhib;
-        out.(info.subject).(info.sess).sg_bp_inhib = sg_bp_inhib;
-        out.(info.subject).(info.sess).fg_bp_inhib = fg_bp_inhib;
+        % Putting these values in a structure 
+        out.(infoD1.subject).(infoD1.session).t_bp_inhib = t_bp_inhibD1;
+        out.(infoD1.subject).(infoD1.session).sg_bp_inhib = sg_bp_inhibD1;
+        out.(infoD1.subject).(infoD1.session).fg_bp_inhib = fg_bp_inhibD1;
 
-        out.(info.subject).(info.sess).t_bp_inhib_norm = t_bp_inhib_norm;
-        out.(info.subject).(info.sess).sg_bp_inhib_norm = sg_bp_inhib_norm;
-        out.(info.subject).(info.sess).fg_bp_inhib_norm = fg_bp_inhib_norm;
+        out.(infoD1.subject).(infoD1.session).t_bp_inhib_norm = t_bp_inhib_normD1;
+        out.(infoD1.subject).(infoD1.session).sg_bp_inhib_norm = sg_bp_inhib_normD1;
+        out.(infoD1.subject).(infoD1.session).fg_bp_inhib_norm = fg_bp_inhib_normD1;
 
-        out.(info.subject).(info.sess).modidx_SG_inhib = modidx_SG_inhib;
-        out.(info.subject).(info.sess).modidx_FG_inhib = modidx_FG_inhib;
-        out.(info.subject).(info.sess).z_SGInhb_modidx=z_SGInhb_modidx;
-        out.(info.subject).(info.sess).z_FGInhb_modidx=z_FGInhb_modidx;
+        out.(infoD1.subject).(infoD1.session).modidx_SG_inhib = modidx_SG_inhibD1;
+        out.(infoD1.subject).(infoD1.session).modidx_FG_inhib = modidx_FG_inhibD1;
+        % out.(infoD1.subject).(info.sess).z_SGInhb_modidx=z_SGInhb_modidxD1;
+        % out.(infoD1.subject).(info.sess).z_FGInhb_modidx=z_FGInhb_modidxD1;
     end
         %% Going to D2 session
     cd([D2_dir(iS).folder filesep D2_dir(iS).name])
     parts = pwd;
     infoD2=infoSession(parts);
     
+    %% Loading data
+
+    % Load the CSC guide
+    cfg = [];
+    cfg.fc = {lfp_chanD2};
+    cscD2 = MS_LoadCSC(cfg);
+
+    % Load the EMG
+    cfg_emg = [];
+    cfg_emg.fc = {emg_chan};
+    emgD2= MS_LoadCSC(cfg_emg);
+
+    % load the events
+    evtsD2 = LoadEvents([]);
+
+    %% Restrict the data only to the sleep phase
+    [csc_sD2, emg_sD2]=Sleep_restrict(evtsD2,cscD2,emgD2,infoD2);
+ 
+    %% plot a bit of data for quality check end verify the awake states
+    if plot_flag
+
+        figure(4)
+        clf
+
+        ax(1) = subplot(2,1,1);
+        plot(csc_sD2.tvec, csc_sD2.data);
+        legend('HC LFP')
+
+        ax(2) = subplot(2,1,2);
+        plot(emg_sD2.tvec, emg_sD2.data - .001, 'r') % offset it a bit
+        legend('emg')
+
+        linkaxes(ax, 'x'); % locks the x axes of the subplots so if you zoom on one the other zooms in.
+
+        % fix the annoying wide limits on the x axis
+        xlim([csc_sD2.tvec(1) csc_sD2.tvec(end)])
+    end
+
+    %% sleep state
+    if strcmpi(infoD2.subject,"BC1807")
+        wake_tD2 = [0 4735 7179 9298 10043 11642 13919 14403];
+    elseif strcmpi(infoD2.subject,"BC011")
+        wake_tD2 = [0 9199 10295  11070];
+    elseif strcmpi(infoD2.subject,"BC013")
+        wake_tD2 = [0 688 1817 3130 4335 4783 6820 7511 10772 11917];
+    elseif strcmpi(infoD2.subject,"BC014")
+        wake_tD2 = [0 3730 ];
+    elseif strcmpi(infoD2.subject,"BC051") % check this animal, apparenlty there was only 2 hrs of sleep
+        wake_tD2 = [0 2453 2944 4320 4721 5119 6653 7569 10306 11233 13043 13639];
+    elseif strcmpi(infoD2.subject,"BC053") %Specify the wake period according to subject and session
+        %wake_tD2 = [0 3093 5015 5631 8824 9340 10605 10880 11531 11803 12450 13020 13618 13743 14188 14397];
+    elseif strcmpi(infoD2.subject,"BC054") % check this animal, apparenlty there was only 2 hrs of sleep
+        wake_tD2 = [0 2518 4597 5331 6521 8947 9211 7153 9607 10094 12110 12942];
+    end
+
+    wake_idxD2 = nearest_idx(wake_tD2, csc_sD2.tvec); %Converts time to correspondant sample idx
+    wake_idxD2 = reshape(wake_idxD2,2, length(wake_idxD2)/2)'; %reshape(columns, rows)
+    %% score the sleep
+    [hypnoD2, csc_outD2, emg_outD2] = dSub_Sleep_screener(0, csc_sD2, emg_sD2, wake_idxD2);  % can add in 'wake_idx' as the last input.
+    %% Obtaining the time stamps for these sleep states
+    [iv_awakeD2, iv_swsD2, iv_remD2]= BC_sleep_iv_extractor(hypnoD2);
+    %% Obtaining IV for inhibition in case this is session D2
+ 
+     %% Filter CSC in the theta and gamma bands
+    % filter the LFP in the theta band
+    cfg_filt_t = [];
+    cfg_filt_t.type = 'cheby1';                                            %'fdesign'; %the type of filter I want to use via filterlfp
+    cfg_filt_t.f  = [5 12];                                                % freq range to match Mizuseki et al. 2011
+    cfg_filt_t.order = 3;                                                  %type filter order
+    cfg_filt_t.display_filter = 0;                                         % use this to see the fvtool
+    theta_cscD2 = FilterLFP(cfg_filt_t, csc_outD2);                                % filter the raw LFP using
+    
+    % Filter the LFP in the slow gamma band
+    cfg_filt_sg = [];
+    cfg_filt_sg.type = 'butter';%'fdesign'; %the type of filter I want to use via filterlfp
+    cfg_filt_sg.f  = [30 58]; % freq range to match Mizuseki et al. 2011
+    cfg_filt_sg.order = 4; %type filter orderf
+    cfg_filt_sg.display_filter = 0; % use this to see the fvtool
+    SG_cscD2 = FilterLFP(cfg_filt_sg, csc_outD2); % filter the raw LFP using
+
+    % Filter the LFP in the fast gamma band
+    cfg_filt_fg = [];
+    cfg_filt_fg.type = 'butter';                                            %'fdesign'; %the type of filter I want to use via filterlfp
+    cfg_filt_fg.f  = [60 100];                                               % freq range to match Mizuseki et al. 2011
+    cfg_filt_fg.order = 4;                                                  %type filter order
+    cfg_filt_fg.display_filter = 0;                                         % use this to see the fvtool
+    FG_cscD2 = FilterLFP(cfg_filt_fg, csc_outD2);                                   % filter the raw LFP using
+
+    %% Band power extraction per REM episode
+    min_trial_dur=10;
+    win_s = 256;
+    %loop over the REM IV
+    for ii =length(iv_remD2.tstart):-1:1
+        %if (iv_rem.tend(thisIV) - iv_rem.tstart(thisIV)) < min_trial_dur %Testing that the epoch last more than the treshold
+
+            %Extract the band power and mod idx for each rem episode
+            this_csc = restrict(csc_sD2, iv_remD2.tstart(ii), iv_remD2.tend(ii));
+
+            t_bpD2 =  bandpower(this_csc.data, this_csc.cfg.hdr{1}.SamplingFrequency, [4 12]); %Calculates the theta band power
+            sg_bpD2 = bandpower(this_csc.data, this_csc.cfg.hdr{1}.SamplingFrequency, [30 58]);%Calculates the sg band power
+            fg_bpD2 = bandpower(this_csc.data, this_csc.cfg.hdr{1}.SamplingFrequency, [60 100]);%Calculates the fg band power
+
+            ref_bpD2 = bandpower(this_csc.data, this_csc.cfg.hdr{1}.SamplingFrequency, [1 50]);%Calculates the ref band power
+            %Store the theta, sg, and fg power in their varibales
+            t_bp_inhibD2(ii)= t_bpD2;
+            sg_bp_inhibD2(ii) = sg_bpD2;
+            fg_bp_inhibD2(ii) = fg_bpD2;
+            
+            t_bp_inhib_normD2(ii)= t_bpD2/ ref_bpD2;
+            sg_bp_inhib_normD2(ii) = sg_bpD2/ ref_bpD2;
+            fg_bp_inhib_normD2(ii) = fg_bpD2/ ref_bpD2;
+
+            %Mod-idx analysis
+
+            this_thD2 = restrict(theta_cscD2, iv_remD2.tstart(ii), iv_remD2.tend(ii));
+            this_sgD2 = restrict(SG_cscD2, iv_remD2.tstart(ii), iv_remD2.tend(ii));
+            this_fgD2 = restrict(FG_cscD2, iv_remD2.tstart(ii), iv_remD2.tend(ii));
+            %SG
+            this_SG_phi_ampD2=BC_phase_amp_norm_bins(this_thD2,this_sgD2);
+            modidx_SG_inhibD2(ii) =MS_ModIdx(this_SG_phi_ampD2);
+            %FG
+            this_FG_phi_ampD2=BC_phase_amp_norm_bins(this_thD2,this_fgD2);
+            modidx_FG_inhibD2(ii) =MS_ModIdx(this_FG_phi_ampD2);
+            % cross freq coupling
+            [~, F, ~,P] = spectrogram(this_csc.data,hanning(win_s),win_s/2,1:0.1:160,this_csc.cfg.hdr{1}.SamplingFrequency); % spectrogram -- will take a while to compute!, add 'yaxis for visualization porpuses
+            %F: Frequency axis of the spectrogram. P: Power spectral density (or magnitude squared of the Fourier transform) of the signal.
+            [r_remD2(:,:,ii),~] = corrcoef(10*log10(P')); % correlation matrix (across frequ`encies) of spectrogram
+        %end
         
+        % Putting these values in a structure 
+        out.(infoD2.subject).(infoD2.session).t_bp_inhib = t_bp_inhibD2;
+        out.(infoD2.subject).(infoD2.session).sg_bp_inhib = sg_bp_inhibD2;
+        out.(infoD2.subject).(infoD2.session).fg_bp_inhib = fg_bp_inhibD2;
+
+        out.(infoD2.subject).(infoD2.session).t_bp_inhib_norm = t_bp_inhib_normD2;
+        out.(infoD2.subject).(infoD2.session).sg_bp_inhib_norm = sg_bp_inhib_normD2;
+        out.(infoD2.subject).(infoD2.session).fg_bp_inhib_norm = fg_bp_inhib_normD2;
+
+        out.(infoD2.subject).(infoD2.session).modidx_SG_inhib = modidx_SG_inhibD2;
+        out.(infoD2.subject).(infoD2.session).modidx_FG_inhib = modidx_FG_inhibD2;
+        % out.(infoD1.subject).(info.sess).z_SGInhb_modidx=z_SGInhb_modidxD1;
+        % out.(infoD1.subject).(info.sess).z_FGInhb_modidx=z_FGInhb_modidxD1;
+    end
+
+    %% Making a collection fx to plot 
+    %Creating a folder for the subject and
+    MainFldr='/Users/bryancontrerasmercado/Documents/01_Projects/02_OLM_silencing/[03]Figures/07_REM_distribution';
+    fldrnames=dir(MainFldr);
+    fldrnames=fldrnames(~ismember({fldrnames.name},{'.','..','.DS_Store'}));
+    SfolderPath=[];
+    % MIdxFldr='/Users/bryancontrerasmercado/Documents/01_Projects/02_OLM_silencing/[03]Figures/07_REM_distribution/Mod_idx';
+    % BPNormFldr= '/Users/bryancontrerasmercado/Documents/01_Projects/02_OLM_silencing/[03]Figures/07_REM_distribution/Normalized_Band_powers';
+    % BPRawFldr='/Users/bryancontrerasmercado/Documents/01_Projects/02_OLM_silencing/[03]Figures/07_REM_distribution/Raw_Band_Powers';
+    % folders={'MIdxFldr','BPNormFldr','BPRawFldr'};
+    for iD=3:-1:1
+        folderpath=fullfile(MainFldr,(fldrnames(iD).name));
+        SfolderPath{iD}= fullfile(MainFldr,(fldrnames(iD).name),(infoD1.subject));
+        cd(folderpath);
+        if ~exist(SfolderPath{iD}, 'dir')
+            % If the folder doesn't exist, create it
+            mkdir(SfolderPath{iD});
+        end
+    end
+    %Assigning positionsto the figures
+    fig_position1=[200 200 800 600];
+    fig_position2=[1000 200 800 600];
+    fig_position3=[1800 200 800 600];
+    stamp=sprintf([(infoD1.subject),' ',(lfp_chan),'D1', newline,(lfp_chanD2),'D2']);
+
+    %%% Plot Bp (with Theta SG and FG)
+    fig1=figure(1);
+    fig1.Name='Raw Band Power';fig1.Position= fig_position1;
+    % plot Theta
+    subplot(1, 3, 1)
+    y_t_bp_inhib={out.(infoD1.subject).D1.t_bp_inhib',out.(infoD2.subject).D2.t_bp_inhib'};
+    plot_t_bp_inhib=rm_raincloud(y_t_bp_inhib,[BC_color_genertor('Oxford_blue'); BC_color_genertor('Archt_green')]);
+    title(['Band Power' newline 'Theta']);
+    legend({'D1','', 'D2'})
+    % plot SG
+    subplot(1, 3, 2)
+    y_sg_bp_inhib={out.(infoD1.subject).D1.sg_bp_inhib',out.(infoD2.subject).D2.sg_bp_inhib'};
+    plot_sg_bp_inhib=rm_raincloud(y_sg_bp_inhib,[BC_color_genertor('Oxford_blue'); BC_color_genertor('Archt_green')]);
+    title(['Band Power' newline 'SG']);
+    legend({'D1','', 'D2'})
+    % plot FG
+    subplot(1, 3, 3)
+    y_fg_bp_inhib={out.(infoD1.subject).D1.fg_bp_inhib',out.(infoD2.subject).D2.fg_bp_inhib'};
+    plot_fg_bp_inhib=rm_raincloud(y_fg_bp_inhib,[BC_color_genertor('Oxford_blue'); BC_color_genertor('Archt_green')]);
+    title(['Band Power' newline 'FG']);
+    legend({'D1','', 'D2'})
+    annotation('textbox',[.85 .4 .1 .15], 'String', stamp);
+    %Save it
+    fileName=[(infoD1.subject),'_',lfp_chan(1:4),'.png'];
+    fig1path=fullfile(SfolderPath{3},fileName);
+    saveas(fig1,fig1path)
+
+    %%% Plot Bp Normalized(with Theta SG and FG)
+    fig2=figure(2);
+    fig2.Name='Normalized Band Power';fig2.Position= fig_position2;
+    % plot Theta
+    subplot(1, 3, 1)
+    y_t_bp_inhib_norm={out.(infoD1.subject).D1.t_bp_inhib_norm',out.(infoD2.subject).D2.t_bp_inhib_norm'};
+    plot_t_bp_inhib_norm=rm_raincloud(y_t_bp_inhib_norm,[BC_color_genertor('Oxford_blue'); BC_color_genertor('Archt_green')]);
+    title(['Normalized Band Power' newline 'Theta']);
+    legend({'D1','', 'D2'})
+    % plot SG
+    subplot(1, 3, 2)
+    y_sg_bp_inhib_norm={out.(infoD1.subject).D1.sg_bp_inhib_norm',out.(infoD2.subject).D2.sg_bp_inhib_norm'};
+    plot_sg_bp_inhib_norm=rm_raincloud(y_sg_bp_inhib_norm,[BC_color_genertor('Oxford_blue'); BC_color_genertor('Archt_green')]);
+    title(['Normalized Band Power' newline 'SG']);
+    legend({'D1','', 'D2'})
+    % plot FG
+    subplot(1, 3, 3)
+    y_fg_bp_inhib_norm={out.(infoD1.subject).D1.fg_bp_inhib_norm',out.(infoD2.subject).D2.fg_bp_inhib_norm'};
+    plot_fg_bp_inhib_norm=rm_raincloud(y_fg_bp_inhib_norm,[BC_color_genertor('Oxford_blue'); BC_color_genertor('Archt_green')]);
+    title(['Normalized Band Power' newline 'FG']);
+    legend({'D1','', 'D2'})
+    annotation('textbox',[.85 .4 .1 .15], 'String', stamp);
+    %Save it
+    fileName=[(infoD1.subject),'_',lfp_chan(1:4),'.png'];
+    fig2path=fullfile(SfolderPath{2},fileName);
+    saveas(fig2,fig2path)
+
+    %%% Plot ModIdx (with SG and FG)
+    fig3=figure(3);
+    fig3.Name='Modulation Index';fig3.Position= fig_position3;
+    % plot SG
+    subplot(1, 2, 1)
+    y_modidx_SG_inhib={out.(infoD1.subject).D1.modidx_SG_inhib',out.(infoD2.subject).D2.modidx_SG_inhib'};
+    plot_modidx_SG_inhib=rm_raincloud(y_modidx_SG_inhib,[BC_color_genertor('Oxford_blue'); BC_color_genertor('Archt_green')]);
+    title(['Modulation Index' newline 'SG']);
+    legend({'D1','', 'D2'})
+    % plot FG
+    subplot(1, 2, 2)
+    y_modidx_FG_inhib={out.(infoD1.subject).D1.modidx_FG_inhib',out.(infoD2.subject).D2.modidx_FG_inhib'};
+    plot_modidx_FG_inhib=rm_raincloud(y_modidx_FG_inhib,[BC_color_genertor('Oxford_blue'); BC_color_genertor('Archt_green')]);
+    title(['Modulation Index' newline 'FG']);
+    legend({'D1','', 'D2'})
+    annotation('textbox',[.85 .4 .1 .15], 'String', stamp);
+     %Save it
+    fileName=[(infoD1.subject),'_',lfp_chan(1:4),'.png'];
+    fig3path=fullfile(SfolderPath{1},fileName);
+    saveas(fig3,fig3path)
+    % for iF=1:3
+    % figure(iF);clf;
+    % end
+end
+
     %% Obtaining the Mod IDX for the sleep periods
     % Restrict the filtered csc to the IV of SWS and REM
-    theta_awake= restrict(theta_csc,iv_awake);
-    theta_sws= restrict(theta_csc,iv_sws);
-    theta_rem= restrict(theta_csc,iv_rem);
+    theta_awake= restrict(theta_cscD1,iv_awake);
+    theta_sws= restrict(theta_cscD1,iv_sws);
+    theta_rem= restrict(theta_cscD1,iv_rem);
     
-    SG_awake= restrict(SG_csc,iv_awake);
-    SG_sws= restrict(SG_csc,iv_sws);
-    SG_rem= restrict(SG_csc,iv_rem);
+    SG_awake= restrict(SG_cscD1,iv_awake);
+    SG_sws= restrict(SG_cscD1,iv_sws);
+    SG_rem= restrict(SG_cscD1,iv_rem);
 
-    FG_awake= restrict(FG_csc,iv_awake);
-    FG_sws= restrict(FG_csc,iv_sws);
-    FG_rem= restrict(FG_csc,iv_rem);
+    FG_awake= restrict(FG_cscD1,iv_awake);
+    FG_sws= restrict(FG_cscD1,iv_sws);
+    FG_rem= restrict(FG_cscD1,iv_rem);
 
     % Restricting the non filtered CSC to the sleep periods
-    CSC_Awk= restrict(csc_out, iv_awake);
-    CSC_Sws= restrict(csc_out, iv_sws);
-    CSC_Rem= restrict(csc_out, iv_rem);
+    CSC_Awk= restrict(csc_outD1, iv_awake);
+    CSC_Sws= restrict(csc_outD1, iv_sws);
+    CSC_Rem= restrict(csc_outD1, iv_rem);
 
     % Calculating the modIDX for the three sleep phases
     SGAwakeBins=BC_phase_amp_norm_bins(theta_awake,SG_awake);
@@ -418,7 +663,7 @@ if save_figures
     end
 end
     %% Getting the percentage of sleep sates
-    [y,x]=histcounts(hypno.data,[0.5:1:3.5]); %Y=count, x=rnage values
+    [y,x]=histcounts(hypnoD1.data,[0.5:1:3.5]); %Y=count, x=rnage values
     y_per=(y/sum(y))*100; %Percentage of Wake, SWS and REM
     sleep_time_sec=(y./(csc_s.cfg.hdr{1,1}.SamplingFrequency))';
 
@@ -460,7 +705,7 @@ end
     out.(info.subject).(info.session).sleep.times_sec=sleep_time_sec;
     out.(info.subject).(info.session).sleep.mod_idx=this_mouse_modidx;
     %out.(info.subject).(info.session).sleep.CoMo=This_CoMo;
-    out.(info.subject).sleep_labels=hypno.labels;
+    out.(info.subject).sleep_labels=hypnoD1.labels;
     out.(info.subject).(info.session).sleep.powers=bpower_slp;
 
 
@@ -658,7 +903,7 @@ end
 
         end
     end
-end
+
 
 % Formating for saving output
 if save_output
