@@ -56,7 +56,7 @@ for iS=4:length(D1_dir)
     if infoD1.subject=="BC011";
         emg_chan = 'CSC1.ncs';lfp_chan = 'CSC3.ncs';lfp_chanD2='CSC3.ncs';%6...5,4
     elseif infoD1.subject=="BC1807";
-        emg_chan = 'CSC1.ncs';lfp_chan = 'CSC6.ncs';lfp_chanD2='CSC6.ncs';%6...7...4.3
+        emg_chan = 'CSC1.ncs';lfp_chan = 'CSC5.ncs';lfp_chanD2='CSC5.ncs';%6...7...4.3
     elseif infoD1.subject=="BC054";
         emg_chan = 'CSC1.ncs';lfp_chan = 'CSC3.ncs';lfp_chanD2='CSC3.ncs';%7...6,5,4,3,
     elseif infoD1.subject=="BC053";
