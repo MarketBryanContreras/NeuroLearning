@@ -45,7 +45,7 @@ D2_dir=dir('*D2_nopr*');
 
 %% Loop to load data from raw
 
-for iS=4:length(D1_dir)
+for iS=1:length(D1_dir)
     %% Colloecting subject info
     %subjectFolder = fullfile(data_dir, inhib_dir(iS).name);
 
@@ -56,9 +56,9 @@ for iS=4:length(D1_dir)
     if infoD1.subject=="BC011";
         emg_chan = 'CSC1.ncs';lfp_chan = 'CSC3.ncs';lfp_chanD2='CSC3.ncs';%6...5,4
     elseif infoD1.subject=="BC1807";
-        emg_chan = 'CSC1.ncs';lfp_chan = 'CSC6.ncs';lfp_chanD2='CSC6.ncs';%6...7...4.3
+        emg_chan = 'CSC1.ncs';lfp_chan = 'CSC5.ncs';lfp_chanD2='CSC5.ncs';%6...7...4.3
     elseif infoD1.subject=="BC054";
-        emg_chan = 'CSC1.ncs';lfp_chan = 'CSC3.ncs';lfp_chanD2='CSC3.ncs';%7...6,5,4,3,
+        emg_chan = 'CSC1.ncs';lfp_chan = 'CSC7.ncs';lfp_chanD2='CSC7.ncs';%7...6,5,4,3,
     elseif infoD1.subject=="BC053";
         emg_chan = 'CSC1.ncs';lfp_chan = 'CSC7.ncs';lfp_chanD2='CSC7.ncs';
     elseif infoD1.subject=="BC051" ; %Adjudted to match cable number, due to mouse bitting cable during end of recording in D1 and changing cables in D2 and tracked the corresponding cable to match corresponding cable
@@ -148,7 +148,7 @@ for iS=4:length(D1_dir)
     wake_idxD1 = nearest_idx(wake_tD1, csc_sD1.tvec); %Converts time to correspondant sample idx
     wake_idxD1 = reshape(wake_idxD1,2, length(wake_idxD1)/2)'; %reshape(columns, rows)
     %% score the sleep
-    [hypnoD1, csc_outD1, emg_outD1] = dSub_Sleep_screener(1, csc_sD1, emg_sD1, wake_idxD1);  % can add in 'wake_idx' as the last input.
+    [hypnoD1, csc_outD1, emg_outD1] = dSub_Sleep_screener(0, csc_sD1, emg_sD1, wake_idxD1);  % can add in 'wake_idx' as the last input.
     %% Obtaining the time stamps for these sleep states
     [iv_awakeD1, iv_swsD1, iv_remD1]= BC_sleep_iv_extractor(hypnoD1);
     %% Obtaining IV for inhibition in case this is session D2
