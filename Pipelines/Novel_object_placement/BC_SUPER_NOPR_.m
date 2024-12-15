@@ -56,7 +56,7 @@ for iS=1:length(D1_dir)
     if infoD1.subject=="BC011";
         emg_chan = 'CSC1.ncs';lfp_chan = 'CSC3.ncs';lfp_chanD2='CSC3.ncs';%6...5,4
     elseif infoD1.subject=="BC1807";
-        emg_chan = 'CSC1.ncs';lfp_chan = 'CSC3.ncs';lfp_chanD2='CSC3.ncs';%6...7...4.3
+        emg_chan = 'CSC1.ncs';lfp_chan = 'CSC7.ncs';lfp_chanD2='CSC7.ncs';%6...7...4.3
     elseif infoD1.subject=="BC054";
         emg_chan = 'CSC1.ncs';lfp_chan = 'CSC5.ncs';lfp_chanD2='CSC5.ncs';%7...6,5,4,3,
     elseif infoD1.subject=="BC053";
@@ -260,12 +260,12 @@ for iS=1:length(D1_dir)
     out.(infoD1.subject).(infoD1.session).fg_modIdxmean=mean(modidx_FG_inhibD1);
     out.(infoD1.subject).(infoD1.session).fg_modIdxsd=std(modidx_FG_inhibD1);
 
-    %Calculating the z values from day 1
-     out.(infoD1.subject).(infoD1.session).t_pb_zScoreD1=(out.(infoD1.subject).(infoD1.session).t_bp_inhib-(out.(infoD1.subject).(infoD1.session).t_pb_mean))./(out.(infoD1.subject).(infoD1.session).t_pb_sd);
-     out.(infoD1.subject).(infoD1.session).sg_pb_zScoreD1=(out.(infoD1.subject).(infoD1.session).sg_bp_inhib-(out.(infoD1.subject).(infoD1.session).sg_pb_mean))./(out.(infoD1.subject).(infoD1.session).sg_pb_sd);
-     out.(infoD1.subject).(infoD1.session).fg_pb_zScoreD1=(out.(infoD1.subject).(infoD1.session).fg_bp_inhib-(out.(infoD1.subject).(infoD1.session).fg_pb_mean))./(out.(infoD1.subject).(infoD1.session).fg_pb_sd);
-     out.(infoD1.subject).(infoD1.session).sg_modIdx_zScoreD1=(out.(infoD1.subject).(infoD1.session).modidx_SG_inhib-(out.(infoD1.subject).(infoD1.session).sg_modIdxmean))./(out.(infoD1.subject).(infoD1.session).sg_modIdxsd);
-     out.(infoD1.subject).(infoD1.session).fg_modIdx_zScoreD1=(out.(infoD1.subject).(infoD1.session).modidx_SG_inhib-(out.(infoD1.subject).(infoD1.session).fg_modIdxmean))./(out.(infoD1.subject).(infoD1.session).fg_modIdxsd);
+    % %Calculating the z values from day 1
+    %  out.(infoD1.subject).(infoD1.session).t_pb_zScoreD1=(out.(infoD1.subject).(infoD1.session).t_bp_inhib-(out.(infoD1.subject).(infoD1.session).t_pb_mean))./(out.(infoD1.subject).(infoD1.session).t_pb_sd);
+    %  out.(infoD1.subject).(infoD1.session).sg_pb_zScoreD1=(out.(infoD1.subject).(infoD1.session).sg_bp_inhib-(out.(infoD1.subject).(infoD1.session).sg_pb_mean))./(out.(infoD1.subject).(infoD1.session).sg_pb_sd);
+    %  out.(infoD1.subject).(infoD1.session).fg_pb_zScoreD1=(out.(infoD1.subject).(infoD1.session).fg_bp_inhib-(out.(infoD1.subject).(infoD1.session).fg_pb_mean))./(out.(infoD1.subject).(infoD1.session).fg_pb_sd);
+    %  out.(infoD1.subject).(infoD1.session).sg_modIdx_zScoreD1=(out.(infoD1.subject).(infoD1.session).modidx_SG_inhib-(out.(infoD1.subject).(infoD1.session).sg_modIdxmean))./(out.(infoD1.subject).(infoD1.session).sg_modIdxsd);
+    %  out.(infoD1.subject).(infoD1.session).fg_modIdx_zScoreD1=(out.(infoD1.subject).(infoD1.session).modidx_FG_inhib-(out.(infoD1.subject).(infoD1.session).fg_modIdxmean))./(out.(infoD1.subject).(infoD1.session).fg_modIdxsd);
 
         %% Going to D2 session
     cd([D2_dir(iS).folder filesep D2_dir(iS).name])
@@ -426,33 +426,49 @@ for iS=1:length(D1_dir)
     % out.(infoD1.subject).(info.sess).z_SGInhb_modidx=z_SGInhb_modidxD1;
     % out.(infoD1.subject).(info.sess).z_FGInhb_modidx=z_FGInhb_modidxD1;
     % end
-    %% Setting up the the Zscore D2fromD1
-    out.(infoD2.subject).(infoD2.session).theta_zscore=(t_bp_inhibD2-(out.(infoD1.subject).(infoD1.session).t_pb_mean))./(out.(infoD1.subject).(infoD1.session).t_pb_sd);
-    out.(infoD2.subject).(infoD2.session).sg_zscore=(sg_bp_inhibD2-(out.(infoD1.subject).(infoD1.session).sg_pb_mean))./(out.(infoD1.subject).(infoD1.session).sg_pb_sd);
-    out.(infoD2.subject).(infoD2.session).fg_zscore=(fg_bp_inhibD2-(out.(infoD1.subject).(infoD1.session).fg_pb_mean))./(out.(infoD1.subject).(infoD1.session).fg_pb_sd);
+    
+    %% Calculating the z values 
+    t_pb_d1_d2 = [out.(infoD1.subject).(infoD1.session).t_bp_inhib out.(infoD2.subject).(infoD2.session).t_bp_inhib]
+    sg_pb_d1_d2 = [out.(infoD1.subject).(infoD1.session).sg_bp_inhib out.(infoD2.subject).(infoD2.session).sg_bp_inhib]
+    fg_pb_d1_d2 = [out.(infoD1.subject).(infoD1.session).fg_bp_inhib out.(infoD2.subject).(infoD2.session).fg_bp_inhib]
 
-    out.(infoD2.subject).(infoD2.session).sg_modIdxzscore=(modidx_SG_inhibD2-(out.(infoD1.subject).(infoD1.session).sg_modIdxmean))./(out.(infoD1.subject).(infoD1.session).sg_modIdxsd);
-    out.(infoD2.subject).(infoD2.session).fg_modIdxzscore=(modidx_FG_inhibD2-(out.(infoD1.subject).(infoD1.session).fg_modIdxmean))./(out.(infoD1.subject).(infoD1.session).sg_modIdxsd);
+    sg_modIdx_d1_d2 = [out.(infoD1.subject).(infoD1.session).modidx_SG_inhib out.(infoD2.subject).(infoD2.session).modidx_SG_inhib]
+    fg_modIdx_d1_d2 = [out.(infoD1.subject).(infoD1.session).modidx_FG_inhib out.(infoD2.subject).(infoD2.session).modidx_FG_inhib]
+
+    %% Setting up the the Zscore D1 from D1 and D2
+    out.(infoD1.subject).(infoD1.session).t_pb_zScoreD1=(out.(infoD1.subject).(infoD1.session).t_bp_inhib-(mean(t_pb_d1_d2)))./(std(t_pb_d1_d2));
+    out.(infoD1.subject).(infoD1.session).sg_pb_zScoreD1=(out.(infoD1.subject).(infoD1.session).sg_bp_inhib-(mean(sg_pb_d1_d2)))./(std(sg_pb_d1_d2));
+    out.(infoD1.subject).(infoD1.session).fg_pb_zScoreD1=(out.(infoD1.subject).(infoD1.session).fg_bp_inhib-(mean(fg_pb_d1_d2)))./(std(fg_pb_d1_d2));
+    out.(infoD1.subject).(infoD1.session).sg_modIdx_zScoreD1=(out.(infoD1.subject).(infoD1.session).modidx_SG_inhib-(mean(sg_modIdx_d1_d2)))./(std(sg_modIdx_d1_d2));
+    out.(infoD1.subject).(infoD1.session).fg_modIdx_zScoreD1=(out.(infoD1.subject).(infoD1.session).modidx_FG_inhib-(mean(fg_modIdx_d1_d2)))./(std(fg_modIdx_d1_d2));
+
+    %% Setting up the the Zscore D2 from D1 and D2
+    out.(infoD2.subject).(infoD2.session).t_pb_zScoreD2=(t_bp_inhibD2-(mean(t_pb_d1_d2)))./(std(t_pb_d1_d2));
+    out.(infoD2.subject).(infoD2.session).sg_pb_zScoreD2=(sg_bp_inhibD2-(mean(sg_pb_d1_d2)))./(std(sg_pb_d1_d2));
+    out.(infoD2.subject).(infoD2.session).fg_pb_zScoreD2=(fg_bp_inhibD2-(mean(fg_pb_d1_d2)))./(std(fg_pb_d1_d2));
+
+    out.(infoD2.subject).(infoD2.session).sg_modIdx_zScoreD2=(modidx_SG_inhibD2-(mean(sg_modIdx_d1_d2)))./(std(sg_modIdx_d1_d2));
+    out.(infoD2.subject).(infoD2.session).fg_modIdx_zScoreD2=(modidx_FG_inhibD2-(mean(fg_modIdx_d1_d2)))./(std(fg_modIdx_d1_d2));
 
 %% Setting up the the Zscore D2fromD2
   %Calculating the  mean and std from d1
-    out.(infoD2.subject).(infoD2.session).t_pb_meanD2=mean(t_bp_inhibD2);
-    out.(infoD2.subject).(infoD2.session).t_pb_sdD2=std(t_bp_inhibD2);
-    out.(infoD2.subject).(infoD2.session).sg_pb_meanD2=mean(sg_bp_inhibD2);
-    out.(infoD2.subject).(infoD2.session).sg_pb_sdD2=std(sg_bp_inhibD2);
-    out.(infoD2.subject).(infoD2.session).fg_pb_meanD2=mean(fg_bp_inhibD2);
-    out.(infoD2.subject).(infoD2.session).fg_pb_sdD2=std(fg_bp_inhibD2);
-    
-    out.(infoD2.subject).(infoD2.session).sg_modIdxmeanD2=mean(modidx_SG_inhibD2);
-    out.(infoD2.subject).(infoD2.session).sg_modIdxsdD2=std(modidx_SG_inhibD2);
-    out.(infoD2.subject).(infoD2.session).fg_modIdxmeanD2=mean(modidx_FG_inhibD2);
-    out.(infoD2.subject).(infoD2.session).fg_modIdxsdD2=std(modidx_FG_inhibD2);
-
-     out.(infoD2.subject).(infoD2.session).t_pb_zScoreD2=(out.(infoD2.subject).(infoD2.session).t_bp_inhib-(out.(infoD2.subject).(infoD2.session).t_pb_meanD2))./(out.(infoD2.subject).(infoD2.session).t_pb_sdD2);
-     out.(infoD2.subject).(infoD2.session).sg_pb_zScoreD2=(out.(infoD2.subject).(infoD2.session).sg_bp_inhib-(out.(infoD2.subject).(infoD2.session).sg_pb_meanD2))./(out.(infoD2.subject).(infoD2.session).sg_pb_sdD2);
-     out.(infoD2.subject).(infoD2.session).fg_pb_zScoreD2=(out.(infoD2.subject).(infoD2.session).fg_bp_inhib-(out.(infoD2.subject).(infoD2.session).fg_pb_meanD2))./(out.(infoD2.subject).(infoD2.session).fg_pb_sdD2);
-     out.(infoD2.subject).(infoD2.session).sg_modIdx_zScoreD2=(out.(infoD2.subject).(infoD2.session).modidx_SG_inhib-(out.(infoD2.subject).(infoD2.session).sg_modIdxmeanD2))./(out.(infoD2.subject).(infoD2.session).sg_modIdxsdD2);
-     out.(infoD2.subject).(infoD2.session).fg_modIdx_zScoreD2=(out.(infoD2.subject).(infoD2.session).modidx_SG_inhib-(out.(infoD2.subject).(infoD2.session).fg_modIdxmeanD2))./(out.(infoD2.subject).(infoD2.session).fg_modIdxsdD2);
+    % out.(infoD2.subject).(infoD2.session).t_pb_meanD2=mean(t_bp_inhibD2);
+    % out.(infoD2.subject).(infoD2.session).t_pb_sdD2=std(t_bp_inhibD2);
+    % out.(infoD2.subject).(infoD2.session).sg_pb_meanD2=mean(sg_bp_inhibD2);
+    % out.(infoD2.subject).(infoD2.session).sg_pb_sdD2=std(sg_bp_inhibD2);
+    % out.(infoD2.subject).(infoD2.session).fg_pb_meanD2=mean(fg_bp_inhibD2);
+    % out.(infoD2.subject).(infoD2.session).fg_pb_sdD2=std(fg_bp_inhibD2);
+    % 
+    % out.(infoD2.subject).(infoD2.session).sg_modIdxmeanD2=mean(modidx_SG_inhibD2);
+    % out.(infoD2.subject).(infoD2.session).sg_modIdxsdD2=std(modidx_SG_inhibD2);
+    % out.(infoD2.subject).(infoD2.session).fg_modIdxmeanD2=mean(modidx_FG_inhibD2);
+    % out.(infoD2.subject).(infoD2.session).fg_modIdxsdD2=std(modidx_FG_inhibD2);
+    % 
+    %  out.(infoD2.subject).(infoD2.session).t_pb_zScoreD2=(out.(infoD2.subject).(infoD2.session).t_bp_inhib-(out.(infoD2.subject).(infoD2.session).t_pb_meanD2))./(out.(infoD2.subject).(infoD2.session).t_pb_sdD2);
+    %  out.(infoD2.subject).(infoD2.session).sg_pb_zScoreD2=(out.(infoD2.subject).(infoD2.session).sg_bp_inhib-(out.(infoD2.subject).(infoD2.session).sg_pb_meanD2))./(out.(infoD2.subject).(infoD2.session).sg_pb_sdD2);
+    %  out.(infoD2.subject).(infoD2.session).fg_pb_zScoreD2=(out.(infoD2.subject).(infoD2.session).fg_bp_inhib-(out.(infoD2.subject).(infoD2.session).fg_pb_meanD2))./(out.(infoD2.subject).(infoD2.session).fg_pb_sdD2);
+    %  out.(infoD2.subject).(infoD2.session).sg_modIdx_zScoreD2=(out.(infoD2.subject).(infoD2.session).modidx_SG_inhib-(out.(infoD2.subject).(infoD2.session).sg_modIdxmeanD2))./(out.(infoD2.subject).(infoD2.session).sg_modIdxsdD2);
+    %  out.(infoD2.subject).(infoD2.session).fg_modIdx_zScoreD2=(out.(infoD2.subject).(infoD2.session).modidx_FG_inhib-(out.(infoD2.subject).(infoD2.session).fg_modIdxmeanD2))./(out.(infoD2.subject).(infoD2.session).fg_modIdxsdD2);
 
 
     %% Making a collection fx to plot 
@@ -508,7 +524,7 @@ for iS=1:length(D1_dir)
     annotation('textbox',[.85 .4 .1 .15], 'String', stamp);
     %Save it
     fileName=[(infoD1.subject),'_',lfp_chan(1:4),'.png'];
-    fig1path=fullfile(SfolderPath{3},fileName);
+    fig1path=fullfile(SfolderPath{4},fileName);
     saveas(fig1,fig1path)
 
     %%% Plot Bp Normalized(with Theta SG and FG)
@@ -535,7 +551,7 @@ for iS=1:length(D1_dir)
     annotation('textbox',[.85 .4 .1 .15], 'String', stamp);
     %Save it
     fileName=[(infoD1.subject),'_',lfp_chan(1:4),'.png'];
-    fig2path=fullfile(SfolderPath{2},fileName);
+    fig2path=fullfile(SfolderPath{3},fileName);
     saveas(fig2,fig2path)
 
     %%% Plot ModIdx (with SG and FG)
@@ -556,36 +572,36 @@ for iS=1:length(D1_dir)
     annotation('textbox',[.85 .4 .1 .15], 'String', stamp);
      %Save it
     fileName=[(infoD1.subject),'_',lfp_chan(1:4),'.png'];
-    fig3path=fullfile(SfolderPath{1},fileName);
+    fig3path=fullfile(SfolderPath{2},fileName);
     saveas(fig3,fig3path)
     
-    %%% Plot Z_scores
-    fig4=figure(4);
-    fig4.Name='Z_SCores D2 from D1';fig4.Position= fig_position4;
-    % plot Theta
-    subplot(1, 3, 1)
-    y_t_bp_zscr={out.(infoD2.subject).D2.theta_zscore'};
-    plot_t_bp_zscr=rm_raincloud(y_t_bp_zscr, BC_color_genertor('Archt_green'));
-    title(['D2 BP Z score' newline 'Theta']);
-    % legend({'D1','', 'D2'})
-    % plot SG
-    subplot(1, 3, 2)
-    y_sg_bp_zscr={out.(infoD2.subject).D2.sg_zscore'};
-    plot_t_bp_zscr=rm_raincloud(y_sg_bp_zscr, BC_color_genertor('Burnt_orange'));
-    title(['D2 BP Z score' newline 'SG']);
-    % plot FG
-    subplot(1, 3, 3)
-    y_fg_bp_zscr={out.(infoD2.subject).D2.fg_zscore'};
-    plot_fg_bp_zscr=rm_raincloud(y_fg_bp_zscr, BC_color_genertor('Web_orange'));
-    title(['D2 BP Z score' newline 'FG']);
-    %Save it
-    fileName=[(infoD1.subject),'_',lfp_chan(1:4),'.png'];
-    fig4path=fullfile(SfolderPath{5},fileName);
-    saveas(fig4,fig4path)
+    % %%% Plot Z_scores
+    % fig4=figure(4);
+    % fig4.Name='Z_SCores D2 from D1';fig4.Position= fig_position4;
+    % % plot Theta
+    % subplot(1, 3, 1)
+    % y_t_bp_zscr={out.(infoD2.subject).D2.theta_zscore'};
+    % plot_t_bp_zscr=rm_raincloud(y_t_bp_zscr, BC_color_genertor('Archt_green'));
+    % title(['D2 BP Z score' newline 'Theta']);
+    % % legend({'D1','', 'D2'})
+    % % plot SG
+    % subplot(1, 3, 2)
+    % y_sg_bp_zscr={out.(infoD2.subject).D2.sg_zscore'};
+    % plot_t_bp_zscr=rm_raincloud(y_sg_bp_zscr, BC_color_genertor('Burnt_orange'));
+    % title(['D2 BP Z score' newline 'SG']);
+    % % plot FG
+    % subplot(1, 3, 3)
+    % y_fg_bp_zscr={out.(infoD2.subject).D2.fg_zscore'};
+    % plot_fg_bp_zscr=rm_raincloud(y_fg_bp_zscr, BC_color_genertor('Web_orange'));
+    % title(['D2 BP Z score' newline 'FG']);
+    % %Save it
+    % fileName=[(infoD1.subject),'_',lfp_chan(1:4),'.png'];
+    % fig4path=fullfile(SfolderPath{6},fileName);
+    % saveas(fig4,fig4path)
 
     %Plot the Zscores from each day
     fig5=figure(5);
-    fig9.Name='Z_SCores D2 from D2';fig9.Position= fig_position1;
+    fig5.Name='Z_SCores D2 from D1&D2';fig5.Position= fig_position1;
      % plot Theta
     subplot(1, 3, 1)
     y_t_bp_zscrD1D2={out.(infoD1.subject).D1.t_pb_zScoreD1',out.(infoD2.subject).D2.t_pb_zScoreD2'}
@@ -598,7 +614,6 @@ for iS=1:length(D1_dir)
     plot_t_bp_zscr=rm_raincloud(y_sg_bp_zscrD1D2,[BC_color_genertor('Oxford_blue');BC_color_genertor('Archt_green')]);
     title(['BP Z score' newline 'SG']);
     legend({'D1','', 'D2'})
-
     % plot FG
     subplot(1, 3, 3)
     y_fg_bp_zscrD1D2={out.(infoD1.subject).D1.fg_pb_zScoreD1',out.(infoD2.subject).D2.fg_pb_zScoreD2'}
@@ -609,11 +624,32 @@ for iS=1:length(D1_dir)
 
     %Save it
     fileName=[(infoD1.subject),'_',lfp_chan(1:4),'.png'];
-    fig5path=fullfile(SfolderPath{4},fileName);
+    fig5path=fullfile(SfolderPath{5},fileName);
     saveas(fig5,fig5path)
-    
+     
+    %Plot the Zscores ModIdx from each day
+    fig6=figure(6);
+    fig6.Name='ModIdx Z_Scores D2 from D1&D2';fig6.Position= fig_position2;
+    % plot SG
+    subplot(1, 2, 1)
+    y_sg_modIdx_zscrD1D2={out.(infoD1.subject).D1.sg_modIdx_zScoreD1',out.(infoD2.subject).D2.sg_modIdx_zScoreD2'}
+    plot_t_bp_zscr=rm_raincloud(y_sg_modIdx_zscrD1D2,[BC_color_genertor('Oxford_blue');BC_color_genertor('Archt_green')]);
+    title(['ModIdx Z score' newline 'SG']);
+    legend({'D1','', 'D2'})
+    % plot FG
+    subplot(1, 2, 2)
+    y_fg_modIdx_zscrD1D2={out.(infoD1.subject).D1.fg_modIdx_zScoreD1',out.(infoD2.subject).D2.fg_modIdx_zScoreD2'}
+    plot_t_bp_zscr=rm_raincloud(y_fg_modIdx_zscrD1D2,[BC_color_genertor('Oxford_blue');BC_color_genertor('Archt_green')]);
+    title(['ModIdx Z score' newline 'FG']);
+    legend({'D1','', 'D2'})
+    annotation('textbox',[.85 .4 .1 .15], 'String', stamp);
 
-    for iF=1:5
+    fileName=[(infoD1.subject),'_',lfp_chan(1:4),'.png'];
+    fig6path=fullfile(SfolderPath{1},fileName);
+    saveas(fig6,fig6path)
+     
+
+    for iF=1:6
     figure(iF);clf;
     end
 
@@ -645,22 +681,28 @@ for ii = 1:length(subject_names)
         
         % Common fields
         common_fields = {'t_bp_inhib', 'sg_bp_inhib', 'fg_bp_inhib', ...
-                         't_bp_inhib_norm', 'sg_bp_inhib_norm', 'fg_bp_inhib_norm', ...
-                         'modidx_SG_inhib', 'modidx_FG_inhib'};
+            't_bp_inhib_norm', 'sg_bp_inhib_norm', 'fg_bp_inhib_norm', ...
+            'modidx_SG_inhib', 'modidx_FG_inhib'};
+        % Unique fields for D1
+        unique_D1_fields = {'t_pb_zScoreD1', 'sg_pb_zScoreD1', 'fg_pb_zScoreD1', 'sg_modIdx_zScoreD1', 'fg_modIdx_zScoreD1'};
         % Unique fields for D2
-        unique_D2_fields = {'theta_zscore', 'sg_zscore', 'fg_zscore', 'sg_modIdxzscore', 'fg_modIdxzscore'};
-        
+        unique_D2_fields = {'t_pb_zScoreD2', 'sg_pb_zScoreD2', 'fg_pb_zScoreD2', 'sg_modIdx_zScoreD2', 'fg_modIdx_zScoreD2'};
+
         % Extract field values
         extracted_data = cellfun(@(f) getfield(day_data, f), common_fields, 'UniformOutput', false);
         
         % Add unique D2 fields if available
-        if strcmp(day, 'D2')
-            unique_data = cellfun(@(f) getfield(day_data, f), unique_D2_fields, 'UniformOutput', false);
-            extracted_data = [extracted_data, unique_data];
-        else
-            % Fill with NaN for missing unique fields in D1
-            extracted_data = [extracted_data, num2cell(nan(1, length(unique_D2_fields)))];
+        if strcmp(day, 'D1')
+            unique_dataD1 = cellfun(@(f) getfield(day_data, f), unique_D1_fields, 'UniformOutput', false);
+            extracted_data = [extracted_data, unique_dataD1];
+        
+        elseif strcmp(day, 'D2')
+            unique_dataD2 = cellfun(@(f) getfield(day_data, f), unique_D2_fields, 'UniformOutput', false);
+            extracted_data = [extracted_data, unique_dataD2];
         end
+        %     % Fill with NaN for missing unique fields in D1
+        %     extracted_data = [extracted_data, num2cell(nan(1, length(unique_D2_fields)))];
+        % end
         
         % Create a row of data: Subject, Day, Cohort, Data
         row = [{subject, day, cohort}, extracted_data];
@@ -669,11 +711,13 @@ for ii = 1:length(subject_names)
 end
 
 % Define column names
-common_fields = {'t_bp_inhib', 'sg_bp_inhib', 'fg_bp_inhib', ...
+finnal_fields = {'t_bp_inhib', 'sg_bp_inhib', 'fg_bp_inhib', ...
                  't_bp_inhib_norm', 'sg_bp_inhib_norm', 'fg_bp_inhib_norm', ...
-                 'modidx_SG_inhib', 'modidx_FG_inhib'};
-unique_D2_fields = {'theta_zscore', 'sg_zscore', 'fg_zscore','sg_modIdxzscore', 'fg_modIdxzscore'};
-column_names = [{'Subject', 'Day', 'Cohort'}, common_fields, unique_D2_fields];
+                 'modidx_SG_inhib', 'modidx_FG_inhib','t_pb_zScore', 'sg_pb_zScore', 'fg_pb_zScore', 'sg_modIdx_zScore', 'fg_modIdx_zScore'};
+% unique_D1_fields = {'t_pb_zScoreD1', 'sg_pb_zScoreD1', 'fg_pb_zScoreD1', 'sg_modIdx_zScoreD1', 'fg_modIdx_zScoreD1'};
+%         % Unique fields for D2
+%         unique_D2_fields = {'t_pb_zScoreD2', 'sg_pb_zScoreD2', 'fg_pb_zScoreD2', 'sg_modIdx_zScoreD2', 'fg_modIdx_zScoreD2'};
+column_names = [{'Subject', 'Day', 'Cohort'}, finnal_fields];
 
 % Create the table
 result_table = cell2table(data, 'VariableNames', column_names);
@@ -684,12 +728,12 @@ result_table = cell2table(data, 'VariableNames', column_names);
 control_rows = strcmp(result_table.Cohort, 'control');
 experimental_rows = strcmp(result_table.Cohort, 'experimental');
 %non-Nan rows
-non_nan_rows=cellfun(@(x) all(~isnan(x)), result_table.theta_zscore);
+% non_nan_rows=cellfun(@(x) all(~isnan(x)), result_table.theta_zscore);
 D1rows=cellfun(@(x) all(strcmp(x, 'D1')), result_table.Day);
 D2rows=cellfun(@(x) all(strcmp(x, 'D2')), result_table.Day);
 
-ctrValidRows= control_rows & non_nan_rows;
-expValidRows= experimental_rows & non_nan_rows;
+% ctrValidRows= control_rows & non_nan_rows;
+% expValidRows= experimental_rows & non_nan_rows;
 
 expD1Rows=experimental_rows & D1rows;
 expD2Rows=experimental_rows & D2rows;
@@ -700,8 +744,8 @@ ctrD2Rows=control_rows & D2rows;
 
 
 % Extract the `t_bp_zscr` column for both cohorts
-theta_zscore_control = result_table.theta_zscore(ctrValidRows);
-theta_zscore_exp = result_table.theta_zscore(expValidRows);
+% theta_zscore_control = result_table.theta_zscore(ctrValidRows);
+% theta_zscore_exp = result_table.theta_zscore(expValidRows);
 
 thetaBpRawD1_control=result_table.t_bp_inhib(ctrD1Rows);thetaBpRawD1_control=horzcat(thetaBpRawD1_control{:});
 thetaBpRawD1_exp=result_table.t_bp_inhib(expD1Rows);thetaBpRawD1_exp=horzcat(thetaBpRawD1_exp{:});
@@ -717,8 +761,8 @@ data_rawThetaBP_days={thetaBpRawD1_control,thetaBpRawD1_exp;...
 % [h,p]=ttest2(thetaBpRawD1_exp,thetaBpRawD2_exp)
 
 
-sg_zscore_control = result_table.sg_zscore(ctrValidRows);
-sg_zscore_exp = result_table.sg_zscore(expValidRows);
+% sg_zscore_control = result_table.sg_zscore(ctrValidRows);
+% sg_zscore_exp = result_table.sg_zscore(expValidRows);
 
 sgBpRawD1_control=result_table.sg_bp_inhib(ctrD1Rows);sgBpRawD1_control=horzcat(sgBpRawD1_control{:});
 sgBpRawD1_exp=result_table.sg_bp_inhib(expD1Rows);sgBpRawD1_exp=horzcat(sgBpRawD1_exp{:});
@@ -733,9 +777,9 @@ data_rawSgBP_days={sgBpRawD1_control,sgBpRawD1_exp;...
 % [h,p]=ttest2(sgBpRawD1_exp,sgBpRawD2_exp)
 % [h,p]=ttest2(sgBpRawD1_control,sgBpRawD2_control)
 % 
-
-fg_zscore_control = result_table.fg_zscore(ctrValidRows);
-fg_zscore_exp = result_table.fg_zscore(expValidRows);
+% 
+% fg_zscore_control = result_table.fg_zscore(ctrValidRows);
+% fg_zscore_exp = result_table.fg_zscore(expValidRows);
 
 fgBpRawD1_control=result_table.fg_bp_inhib(ctrD1Rows);fgBpRawD1_control=horzcat(fgBpRawD1_control{:});
 fgBpRawD1_exp=result_table.fg_bp_inhib(expD1Rows);fgBpRawD1_exp=horzcat(fgBpRawD1_exp{:});
@@ -750,11 +794,11 @@ data_rawFgBP_days={fgBpRawD1_control,fgBpRawD1_exp;...
 % [h,p]=ttest2(fgBpRawD1_control,fgBpRawD2_control)
 
 
-sg_modIdxZscore_control = result_table.sg_modIdxzscore(ctrValidRows);
-sg_modIdxZscore_exp = result_table.sg_modIdxzscore(expValidRows);
-
-fg_modIdxZscore_control = result_table.fg_modIdxzscore(ctrValidRows);
-fg_modIdxZscore_exp = result_table.fg_modIdxzscore(expValidRows);
+% sg_modIdxZscore_control = result_table.sg_modIdxzscore(ctrValidRows);
+% sg_modIdxZscore_exp = result_table.sg_modIdxzscore(expValidRows);
+% 
+% fg_modIdxZscore_control = result_table.fg_modIdxzscore(ctrValidRows);
+% fg_modIdxZscore_exp = result_table.fg_modIdxzscore(expValidRows);
 
 
 
@@ -777,100 +821,287 @@ data_fgModidx_days={fg_modIdxD1_control,fg_modIdxD1_exp;...
 % [h,p]=ttest2(sg_modIdxD1_control,sg_modIdxD2_control)
 % [h,p]=ttest2(sg_modIdxD1_exp,sg_modIdxD2_exp)
 
-[h,p]=ttest2(fg_modIdxD1_control,fg_modIdxD1_exp)
-[h,p]=ttest2(fg_modIdxD2_control,fg_modIdxD2_exp)
-
-[h,p]=ttest2(fg_modIdxD1_control,fg_modIdxD2_control)
-[h,p]=ttest2(fg_modIdxD1_exp,fg_modIdxD2_exp)
+% [h,p]=ttest2(fg_modIdxD1_control,fg_modIdxD1_exp)
+% [h,p]=ttest2(fg_modIdxD2_control,fg_modIdxD2_exp)
+% 
+% [h,p]=ttest2(fg_modIdxD1_control,fg_modIdxD2_control)
+% [h,p]=ttest2(fg_modIdxD1_exp,fg_modIdxD2_exp)
 
 % Convert to numeric vectors (if stored as table column or cells)
-theta_zscore_control=horzcat(theta_zscore_control{:});
-theta_zscore_exp=horzcat(theta_zscore_exp{:});
-y_thetaZscore={theta_zscore_control,theta_zscore_exp};
+% theta_zscore_control=horzcat(theta_zscore_control{:});
+% theta_zscore_exp=horzcat(theta_zscore_exp{:});
+% y_thetaZscore={theta_zscore_control,theta_zscore_exp};
 
 % [h,p]=ttest2(theta_zscore_control,theta_zscore_exp)
 % [h,p]=ttest2(sg_zscore_control,sg_zscore_exp)
 % [h,p]=ttest2(fg_zscore_control,fg_zscore_exp)
 
+% 
+% sg_zscore_control=horzcat(sg_zscore_control{:});
+% sg_zscore_exp=horzcat(sg_zscore_exp{:});
+% y_sgZscore={sg_zscore_control,sg_zscore_exp};
+% 
+% fg_zscore_control=horzcat(fg_zscore_control{:});
+% fg_zscore_exp=horzcat(fg_zscore_exp{:});
+% y_fgZscore={fg_zscore_control,fg_zscore_exp};
+% 
+% 
+% sg_modIdxZscore_control=horzcat(sg_modIdxZscore_control{:});
+% sg_modIdxZscore_exp=horzcat(sg_modIdxZscore_exp{:});
+% y_sgModIdxZscore={sg_modIdxZscore_control,sg_modIdxZscore_exp};
+% 
+% fg_modIdxZscore_control=horzcat(fg_modIdxZscore_control{:});
+% fg_modIdxZscore_exp=horzcat(fg_modIdxZscore_exp{:});
+% y_fgModIdxZscore={fg_modIdxZscore_control,fg_modIdxZscore_exp};
 
-sg_zscore_control=horzcat(sg_zscore_control{:});
-sg_zscore_exp=horzcat(sg_zscore_exp{:});
-y_sgZscore={sg_zscore_control,sg_zscore_exp};
+thetaBpZscoreD1_control=result_table.t_pb_zScore(ctrD1Rows);thetaBpZscoreD1_control=horzcat(thetaBpZscoreD1_control{:});
+thetaBpZscoreD1_exp=result_table.t_pb_zScore(expD1Rows);thetaBpZscoreD1_exp=horzcat(thetaBpZscoreD1_exp{:});
+thetaBpZscoreD2_control=result_table.t_pb_zScore(ctrD2Rows);thetaBpZscoreD2_control=horzcat(thetaBpZscoreD2_control{:});
+thetaBpZscoreD2_exp=result_table.t_pb_zScorettes(expD2Rows);thetaBpZscoreD2_exp=horzcat(thetaBpZscoreD2_exp{:});
 
-fg_zscore_control=horzcat(fg_zscore_control{:});
-fg_zscore_exp=horzcat(fg_zscore_exp{:});
-y_fgZscore={fg_zscore_control,fg_zscore_exp};
+data_ZscoreThetaBP_days={thetaBpZscoreD1_control,thetaBpZscoreD1_exp;...
+                    thetaBpZscoreD2_control,thetaBpZscoreD2_exp};
+
+[h,p]=ttest2(thetaBpZscoreD1_control,thetaBpZscoreD2_control)
+[h,p]=ttest2(thetaBpZscoreD1_exp,thetaBpZscoreD2_exp)
+
+[h,p]=ttest2(thetaBpZscoreD1_control,thetaBpZscoreD1_exp)
+[h,p]=ttest2(thetaBpZscoreD2_control,thetaBpZscoreD2_exp)
 
 
-sg_modIdxZscore_control=horzcat(sg_modIdxZscore_control{:});
-sg_modIdxZscore_exp=horzcat(sg_modIdxZscore_exp{:});
-y_sgModIdxZscore={sg_modIdxZscore_control,sg_modIdxZscore_exp};
+sgBpZscoreD1_control=result_table.sg_pb_zScore(ctrD1Rows);sgBpZscoreD1_control=horzcat(sgBpZscoreD1_control{:});
+sgBpZscoreD1_exp=result_table.sg_pb_zScore(expD1Rows);sgBpZscoreD1_exp=horzcat(sgBpZscoreD1_exp{:});
+sgBpZscoreD2_control=result_table.sg_pb_zScore(ctrD2Rows);sgBpZscoreD2_control=horzcat(sgBpZscoreD2_control{:});
+sgBpZscoreD2_exp=result_table.sg_pb_zScore(expD2Rows);sgBpZscoreD2_exp=horzcat(sgBpZscoreD2_exp{:});
 
-fg_modIdxZscore_control=horzcat(fg_modIdxZscore_control{:});
-fg_modIdxZscore_exp=horzcat(fg_modIdxZscore_exp{:});
-y_fgModIdxZscore={fg_modIdxZscore_control,fg_modIdxZscore_exp};
+data_ZscoreSgBP_days={sgBpZscoreD1_control,sgBpZscoreD1_exp;...
+                    sgBpZscoreD2_control,sgBpZscoreD2_exp};
+[h,p]=ttest2(sgBpZscoreD1_control,sgBpZscoreD2_control)
+[h,p]=ttest2(sgBpZscoreD1_exp,sgBpZscoreD2_exp)
 
+[h,p]=ttest2(sgBpZscoreD1_control,sgBpZscoreD1_exp)
+[h,p]=ttest2(sgBpZscoreD2_control,sgBpZscoreD2_exp)
+
+fgBpZscoreD1_control=result_table.fg_pb_zScore(ctrD1Rows);fgBpZscoreD1_control=horzcat(fgBpZscoreD1_control{:});
+fgBpZscoreD1_exp=result_table.fg_pb_zScore(expD1Rows);fgBpZscoreD1_exp=horzcat(fgBpZscoreD1_exp{:});
+fgBpZscoreD2_control=result_table.fg_pb_zScore(ctrD2Rows);fgBpZscoreD2_control=horzcat(fgBpZscoreD2_control{:});
+fgBpZscoreD2_exp=result_table.fg_pb_zScore(expD2Rows);fgBpZscoreD2_exp=horzcat(fgBpZscoreD2_exp{:});
+
+data_ZscoreFgBP_days={fgBpZscoreD1_control,fgBpZscoreD1_exp;...
+                    fgBpZscoreD2_control,fgBpZscoreD2_exp};
+[h,p]=ttest2(fgBpZscoreD1_control,fgBpZscoreD2_control)
+[h,p]=ttest2(fgBpZscoreD1_exp,fgBpZscoreD2_exp)
+
+[h,p]=ttest2(fgBpZscoreD1_control,fgBpZscoreD1_exp)
+[h,p]=ttest2(fgBpZscoreD2_control,fgBpZscoreD2_exp)
+
+sgModIdxZscoreD1_control=result_table.sg_modIdx_zScore(ctrD1Rows);sgModIdxZscoreD1_control=horzcat(sgModIdxZscoreD1_control{:});
+sgModIdxZscoreD1_exp=result_table.sg_modIdx_zScore(expD1Rows);sgModIdxZscoreD1_exp=horzcat(sgModIdxZscoreD1_exp{:});
+sgModIdxZscoreD2_control=result_table.sg_modIdx_zScore(ctrD2Rows);sgModIdxZscoreD2_control=horzcat(sgModIdxZscoreD2_control{:});
+sgModIdxZscoreD2_exp=result_table.sg_modIdx_zScore(expD2Rows);sgModIdxZscoreD2_exp=horzcat(sgModIdxZscoreD2_exp{:});
+
+data_ZscoreSgModIdx_days={sgModIdxZscoreD1_control,sgModIdxZscoreD1_exp;...
+                    sgModIdxZscoreD2_control,sgModIdxZscoreD2_exp};
+
+[h,p]=ttest2(sgModIdxZscoreD1_control,sgModIdxZscoreD2_control)
+[h,p]=ttest2(sgModIdxZscoreD1_exp,sgModIdxZscoreD2_exp)
+
+[h,p]=ttest2(sgModIdxZscoreD1_control,sgModIdxZscoreD1_exp)
+[h,p]=ttest2(sgModIdxZscoreD2_control,sgModIdxZscoreD2_exp)
+
+
+fgModIdxZscoreD1_control=result_table.fg_modIdx_zScore(ctrD1Rows);fgModIdxZscoreD1_control=horzcat(fgModIdxZscoreD1_control{:});
+fgModIdxZscoreD1_exp=result_table.fg_modIdx_zScore(expD1Rows);fgModIdxZscoreD1_exp=horzcat(fgModIdxZscoreD1_exp{:});
+fgModIdxZscoreD2_control=result_table.fg_modIdx_zScore(ctrD2Rows);fgModIdxZscoreD2_control=horzcat(fgModIdxZscoreD2_control{:});
+fgModIdxZscoreD2_exp=result_table.fg_modIdx_zScore(expD2Rows);fgModIdxZscoreD2_exp=horzcat(fgModIdxZscoreD2_exp{:});
+
+data_ZscoreFgModIdx_days={fgModIdxZscoreD1_control,fgModIdxZscoreD1_exp;...
+                    fgModIdxZscoreD2_control,fgModIdxZscoreD2_exp};
+
+[h,p]=ttest2(fgModIdxZscoreD1_control,fgModIdxZscoreD2_control)
+[h,p]=ttest2(fgModIdxZscoreD1_exp,fgModIdxZscoreD2_exp)
+
+[h,p]=ttest2(fgModIdxZscoreD1_control,fgModIdxZscoreD1_exp)
+[h,p]=ttest2(fgModIdxZscoreD2_control,fgModIdxZscoreD2_exp)
 
 %% Plotting Z-score band power
-fig_position5=[200 200 1600 1200];
-fig5=figure(5);
-fig5.Name='Total Z Score distribution';fig5.Position= fig_position5;
+fig_position7=[200 200 1600 1200];
+fig7=figure(7);
+fig7.Name='Total Z Score distribution';fig7.Position= fig_position7;
 % plot Theta
 subplot(1, 3, 1)
-plot_ttaTotalZscore=rm_raincloud(y_thetaZscore,[BC_color_genertor('Oxford_blue'); BC_color_genertor('archt_green')]);
+plot_ttaTotalZscore=rm_raincloud(data_ZscoreThetaBP_days,[BC_color_genertor('Oxford_blue'); BC_color_genertor('archt_green')]);
 title(['Theta']);
 xlabel('Z score');
 lgd=legend({'control','', 'experimental'});
 fontsize(lgd,12,'points');
 %xticks(-6:2:4);xlim([-6 4])
-set(gca, 'FontSize', 18);box('off');set(gca,"TickDir", 'out');
+set(gca, 'FontSize', 22);box('off');set(gca,"TickDir", 'out');
 
 subplot(1, 3, 2)
-plot_sgTotalZscore=rm_raincloud(y_sgZscore,[BC_color_genertor('indigo'); BC_color_genertor('powder_blue')]);
+plot_sgTotalZscore=rm_raincloud(data_ZscoreSgBP_days,[BC_color_genertor('indigo'); BC_color_genertor('powder_blue')]);
 title(['SG']);
 lgd=legend({'control','', 'experimental'});
 fontsize(lgd,12,'points');
 %xticks(-8:2:10);xlim([-8 10])
-set(gca, 'FontSize', 18);box('off');set(gca,"TickDir", 'out');
+set(gca, 'FontSize', 22);box('off');set(gca,"TickDir", 'out');
 
 
 subplot(1, 3, 3)
-plot_fgTotalZscore=rm_raincloud(y_fgZscore,[BC_color_genertor('turkey_red'); BC_color_genertor('web_orange')]);
+plot_fgTotalZscore=rm_raincloud(data_ZscoreFgBP_days,[BC_color_genertor('turkey_red'); BC_color_genertor('web_orange')]);
 title(['FG']);
 lgd=legend({'control','', 'experimental'});
 fontsize(lgd,12,'points');
 %xticks(-6:2:4);xlim([-6 4])
-set(gca, 'FontSize', 18);box('off');set(gca,"TickDir", 'out');
+set(gca, 'FontSize', 22);box('off');set(gca,"TickDir", 'out');
 
-%% Plotting Z-score ModIdx
-fig_position8=[200 200 1600 1200];
-fig8=figure(8);
-fig8.Name='Z Score distribution ModIdx';fig8.Position= fig_position8;
+%% Plotting Z-score band power per group
+fig_position7=[200 200 1600 1200];
+fig7=figure(7);
+fig7.Name='Total Z Score distribution';fig7.Position= fig_position7;
 % plot Theta
+subplot(2, 3, 1)
+plot_ttaTotalZscore=rm_raincloud({thetaBpZscoreD1_control;...
+                                  thetaBpZscoreD2_control},BC_color_genertor('Oxford_blue'));
+title(['Theta']);
+xlabel(['Control' newline 'Z score (sd)']);
+% lgd=legend({'control'});
+% fontsize(lgd,12,'points');
+xticks(-6:2:6);xlim([-6 6])
+yticklabels({'',''})
+set(gca, 'FontSize', 22);box('off');set(gca,"TickDir", 'out');
+
+subplot(2, 3, 2)
+plot_ttaTotalZscore=rm_raincloud({sgBpZscoreD1_control;...
+                                  sgBpZscoreD2_control},BC_color_genertor('indigo'));
+title(['SG']);
+% xlabel('Z score (sd)');
+% lgd=legend({'control'});
+% fontsize(lgd,12,'points');
+xticks('');xlim([-6 6])
+yticklabels({'',''})
+set(gca, 'FontSize', 22);box('off');set(gca,"TickDir", 'out');
+
+subplot(2, 3, 3)
+plot_ttaTotalZscore=rm_raincloud({fgBpZscoreD1_control;...
+                                  fgBpZscoreD2_control},BC_color_genertor('turkey_red'));
+title(['FG']);
+% xlabel('Z score (sd)');
+% lgd=legend({'control'});
+% fontsize(lgd,12,'points');
+%xticks(-6:2:4);xlim([-6 4])
+set(gca, 'FontSize', 22);box('off');set(gca,"TickDir", 'out');
+xticks('');xlim([-6 6])
+yticklabels({'',''})
+
+subplot(2, 3, 4)
+plot_ttaTotalZscore=rm_raincloud({thetaBpZscoreD1_exp;...
+                                  thetaBpZscoreD2_exp},BC_color_genertor('archt_green'));
+% title(['Theta']);
+xlabel(['Experimental' newline 'Z score (sd)']);
+% lgd=legend({'control'});
+% fontsize(lgd,12,'points');
+xticks(-6:2:6);xlim([-6 6])
+yticklabels({'D2','D1'})
+set(gca, 'FontSize', 22);box('off');set(gca,"TickDir", 'out');
+
+subplot(2, 3, 5)
+plot_ttaTotalZscore=rm_raincloud({sgBpZscoreD1_exp;...
+                                  sgBpZscoreD2_exp},BC_color_genertor('powder_blue'));
+% title(['Theta']);
+% xlabel(['Experimental' newline 'Z score (sd)']);
+% lgd=legend({'control'});
+% fontsize(lgd,12,'points');
+xticks('');xlim([-6 6])
+yticklabels({'D1','D2'})
+
+set(gca, 'FontSize',22);box('off');set(gca,"TickDir", 'out');
+
+subplot(2, 3, 6)
+plot_ttaTotalZscore=rm_raincloud({fgBpZscoreD1_exp;...
+                                  fgBpZscoreD2_exp},BC_color_genertor('web_orange'));
+yticklabels({'D2','D1'})
+xticks('');xlim([-6 6])
+set(gca, 'FontSize', 22);box('off');set(gca,"TickDir", 'out');
+%% Plotting Z-score ModIdx
+fig_position8=[800 200 1600 1200];
+fig8=figure(8);
+fig8.Name='Z Score  ModIdx';fig8.Position= fig_position8;
+
 subplot(1, 2, 1)
-plot_sgModIdxZscore=rm_raincloud(y_sgModIdxZscore,[BC_color_genertor('Oxford_blue'); BC_color_genertor('archt_green')]);
+plot_sgModIdxZscore=rm_raincloud(data_ZscoreSgModIdx_days,[BC_color_genertor('Oxford_blue'); BC_color_genertor('archt_green')]);
 title(['SG']);
 xlabel('Z score');
 lgd=legend({'control','', 'experimental'});
+legend('boxoff')
 fontsize(lgd,12,'points');
-%xticks(-6:2:4);xlim([-6 4])
-set(gca, 'FontSize', 18);box('off');set(gca,"TickDir", 'out');
+xticks(-6:2:6);xlim([-6 6])
+yticklabels({'D2','D1'})
+set(gca, 'FontSize', 22);box('off');set(gca,"TickDir", 'out');
 
 subplot(1, 2, 2)
-plot_sgTotalZscore=rm_raincloud(y_fgModIdxZscore,[BC_color_genertor('indigo'); BC_color_genertor('powder_blue')]);
+plot_sgTotalZscore=rm_raincloud(data_ZscoreFgModIdx_days,[BC_color_genertor('indigo'); BC_color_genertor('powder_blue')]);
 title(['FG']);
 lgd=legend({'control','', 'experimental'});
 fontsize(lgd,12,'points');
-%xticks(-8:2:10);xlim([-8 10])
-set(gca, 'FontSize', 18);box('off');set(gca,"TickDir", 'out');
+legend('boxoff')
+xticks(-6:2:6);xlim([-6 6])
+yticklabels({'D2','D1'})
+set(gca, 'FontSize', 22);box('off');set(gca,"TickDir", 'out');
+%% Plotting Z-score ModIdx mper group
+fig_position8=[800 200 1600 1200];
+fig8=figure(8);
+fig8.Name='Z Score  ModIdx';fig8.Position= fig_position8;
 
+subplot(2, 2, 1)
+plot_sgModIdx=rm_raincloud({sgModIdxZscoreD1_control;...
+                            sgModIdxZscoreD2_control},[BC_color_genertor('indigo')]);
+title(['SG']);
+xlabel(['Control' newline 'Z score (sd)']);
+% gd=legend({'control','', 'experimental'});
+% fontsize(lgd,12,'points');
+%xticks(-6:2:4);xlim([-6 4])
+xticks(-6:2:6);xlim([-6 6]);
+yticklabels({'D2','D1'})
+set(gca, 'FontSize', 22);box('off');set(gca,"TickDir", 'out');
 
+subplot(2, 2, 2)
+plot_sgModIdx=rm_raincloud({fgModIdxZscoreD1_control;...
+                            fgModIdxZscoreD2_control},[BC_color_genertor('turkey_red')]);
+title(['FG']);
+% lgd=legend({'control','', 'experimental'});
+% fontsize(lgd,12,'points');
+xticks('');xlim([-6 6]);
+yticklabels({'D2','D1'})
+set(gca, 'FontSize', 22);box('off');set(gca,"TickDir", 'out');%% Plot of raw mod idx
 
+subplot(2, 2, 3)
+plot_sgModIdx=rm_raincloud({sgModIdxZscoreD1_exp;...
+                            sgModIdxZscoreD2_exp},[BC_color_genertor('powder_blue')]);
+% title(['SG']);
+xlabel(['Experimental' newline 'Z score (sd)']);
+% gd=legend({'control','', 'experimental'});
+% fontsize(lgd,12,'points');
+%xticks(-6:2:4);xlim([-6 4])
+xticks(-6:2:6);xlim([-6 6]);
+yticklabels({'D2','D1'})
+set(gca, 'FontSize', 22);box('off');set(gca,"TickDir", 'out');
 
+subplot(2, 2, 4)
+plot_fgModIdx=rm_raincloud({fgModIdxZscoreD1_exp;...
+                            fgModIdxZscoreD2_exp},[BC_color_genertor('web_orange')]);
+% title(['FG']);
+% lgd=legend({'control','', 'experimental'});
+% fontsize(lgd,12,'points');
+xticks('');xlim([-6 6]);
+yticklabels({'D2','D1'})
+set(gca, 'FontSize', 22);box('off');set(gca,"TickDir", 'out');%% Plot of raw mod idx
+
+exportgraphics(fig8,' ModIdxZ_scoreDistributionSeparated.pdf')
 %% Plot of raw mod idx
-fig_position6=[200 200 1600 1200];
-fig6=figure(6);
-fig6.Name='RawModIdx';fig6.Position= fig_position6;
+fig_position9=[800 200 1600 1200];
+fig9=figure(9);
+fig6.Name='RawModIdx';fig9.Position= fig_position9;
 
 subplot(1, 2, 1)
 plot_sgModIdx=rm_raincloud(data_sgModidx_days,[BC_color_genertor('indigo'); BC_color_genertor('archt_green')]);
