@@ -17,7 +17,7 @@ function c_vector=BC_color_genertor(c_name, alpha)
 % 
 %  First version BC 05-Nov-2023 
 %% Assigning color pallete
-colors= {'Archt_green', 'Oxford_blue', 'Powder_blue', 'Burnt_orange', 'Red_crayola', 'Web_orange','Swamp_green','Torment_blue'};
+colors= {'Archt_green', 'Oxford_blue', 'Powder_blue', 'Burnt_orange', 'Red_crayola', 'Web_orange','Swamp_green','Torment_blue','indigo','turkey_red'};
 color_arrays = {
     [0.530 0.820 0.645],
     [0.039 0.137 0.259],
@@ -26,7 +26,9 @@ color_arrays = {
     [0.937 0.176 0.337],
     [1.00 0.678 0.020],
     [0.345 0.529 0.419],
-    [0.474 0.537 0.639]};
+    [0.474 0.537 0.639],
+    [0.392 0.016 0.527],
+    [0.694 0.059 0]};
 % Convert color names to lower case for case-insensitive comparison
 c_name_lower = lower(c_name);
 
